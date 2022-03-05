@@ -1,5 +1,5 @@
 // Magic rule (see pest docs)
-WHITESPACE = { " " | "\t" }
+WHITESPACE = _{ " " | "\t" }
 
 // Terminals
 //----------------------------------
@@ -20,6 +20,7 @@ key_value = {
 list_item = { expression | key_value }
 list = { list_item ~ ( "," | NEWLINE) ~ list_item | "" }
 literal_list = { "{" ~ list  ~ "}" }
+list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
 // Keywords
 //----------------------------------
@@ -29,13 +30,14 @@ redo = { "redo" }
 //----------------------------------
 
 // A single word
-single_name_part = { (alpha | digit | symbol )+ }
+single_name_part = @{ (alpha | digit | symbol )+ }
 // One or more words separated by '/', '/optional' is also allowed
 name_part = { single_name_part | (single_name_part ~ "/")+ | "/" ~ single_name_part }
 // A parethesised parameter
 paren = { "(" ~ single_name_part ~ ")" }
 // A parethesised reference parameter
-ref_paren = { "(" ~ "#" ~ name_part ~ ")" } // no whitespace between # and name_part
+ref_name = ${"#" ~ name_part}
+ref_paren = { "(" ~ ref_name ~ ")" } // no whitespace between # and name_part
 // A name, parameter, or reference parameter
 name_paren = { name_part | paren | ref_paren }
 
@@ -58,7 +60,6 @@ return_statement = { "return" ~ expression* }
 assignment_statement = { single_name_part ~ colon ~ expression }
 
 setter_call = { "fail" }
-list_element_assignment = { "fail" }
 
 deferred_block_of_statements = { "fail" }
 
@@ -82,7 +83,7 @@ simple_expression = {
 
 function_call = { "fail" }
 create_call = { "fail" }
-list_element = { "fail" }
+list_element = { single_name_part ~ "[" ~ expression ~ "]" }
 
 // Functions
 //----------------------------------
