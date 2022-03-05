@@ -1,0 +1,94 @@
+// Magic rule (see pest docs)
+WHITESPACE = { " " | "\t" }
+
+// Terminals
+//----------------------------------
+alpha = { 'a'..'z' | 'A'..'Z' }
+digit = { '0'..'9' }
+symbol = { "*" | "-" | "*" | "^" }
+hash = { "#" }
+colon = { ":" }
+
+// Literals
+number = { digit+ }
+boolean = { "true" | "false" }
+
+// Lists
+key_value = {
+    single_name_part ~ ":" ~ (expression | "(" ~ deferred_block_of_statements ~ ")")
+}
+list_item = { expression | key_value }
+list = { list_item ~ ( "," | NEWLINE) ~ list_item | "" }
+literal_list = { "{" ~ list  ~ "}" }
+
+// Keywords
+//----------------------------------
+redo = { "redo" }
+
+// Names
+//----------------------------------
+
+// A single word
+single_name_part = { (alpha | digit | symbol )+ }
+// One or more words separated by '/', '/optional' is also allowed
+name_part = { single_name_part | (single_name_part ~ "/")+ | "/" ~ single_name_part }
+// A parethesised parameter
+paren = { "(" ~ single_name_part ~ ")" }
+// A parethesised reference parameter
+ref_paren = { "(" ~ "#" ~ name_part ~ ")" } // no whitespace between # and name_part
+// A name, parameter, or reference parameter
+name_paren = { name_part | paren | ref_paren }
+
+// Statements
+//----------------------------------
+
+statement = {
+    assignment_statement 
+    | return_statement
+    | redo_statement
+    | setter_call
+    | list_element_assignment
+    | expression
+}
+
+redo_statement = { redo }
+
+return_statement = { "return" ~ expression* }
+
+assignment_statement = { single_name_part ~ colon ~ expression }
+
+setter_call = { "fail" }
+list_element_assignment = { "fail" }
+
+deferred_block_of_statements = { "fail" }
+
+// Expressions
+//----------------------------------
+
+expression = { binary_expression | unary_expression }
+
+binary_expression = { unary_expression ~ single_name_part ~ expression }
+unary_expression = { simple_expression | "(" ~ expression ~ ")" }
+simple_expression = {
+	list_element
+	| create_call
+	| function_call 
+	| single_name_part
+	| digit
+	| boolean
+	| literal_list
+    | "(" ~ deferred_block_of_statements ~ ")"
+}
+
+function_call = { "fail" }
+create_call = { "fail" }
+list_element = { "fail" }
+
+// Functions
+//----------------------------------
+
+// A function signature
+function_signature = { name_paren+ }
+// A function definition
+function_statements = { (statement ~ NEWLINE)+ }
+function_definition = { function_signature ~ colon ~ NEWLINE* ~ function_statements }
