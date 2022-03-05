@@ -12,6 +12,7 @@ colon = { ":" }
 // Literals
 number = { digit+ }
 boolean = { "true" | "false" }
+literal = { number | boolean | literal_list }
 
 // Lists
 key_value = {
@@ -61,7 +62,7 @@ assignment_statement = { single_name_part ~ colon ~ expression }
 
 setter_call = { "fail" }
 
-deferred_block_of_statements = { "fail" }
+deferred_block_of_statements = { (statement | NEWLINE)+ }
 
 // Expressions
 //----------------------------------
@@ -81,7 +82,13 @@ simple_expression = {
     | "(" ~ deferred_block_of_statements ~ ")"
 }
 
-function_call = { "fail" }
+function_call = {
+    single_name_part 
+    | literal 
+    | "{" ~ deferred_block_of_statements ~ "}" 
+    | "(" ~ expression ~ ")" 
+}
+
 create_call = { "fail" }
 list_element = { single_name_part ~ "[" ~ expression ~ "]" }
 
