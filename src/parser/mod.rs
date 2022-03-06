@@ -9,7 +9,7 @@ pub struct RemixParser;
 #[cfg(test)]
 mod tests {
     use std::fs;
-    use insta::{assert_debug_snapshot, assert_snapshot};
+    use insta::{assert_snapshot};
     use test_case::test_case;
     use crate::format_pair;
 
