@@ -1,20 +1,39 @@
 // Magic rule (see pest docs)
-WHITESPACE = _{ " " | "\t" }
+WHITESPACE = _{ " " }
 
 // Terminals
 //----------------------------------
 alpha = { 'a'..'z' | 'A'..'Z' }
 digit = { '0'..'9' }
-symbol = { "*" | "-" | "*" | "^" }
+symbol = { "*" | "-" | "+" | "*" | "^" }
+operator = {"+" | "-" | "×" | "÷" | "%" | "=" | "≠" | "<" | "≤" | ">" | "≥"}
 hash = { "#" }
 colon = { ":" }
 
 // Literals
-number = { digit+ }
+//----------------------------------
+number = @{ digit+ }
 boolean = { "true" | "false" }
-literal = { number | boolean | literal_list }
+char_double = {!"\"" ~ ANY }
+char_single = {!"\'" ~ ANY }
+string_double = { "\"" ~ char_double* ~ "\"" }
+string_single = { "'" ~ char_single* ~ "'" }
+string = @{ string_double | string_single }
+literal = { number | boolean | literal_list | string }
+
+// Keywords
+//----------------------------------
+redo = { "redo" }
+
+// Comments
+//----------------------------------
+// Comment indicated by a period at the *end* of the line
+eol_comment = { !(ANY+ ~ "." ~ NEWLINE) }
+// Comment indicated by sigil at the start of the line
+sigiled_comment = { ( "=" | "- " ) ~ ANY+ ~ NEWLINE }
 
 // Lists
+//----------------------------------
 key_value = {
     single_name_part ~ ":" ~ (expression | "(" ~ deferred_block_of_statements ~ ")")
 }
@@ -23,15 +42,11 @@ list = { list_item ~ ( "," | NEWLINE) ~ list_item | "" }
 literal_list = { "{" ~ list  ~ "}" }
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
-// Keywords
-//----------------------------------
-redo = { "redo" }
-
 // Names
 //----------------------------------
 
 // A single word
-single_name_part = @{ (alpha | digit | symbol )+ }
+single_name_part = @{ alpha ~ (alpha | digit | symbol )* }
 // One or more words separated by '/', '/optional' is also allowed
 name_part = { single_name_part | (single_name_part ~ "/")+ | "/" ~ single_name_part }
 // A parethesised parameter
@@ -45,13 +60,16 @@ name_paren = { name_part | paren | ref_paren }
 // Statements
 //----------------------------------
 
+end_of_statement = _{ EOI | NEWLINE }
 statement = {
-    assignment_statement 
-    | return_statement
-    | redo_statement
-    | setter_call
-    | list_element_assignment
-    | expression
+    (
+        assignment_statement 
+        | return_statement
+        | redo_statement
+        | setter_call
+        | list_element_assignment
+        | expression
+    ) ~ &end_of_statement
 }
 
 redo_statement = { redo }
@@ -69,24 +87,24 @@ deferred_block_of_statements = { (statement | NEWLINE)+ }
 
 expression = { binary_expression | unary_expression }
 
-binary_expression = { unary_expression ~ single_name_part ~ expression }
+binary_expression = { unary_expression ~ operator ~ expression }
 unary_expression = { simple_expression | "(" ~ expression ~ ")" }
 simple_expression = {
 	list_element
 	| create_call
 	| function_call 
-	| single_name_part
-	| digit
-	| boolean
-	| literal_list
+    | single_name_part
+    | literal
     | "(" ~ deferred_block_of_statements ~ ")"
 }
-
+function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | ","  }
 function_call = {
-    single_name_part 
-    | literal 
-    | "{" ~ deferred_block_of_statements ~ "}" 
-    | "(" ~ expression ~ ")" 
+    (
+        single_name_part 
+        | literal 
+        | "{" ~ deferred_block_of_statements ~ "}" 
+        | "(" ~ expression ~ ")"
+    ){2,} ~ &function_call_end
 }
 
 create_call = { "fail" }
@@ -97,6 +115,17 @@ list_element = { single_name_part ~ "[" ~ expression ~ "]" }
 
 // A function signature
 function_signature = { name_paren+ }
+// Indentation
+// Put an indent on the stack, future indents must match this indent
+new_indent = ${ PUSH(" "+ | "\t") }
+continue_indent = ${ PEEK[0..1] }
 // A function definition
-function_statements = { (statement ~ NEWLINE)+ }
+function_statements = { ((new_indent ~ statement) ~ NEWLINE) ~ ((continue_indent ~ statement) ~ NEWLINE)* ~ DROP }
 function_definition = { function_signature ~ colon ~ NEWLINE* ~ function_statements }
+
+
+// Top level
+//----------------------------------
+program = {
+    (NEWLINE | sigiled_comment | function_definition | statement)+ ~ EOI
+}

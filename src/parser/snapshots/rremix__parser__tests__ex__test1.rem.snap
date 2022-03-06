@@ -1,0 +1,13 @@
+---
+source: src/parser/mod.rs
+assertion_line: 128
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "show"
+    - literal > string: "\"Hello world!\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "new"
+    - single_name_part: "line"
+  - EOI: ""
