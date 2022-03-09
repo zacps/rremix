@@ -1,0 +1,52 @@
+---
+source: src/parser/mod.rs
+assertion_line: 75
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > assignment_statement
+    - single_name_part: "a"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > string: "\"yesterday\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "if"
+    - single_name_part: "false"
+    - teol_comment: "; comment"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - expression > unary_expression > simple_expression > single_name_part: "a"
+    - single_name_part: "otherwise"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - literal > string: "\"no\""
+      - continue_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "new"
+        - single_name_part: "line"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "if"
+    - expression > unary_expression > simple_expression > single_name_part: "true"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - expression > unary_expression > simple_expression > single_name_part: "a"
+      - continue_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "new"
+        - single_name_part: "line"
+    - single_name_part: "otherwise"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - literal > string: "\"no\""
+  - EOI: ""

@@ -37,7 +37,7 @@ teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 // Lists
 //----------------------------------
 key_value = {
-    single_name_part ~ ":" ~ (expression | "(" ~ deferred_block_of_statements ~ ")")
+    single_name_part ~ ":" ~ expression
 }
 list_item = { expression | key_value }
 list = { list_item ~ ( "," | NEWLINE) ~ list_item | "" }
@@ -82,12 +82,26 @@ assignment_statement = { single_name_part ~ colon ~ expression }
 
 setter_call = { "fail" }
 
-deferred_block_of_statements = { (statement | NEWLINE)+ }
+// A block of statements denoted by an indent.
 newindent_block = { 
     (new_indent ~ statement) 
     ~ (
         (NEWLINE ~ continue_indent ~ statement ~ &NEWLINE)
         | NEWLINE ~ WHITESPACE* ~ &NEWLINE
+    )*
+    ~ DROP
+}
+// A block of statements denoted by an indent, unlike newindent_block
+// does not require that it ends in a newline; allowing:
+// function call [
+//   statement
+//   statement
+// ] more names
+inline_block = { 
+    (new_indent ~ statement) 
+    ~ (
+        (NEWLINE ~ continue_indent ~ statement)
+        | NEWLINE ~ WHITESPACE*
     )*
     ~ DROP
 }
@@ -105,7 +119,6 @@ simple_expression = {
 	| function_call 
     | single_name_part
     | literal
-    | "(" ~ deferred_block_of_statements ~ ")"
 }
 function_call_end = { NEWLINE | &EOI | "}" | ")" | "]" | ","  }
 function_call = {
@@ -113,13 +126,11 @@ function_call = {
         single_name_part 
         | literal 
         | "[" ~ statement ~ "]" 
-        | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ newindent_block ~ "]"
+        | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
         | "(" ~ expression ~ ")"
+        | NEWLINE ~ continue_indent ~ newindent_block
     ){2,}
-    ~ (
-        NEWLINE ~ continue_indent ~ newindent_block
-    ){0,1}
-     ~ &function_call_end
+    ~ &function_call_end
 }
 
 create_call = { "fail" }
