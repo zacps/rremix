@@ -1,6 +1,6 @@
-use std::{fs, fmt::Display};
+use std::fs;
 
-use pest::{Parser, iterators::Pair, RuleType};
+use pest::Parser;
 use rremix::{parser::{RemixParser, Rule}, format_pair};
 
 fn main() {

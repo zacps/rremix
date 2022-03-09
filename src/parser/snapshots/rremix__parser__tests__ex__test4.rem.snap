@@ -1,0 +1,69 @@
+---
+source: src/parser/mod.rs
+assertion_line: 128
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - function_definition
+    - function_signature
+      - name_paren > name_part > single_name_part: "go"
+      - name_paren > name_part > single_name_part: "from"
+      - name_paren > paren > single_name_part: "start"
+      - name_paren > name_part > single_name_part: "to"
+      - name_paren > paren > single_name_part: "finish"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - expression > unary_expression > simple_expression > single_name_part: "start"
+      - continue_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - literal > string: "\" \""
+      - continue_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "if"
+        - expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "start"
+          - operator: "="
+          - expression > unary_expression > simple_expression > single_name_part: "finish"
+        - continue_indent: "\t"
+        - newindent_block
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "break"
+            - single_name_part: "out"
+      - continue_indent: "\t"
+      - statement > assignment_statement
+        - single_name_part: "start"
+        - colon: ":"
+        - expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "start"
+          - operator: "+"
+          - expression > unary_expression > simple_expression > literal > number: "1"
+      - continue_indent: "\t"
+      - statement > redo_statement > redo: "redo"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "go"
+    - single_name_part: "from"
+    - literal > number: "1"
+    - single_name_part: "to"
+    - literal > number: "100"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > single_name_part: "i"
+    - single_name_part: "from"
+    - literal > number: "1"
+    - single_name_part: "to"
+    - literal > number: "100"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - literal > literal_list > list
+          - list_item > expression > unary_expression > simple_expression > single_name_part: "i"
+          - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+  - EOI: ""

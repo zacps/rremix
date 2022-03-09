@@ -28,9 +28,11 @@ redo = { "redo" }
 // Comments
 //----------------------------------
 // Comment indicated by a period at the *end* of the line
-eol_comment = { !(ANY+ ~ "." ~ NEWLINE) }
+eol_comment = { !((!"." ~ ANY)+ ~ "." ~ NEWLINE) }
 // Comment indicated by sigil at the start of the line
 sigiled_comment = { ( "=" | "- " ) ~ ANY+ ~ NEWLINE }
+// Comment indicated by a semicolon; from there to end of line
+teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 
 // Lists
 //----------------------------------
@@ -81,6 +83,14 @@ assignment_statement = { single_name_part ~ colon ~ expression }
 setter_call = { "fail" }
 
 deferred_block_of_statements = { (statement | NEWLINE)+ }
+newindent_block = { 
+    (new_indent ~ statement) 
+    ~ (
+        (NEWLINE ~ continue_indent ~ statement ~ &NEWLINE)
+        | NEWLINE ~ WHITESPACE* ~ &NEWLINE
+    )*
+    ~ DROP
+}
 
 // Expressions
 //----------------------------------
@@ -97,14 +107,19 @@ simple_expression = {
     | literal
     | "(" ~ deferred_block_of_statements ~ ")"
 }
-function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | ","  }
+function_call_end = { NEWLINE | &EOI | "}" | ")" | "]" | ","  }
 function_call = {
     (
         single_name_part 
         | literal 
-        | "{" ~ deferred_block_of_statements ~ "}" 
+        | "[" ~ statement ~ "]" 
+        | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ newindent_block ~ "]"
         | "(" ~ expression ~ ")"
-    ){2,} ~ &function_call_end
+    ){2,}
+    ~ (
+        NEWLINE ~ continue_indent ~ newindent_block
+    ){0,1}
+     ~ &function_call_end
 }
 
 create_call = { "fail" }
@@ -118,9 +133,16 @@ function_signature = { name_paren+ }
 // Indentation
 // Put an indent on the stack, future indents must match this indent
 new_indent = ${ PUSH(" "+ | "\t") }
-continue_indent = ${ PEEK[0..1] }
+continue_indent = ${ PEEK_ALL }
 // A function definition
-function_statements = { ((new_indent ~ statement) ~ NEWLINE) ~ ((continue_indent ~ statement) ~ NEWLINE)* ~ DROP }
+function_statements = { 
+    (new_indent ~ statement ~ NEWLINE) 
+    ~ (
+        continue_indent ~ statement ~ NEWLINE
+        | WHITESPACE* ~ NEWLINE
+    )* 
+    ~ DROP 
+}
 function_definition = { function_signature ~ colon ~ NEWLINE* ~ function_statements }
 
 
