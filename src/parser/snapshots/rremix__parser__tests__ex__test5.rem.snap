@@ -31,7 +31,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "line"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "if"
-    - expression > unary_expression > simple_expression > single_name_part: "true"
+    - expression > unary_expression > simple_expression > literal > boolean: "true"
     - continue_indent: ""
     - inline_block
       - new_indent: "\t"

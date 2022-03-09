@@ -62,7 +62,7 @@ name_paren = { name_part | paren | ref_paren }
 // Statements
 //----------------------------------
 
-end_of_statement = _{ EOI | NEWLINE }
+end_of_statement = _{ EOI | NEWLINE | &"]" }
 statement = {
     (
         assignment_statement 
@@ -117,17 +117,18 @@ simple_expression = {
 	list_element
 	| create_call
 	| function_call 
-    | single_name_part
     | literal
+    | single_name_part
 }
 function_call_end = { NEWLINE | &EOI | "}" | ")" | "]" | ","  }
 function_call = {
     (
         single_name_part 
         | literal 
+        | "(" ~ expression ~ ")"
+        // Different blocks
         | "[" ~ statement ~ "]" 
         | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
-        | "(" ~ expression ~ ")"
         | NEWLINE ~ continue_indent ~ newindent_block
     ){2,}
     ~ &function_call_end
@@ -143,8 +144,8 @@ list_element = { single_name_part ~ "[" ~ expression ~ "]" }
 function_signature = { name_paren+ }
 // Indentation
 // Put an indent on the stack, future indents must match this indent
-new_indent = ${ PUSH(" "+ | "\t") }
-continue_indent = ${ PEEK_ALL }
+new_indent = @{ PUSH(" "+ | "\t") }
+continue_indent = @{ PEEK_ALL }
 // A function definition
 function_statements = { 
     (new_indent ~ statement ~ NEWLINE) 
