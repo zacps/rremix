@@ -28,7 +28,7 @@ redo = { "redo" }
 // Comments
 //----------------------------------
 // Comment indicated by a period at the *end* of the line
-eol_comment = { !((!"." ~ ANY)+ ~ "." ~ NEWLINE) }
+eol_comment = { (!("." ~ NEWLINE) ~ ANY)* ~ "." ~ NEWLINE }
 // Comment indicated by sigil at the start of the line
 sigiled_comment = { ( "=" | "- " ) ~ ANY+ ~ NEWLINE }
 // Comment indicated by a semicolon; from there to end of line
@@ -161,5 +161,5 @@ function_definition = { function_signature ~ colon ~ NEWLINE* ~ function_stateme
 // Top level
 //----------------------------------
 program = {
-    (NEWLINE | sigiled_comment | function_definition | statement)+ ~ EOI
+    (NEWLINE | eol_comment | sigiled_comment | function_definition | statement)+ ~ EOI
 }
