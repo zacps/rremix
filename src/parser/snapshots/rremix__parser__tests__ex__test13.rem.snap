@@ -1,0 +1,90 @@
+---
+source: src/parser/mod.rs
+assertion_line: 75
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - function_definition
+    - function_signature
+      - name_paren > paren > single_name_part: "n"
+      - name_paren > name_part > single_name_part: "!"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "if"
+        - expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "n"
+          - operator: "="
+          - expression > unary_expression > simple_expression > literal > number: "0"
+        - continue_indent: "\t"
+        - newindent_block
+          - new_indent: "\t"
+          - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
+      - continue_indent: "\t"
+      - statement > expression > binary_expression
+        - unary_expression > simple_expression > single_name_part: "n"
+        - operator: "×"
+        - expression > unary_expression > simple_expression > function_call
+          - expression > binary_expression
+            - unary_expression > simple_expression > single_name_part: "n"
+            - operator: "-"
+            - expression > unary_expression > simple_expression > literal > number: "1"
+          - single_name_part: "!"
+  - function_definition
+    - function_signature
+      - name_paren > paren > single_name_part: "start"
+      - name_paren > name_part > single_name_part: "..."
+      - name_paren > paren > single_name_part: "finish"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > single_name_part: "start"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > single_name_part: "finish"
+  - statement > assignment_statement
+    - single_name_part: "range"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - literal > number: "1"
+      - single_name_part: "..."
+      - literal > number: "10"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "start"
+    - expression > unary_expression > simple_expression > single_name_part: "range"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > string: "\"started ok\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "next"
+      - expression > unary_expression > simple_expression > single_name_part: "range"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "end"
+      - single_name_part: "of"
+      - expression > unary_expression > simple_expression > single_name_part: "range"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > single_name_part: "n"
+    - single_name_part: "in"
+    - expression > unary_expression > simple_expression > function_call
+      - literal > number: "1"
+      - single_name_part: "..."
+      - literal > number: "4"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - literal > literal_list > list
+          - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+          - list_item > expression > unary_expression > simple_expression > literal > string: "\"! = \""
+          - list_item > expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > single_name_part: "n"
+            - single_name_part: "!"
+  - EOI: ""

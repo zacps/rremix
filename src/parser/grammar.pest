@@ -8,7 +8,7 @@ digit = { '0'..'9' }
 // symbols allowed in variable names; todo: this should be expanded to almost every character
 symbol = { "-" | lead_symbol }
 // Symbols allowed to lead name parts; todo: this should be removed/expanded
-lead_symbol = { "^" | "↲" }
+lead_symbol = { "^" | "↲" | "!" | "." }
 operator = {"+" | "-" | "×" | "÷" | "%" | "=" | "≠" | "<" | "≤" | ">" | "≥"}
 hash = { "#" }
 colon = { ":" }
