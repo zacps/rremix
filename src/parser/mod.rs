@@ -30,7 +30,7 @@ mod tests {
     //#[test_case("ex/test9.rem")]
     #[test_case("ex/test10.rem")]
     #[test_case("ex/test11.rem")]
-    //#[test_case("ex/test12.rem")]
+    #[test_case("ex/test12.rem")]
     //#[test_case("ex/test13.rem")]
     //#[test_case("ex/test14.rem")]
     //#[test_case("ex/test15.rem")]

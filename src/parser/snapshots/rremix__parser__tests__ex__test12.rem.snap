@@ -1,0 +1,69 @@
+---
+source: src/parser/mod.rs
+assertion_line: 75
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > assignment_statement
+    - single_name_part: "small"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list: ""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "show"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" is a list?: \""
+      - list_item > expression > binary_expression
+        - unary_expression > simple_expression > function_call
+          - single_name_part: "type"
+          - single_name_part: "of"
+          - expression > unary_expression > simple_expression > single_name_part: "small"
+        - operator: "="
+        - expression > unary_expression > simple_expression > literal > string: "\"list\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "7"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" is a list?: \""
+      - list_item > expression > binary_expression
+        - unary_expression > simple_expression > function_call
+          - single_name_part: "type"
+          - single_name_part: "of"
+          - literal > number: "7"
+        - operator: "="
+        - expression > unary_expression > simple_expression > literal > string: "\"list\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "append"
+    - literal > number: "8"
+    - single_name_part: "to"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "append"
+    - literal > string: "\"a word\""
+    - single_name_part: "to"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "append"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "99"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "100"
+    - single_name_part: "to"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "small"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - EOI: ""
