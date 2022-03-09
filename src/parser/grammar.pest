@@ -43,8 +43,8 @@ key_value = {
     single_name_part ~ ":" ~ expression
 }
 list_item = { expression | key_value }
-list = { list_item ~ ( "," | NEWLINE) ~ list_item | "" }
-literal_list = { "{" ~ list  ~ "}" }
+list = { (list_item ~ ("," | NEWLINE))* ~ list_item{0,1} }
+literal_list = { ("{" ~ list  ~ "}") | ("{" ~ "}") }
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
 // Names

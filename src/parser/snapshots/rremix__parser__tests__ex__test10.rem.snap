@@ -1,0 +1,121 @@
+---
+source: src/parser/mod.rs
+assertion_line: 75
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > assignment_statement
+    - single_name_part: "n"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > number: "2"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1"
+      - list_item > expression > unary_expression > simple_expression > literal > literal_list > list
+        - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+        - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+        - list_item > expression > unary_expression > simple_expression > literal > number: "3"
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+  - statement > assignment_statement
+    - single_name_part: "list1"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "8"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "16"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "32"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "64"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "list1"
+  - statement > assignment_statement
+    - single_name_part: "list2"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"abc\""
+      - list_item > expression > unary_expression > simple_expression > literal > number: "8"
+      - list_item > expression > binary_expression
+        - unary_expression > simple_expression > literal > number: "9"
+        - operator: "+"
+        - expression > unary_expression > simple_expression > literal > number: "5"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "list2"
+  - statement > assignment_statement
+    - single_name_part: "a"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > string: "\"some value \""
+  - statement > assignment_statement
+    - single_name_part: "n"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > number: "5"
+  - statement > assignment_statement
+    - single_name_part: "list3"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "a"
+      - list_item > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "square"
+        - expression > unary_expression > simple_expression > single_name_part: "n"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "list3"
+  - statement > assignment_statement
+    - single_name_part: "list4"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > binary_expression
+        - unary_expression > simple_expression > function_call
+          - single_name_part: "square"
+          - expression > unary_expression > simple_expression > single_name_part: "n"
+        - operator: "+"
+        - expression > unary_expression > simple_expression > function_call
+          - single_name_part: "square"
+          - literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" - abc\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "list4"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"The number is \""
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\".\""
+  - statement > assignment_statement
+    - single_name_part: "a"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > string: "\" ----- \""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "a"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+      - list_item > expression > unary_expression > simple_expression > literal > number: "3"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+      - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1"
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "a"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list: ""
+  - statement > assignment_statement
+    - single_name_part: "list"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "a"
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"is this ok?\""
+      - list_item > expression > unary_expression > simple_expression > single_name_part: "a"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "list"
+  - EOI: ""
