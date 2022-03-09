@@ -120,7 +120,7 @@ simple_expression = {
     | literal
     | single_name_part
 }
-function_call_end = { NEWLINE | &EOI | "}" | ")" | "]" | ","  }
+function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | "," | operator }
 function_call = {
     (
         single_name_part 
