@@ -1,0 +1,76 @@
+---
+source: src/parser/mod.rs
+assertion_line: 75
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - function_definition
+    - function_signature
+      - name_paren > name_part > single_name_part: "repeat"
+      - name_paren > name_part > single_name_part: "until"
+      - name_paren > paren > single_name_part: "condition-block"
+      - name_paren > paren > single_name_part: "block"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "repeat"
+        - expression > unary_expression > simple_expression > single_name_part: "block"
+        - single_name_part: "until"
+        - expression > unary_expression > simple_expression > single_name_part: "condition-block"
+  - statement > assignment_statement
+    - single_name_part: "x"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > number: "1"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > string: "\"about to repeat\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "repeat"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > single_name_part: "x"
+      - continue_indent: "\t"
+      - statement > assignment_statement
+        - single_name_part: "x"
+        - colon: ":"
+        - expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "x"
+          - operator: "+"
+          - expression > unary_expression > simple_expression > literal > number: "1"
+    - single_name_part: "until"
+    - statement > expression > binary_expression
+      - unary_expression > simple_expression > single_name_part: "x"
+      - operator: ">"
+      - expression > unary_expression > simple_expression > literal > number: "4"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > string: "\"and the other repeat\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "repeat"
+    - single_name_part: "until"
+    - statement > expression > binary_expression
+      - unary_expression > simple_expression > single_name_part: "x"
+      - operator: ">"
+      - expression > unary_expression > simple_expression > literal > number: "10"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > single_name_part: "x"
+      - continue_indent: "\t"
+      - statement > assignment_statement
+        - single_name_part: "x"
+        - colon: ":"
+        - expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "x"
+          - operator: "+"
+          - expression > unary_expression > simple_expression > literal > number: "2"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > string: "\"finished\""
+  - EOI: ""
