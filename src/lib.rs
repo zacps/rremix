@@ -65,6 +65,7 @@ pub mod HIR {
 
     /// A single 'word' in a function name, either a part of the name itself,
     /// a 'name', or a parameter.
+    #[derive(Debug)]
     pub enum FunctionPart<'s> {
         Name { name: Span<'s> },
         Parameter { name: Span<'s>, reference: bool },
@@ -100,11 +101,12 @@ pub mod HIR {
     }
 
     /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
-    #[derive(PartialEq, Hash)]
+    #[derive(PartialEq, Hash, Debug)]
     pub struct FunctionName<'s> {
         pub name: Vec<FunctionPart<'s>>,
     }
 
+    #[derive(Debug)]
     pub enum Operator {
         Addition,
         Subtraction,
@@ -123,15 +125,18 @@ pub mod HIR {
     /// An 'optional' type which is either a reference to a resolved function/variable/object
     /// or a marker 'unknown'. At the end of building the HIR if there are any 'unknown' markers
     /// compilation fails.
+    #[derive(Debug)]
     pub enum Resolved<T> {
         Resolved(T),
         Unknown,
     }
 
+    #[derive(Debug)]
     pub struct Variable<'s> {
         pub name: Span<'s>,
     }
 
+    #[derive(Debug)]
     pub enum Literal<'s> {
         String {
             value: &'s str,
@@ -147,6 +152,7 @@ pub mod HIR {
         },
     }
 
+    #[derive(Debug)]
     pub enum UnaryExpression<'s> {
         ListElement {
             variable: Resolved<Variable<'s>>,
@@ -159,6 +165,7 @@ pub mod HIR {
         Variable(Resolved<Variable<'s>>),
     }
 
+    #[derive(Debug)]
     pub enum Expression<'s> {
         Binary {
             lhs: Box<Expression<'s>>,
@@ -168,6 +175,7 @@ pub mod HIR {
         Unary(Box<UnaryExpression<'s>>),
     }
 
+    #[derive(Debug)]
     pub enum Statement<'s> {
         Assignment {
             variable: Resolved<Variable<'s>>,
@@ -184,6 +192,7 @@ pub mod HIR {
     }
 
     /// A function definition
+    #[derive(Debug)]
     pub struct Function<'s> {
         pub name: FunctionName<'s>,
         pub statements: Vec<Statement<'s>>,
@@ -203,6 +212,7 @@ pub mod HIR {
         }
     }
 
+    #[derive(Debug)]
     pub struct Program<'s> {
         functions: HashSet<Function<'s>>,
         main: Vec<Statement<'s>>,
@@ -312,7 +322,7 @@ pub mod HIR {
                     let (mut lhs, mut op, mut rhs) = (None, None, None);
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
-                            unary_expression => {}
+                            unary_expression => lhs = Some(self.visit_unary_expression(pair)),
                             operator => {
                                 use Operator::*;
                                 op = Some(match pair.as_str() {
@@ -335,7 +345,7 @@ pub mod HIR {
                         }
                     }
                     Expression::Binary {
-                        lhs: lhs.unwrap(),
+                        lhs: Box::new(lhs.unwrap()),
                         operator: op.unwrap(),
                         rhs: Box::new(rhs.unwrap()),
                     }
@@ -350,6 +360,87 @@ pub mod HIR {
             let pair = pair.into_inner().next().unwrap();
 
             unimplemented!()
+        }
+    }
+
+    #[cfg(test)]
+    mod tests {
+        use crate::format_pair;
+        use crate::parser::*;
+        use crate::HIR;
+
+        use insta::assert_debug_snapshot;
+        use insta::assert_snapshot;
+        use pest::Parser;
+        use std::fs;
+        use test_case::test_case;
+
+        //#[test_case("standard-lib.rem")]
+        //#[test_case("ex/factorial.rem")]
+        //#[test_case("ex/factorial2.rem")]
+        //#[test_case("ex/primes.rem")]
+        //#[test_case("ex/test1.rem")]
+        //#[test_case("ex/test2.rem")]
+        //#[test_case("ex/test3.rem")]
+        //#[test_case("ex/test4.rem")]
+        //#[test_case("ex/test5.rem")]
+        //#[test_case("ex/test6.rem")]
+        //#[test_case("ex/test7.rem")]
+        //#[test_case("ex/test8.rem")]
+        //#[test_case("ex/test9.rem")]
+        //#[test_case("ex/test10.rem")]
+        //#[test_case("ex/test11.rem")]
+        //#[test_case("ex/test12.rem")]
+        //#[test_case("ex/test13.rem")]
+        //#[test_case("ex/test14.rem")]
+        //#[test_case("ex/test15.rem")]
+        //#[test_case("ex/test16.rem")]
+        //#[test_case("ex/test17.rem")]
+        //#[test_case("ex/test18.rem")]
+        //#[test_case("ex/test19.rem")]
+        //#[test_case("ex/test20.rem")]
+        //#[test_case("ex/test21.rem")]
+        //#[test_case("ex/test22.rem")]
+        //#[test_case("ex/test23.rem")]
+        //#[test_case("ex/test24.rem")]
+        //#[test_case("ex/test25.rem")]
+        //#[test_case("ex/test26.rem")]
+        //#[test_case("ex/test27.rem")]
+        //#[test_case("ex/test28.rem")]
+        //#[test_case("gr/drawing.rem")]
+        //#[test_case("gr/arrows.rem")]
+        //#[test_case("gr/squares.rem")]
+        //#[test_case("gr/bounce.rem")]
+        //#[test_case("ob/obj-demo.rem")]
+        //#[test_case("ob/sidewindermaze.rem")]
+        //#[test_case("ex/test29.rem")]
+        //#[test_case("ex/test30.rem")]
+        //#[test_case("ex/test31.rem")]
+        //#[test_case("ex/test32.rem")]
+        //#[test_case("ex/test33.rem")]
+        //#[test_case("ex/test34.rem")]
+        //#[test_case("ex/test35.rem")]
+        //#[test_case("ex/test36.rem")]
+        //#[test_case("ex/test37.rem")]
+        //#[test_case("ex/test38.rem")]
+        //#[test_case("ex/test39.rem")]
+        fn test_parser(path: &'static str) {
+            let file = fs::read_to_string("../Remix/".to_owned() + path)
+                .expect("could not find test file");
+            match RemixParser::parse(Rule::program, &file) {
+                Ok(mut parse) => {
+                    let pair = parse.next();
+                    let mut ast = HIR::Program::new();
+                    ast.build(pair.unwrap());
+
+                    // TODO: Replace with assert_snapshot when we have nicer display implementations
+                    assert_debug_snapshot!(ast);
+                }
+                Err(e) => {
+                    eprintln!("{e}");
+                    panic!("Failed to parse file {path}")
+                }
+            }
         }
     }
 }
