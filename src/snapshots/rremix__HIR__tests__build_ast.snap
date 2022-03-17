@@ -1,0 +1,64 @@
+---
+source: src/HIR.rs
+assertion_line: 506
+expression: ast
+---
+Program {
+    functions: {},
+    main: [
+        Expression(
+            Unary(
+                FunctionCall {
+                    function: FunctionName {
+                        name: [
+                            Name {
+                                name: Span {
+                                    str: "show",
+                                    start: 0,
+                                    end: 4,
+                                },
+                            },
+                            Statements(
+                                [
+                                    Expression(
+                                        Unary(
+                                            Literal(
+                                                String(
+                                                    "Hello world!",
+                                                ),
+                                            ),
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        ],
+                    },
+                },
+            ),
+        ),
+        Expression(
+            Unary(
+                FunctionCall {
+                    function: FunctionName {
+                        name: [
+                            Name {
+                                name: Span {
+                                    str: "new",
+                                    start: 21,
+                                    end: 24,
+                                },
+                            },
+                            Name {
+                                name: Span {
+                                    str: "line",
+                                    start: 25,
+                                    end: 29,
+                                },
+                            },
+                        ],
+                    },
+                },
+            ),
+        ),
+    ],
+}
