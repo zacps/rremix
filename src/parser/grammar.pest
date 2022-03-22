@@ -15,7 +15,7 @@ colon = { ":" }
 
 // Literals
 //----------------------------------
-number = @{ digit+ }
+number = @{ ("-"{0,1}) ~ digit+ ~ ("." ~ digit+){0,1} }
 boolean = { "true" | "false" }
 char_double = {!"\"" ~ ANY }
 char_single = {!"\'" ~ ANY }

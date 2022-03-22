@@ -1,0 +1,108 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: ".The rainfall problem.\r\n"
+  - sigiled_comment: "======================\r\n"
+  - statement > assignment_statement
+    - single_name_part: "rain-fall"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-3"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "5"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1.0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "6"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "7"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "999"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "10"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "show"
+    - literal > string: "\"Original data:\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "rain-fall"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > assignment_statement
+    - single_name_part: "positive-rain-fall"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "filter"
+      - expression > unary_expression > simple_expression > single_name_part: "rain-fall"
+      - single_name_part: "by"
+      - expression > unary_expression > simple_expression > single_name_part: "x"
+      - single_name_part: "where"
+      - continue_indent: ""
+      - newindent_block
+        - new_indent: "\t"
+        - statement > expression > binary_expression
+          - unary_expression > expression > unary_expression > simple_expression > single_name_part: "x"
+          - operator: "≥"
+          - expression > unary_expression > simple_expression > literal > number: "0"
+  - statement > assignment_statement
+    - single_name_part: "valid-rain-fall"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "keep"
+      - expression > unary_expression > simple_expression > single_name_part: "x"
+      - single_name_part: "from"
+      - expression > unary_expression > simple_expression > single_name_part: "positive-rain-fall"
+      - single_name_part: "until"
+      - continue_indent: ""
+      - newindent_block
+        - new_indent: "\t"
+        - statement > expression > binary_expression
+          - unary_expression > simple_expression > single_name_part: "x"
+          - operator: "="
+          - expression > unary_expression > simple_expression > literal > number: "999"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "show"
+    - literal > string: "\"Clean data:\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > single_name_part: "valid-rain-fall"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > assignment_statement
+    - single_name_part: "count"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "length"
+      - single_name_part: "of"
+      - expression > unary_expression > simple_expression > single_name_part: "valid-rain-fall"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "if"
+    - expression > binary_expression
+      - unary_expression > simple_expression > single_name_part: "count"
+      - operator: "="
+      - expression > unary_expression > simple_expression > literal > number: "0"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - literal > string: "\"No valid data.\""
+    - single_name_part: "otherwise"
+    - continue_indent: ""
+    - inline_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - literal > literal_list > list
+          - list_item > expression > unary_expression > simple_expression > literal > string: "\"The average rainfall is \""
+          - list_item > expression > binary_expression
+            - unary_expression > simple_expression > function_call
+              - single_name_part: "sum"
+              - expression > unary_expression > simple_expression > single_name_part: "valid-rain-fall"
+            - operator: "÷"
+            - expression > unary_expression > simple_expression > single_name_part: "count"
+  - EOI: ""
