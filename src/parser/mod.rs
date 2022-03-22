@@ -1,17 +1,16 @@
-use pest::{Parser};
+use pest::Parser;
 use pest_derive::*;
 
 #[derive(Parser)]
 #[grammar = "parser/grammar.pest"]
 pub struct RemixParser;
 
-
 #[cfg(test)]
 mod tests {
-    use std::fs;
-    use insta::{assert_snapshot};
-    use test_case::test_case;
     use crate::format_pair;
+    use insta::assert_snapshot;
+    use std::fs;
+    use test_case::test_case;
 
     use super::*;
 
@@ -27,7 +26,7 @@ mod tests {
     #[test_case("ex/test6.rem")]
     #[test_case("ex/test7.rem")]
     #[test_case("ex/test8.rem")]
-    //#[test_case("ex/test9.rem")]
+    #[test_case("ex/test9.rem")]
     #[test_case("ex/test10.rem")]
     #[test_case("ex/test11.rem")]
     #[test_case("ex/test12.rem")]
@@ -65,11 +64,9 @@ mod tests {
     //#[test_case("ex/test38.rem")]
     //#[test_case("ex/test39.rem")]
     fn test_parser(path: &'static str) {
-        let file = fs::read_to_string("../Remix/".to_owned() + path).expect("could not find test file");
-        match RemixParser::parse(
-            Rule::program,
-            &file
-        ) {
+        let file =
+            fs::read_to_string("../Remix/".to_owned() + path).expect("could not find test file");
+        match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
                 assert_snapshot!(path, format_pair(pair.unwrap(), 0, true))

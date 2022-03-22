@@ -127,12 +127,21 @@ function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | "," | operator }
 function_call = {
     (
         single_name_part 
+        // Inline literals are allowed without parentheses
         | literal 
+        // Other expressions must be paranthesised
         | "(" ~ expression ~ ")"
-        // Different blocks
+        // Bracketed blocks
         | "[" ~ statement ~ "]" 
         | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
+        // indented block folowed by continuation
+        | NEWLINE ~ continue_indent ~ newindent_block ~ NEWLINE ~ continue_indent ~ "…"
+        // indented block
         | NEWLINE ~ continue_indent ~ newindent_block
+        // continuation
+        // | NEWLINE ~ DROP ~ continue_indent ~ "…" 
+        // ignore continuations at the end of the line
+        | "…" ~ &NEWLINE
     ){2,}
     ~ &function_call_end
 }
