@@ -33,7 +33,7 @@ redo = { "redo" }
 // Comment indicated by a period at the *end* of the line
 eol_comment = { (!("."{0,1} ~ NEWLINE) ~ ANY)* ~ "." ~ NEWLINE }
 // Comment indicated by sigil at the start of the line
-sigiled_comment = { ( "=" | "- " ) ~ (!NEWLINE ~ ANY)+ ~ NEWLINE }
+sigiled_comment = { ( "=" | "- " | "." ) ~ (!NEWLINE ~ ANY)+ ~ NEWLINE }
 // Comment indicated by a semicolon; from there to end of line
 teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 

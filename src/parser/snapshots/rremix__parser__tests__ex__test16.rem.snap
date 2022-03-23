@@ -1,0 +1,135 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: "Filtering lists.\r\n"
+  - sigiled_comment: "================\r\n"
+  - statement > assignment_statement
+    - variable: "list"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "filter"
+      - expression > unary_expression > simple_expression > function_call
+        - literal > number: "1"
+        - single_name_part: "to"
+        - literal > number: "100"
+      - single_name_part: "by"
+      - expression > unary_expression > simple_expression > variable: "x"
+      - single_name_part: "where"
+      - continue_indent: ""
+      - newindent_block
+        - new_indent: "\t"
+        - statement > expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > variable: "x"
+          - single_name_part: "is"
+          - single_name_part: "divisible"
+          - single_name_part: "by"
+          - literal > number: "5"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "x"
+  - function_definition
+    - function_signature
+      - name_paren > paren > single_name_part: "number"
+      - name_paren > name_part > single_name_part: "is"
+      - name_paren > name_part > single_name_part: "not"
+      - name_paren > name_part > single_name_part: "divisible"
+      - name_paren > name_part > single_name_part: "by"
+      - name_paren > name_part > single_name_part: "any"
+      - name_paren > name_part > single_name_part: "in"
+      - name_paren > paren > single_name_part: "list"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "for"
+        - single_name_part: "each"
+        - expression > unary_expression > simple_expression > variable: "divisor"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "list"
+        - continue_indent: "\t"
+        - newindent_block
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "show"
+            - literal > literal_list > list
+              - list_item > expression > unary_expression > simple_expression > variable: "divisor"
+              - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+          - continue_indent: "\t\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "if"
+            - expression > unary_expression > simple_expression > function_call
+              - expression > unary_expression > simple_expression > variable: "number"
+              - single_name_part: "is"
+              - single_name_part: "divisible"
+              - single_name_part: "by"
+              - expression > unary_expression > simple_expression > variable: "divisor"
+            - continue_indent: "\t\t"
+            - newindent_block
+              - new_indent: "\t"
+              - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+          - continue_indent: "\t\t"
+          - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+  - eol_comment: "Primes to 100.\r\n"
+  - sigiled_comment: "==============\r\n"
+  - statement > assignment_statement
+    - variable: "primes"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "3"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "5"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "7"
+  - statement > assignment_statement
+    - variable: "list"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "filter"
+      - expression > unary_expression > simple_expression > function_call
+        - literal > number: "8"
+        - single_name_part: "to"
+        - literal > number: "100"
+      - single_name_part: "by"
+      - expression > unary_expression > simple_expression > variable: "x"
+      - single_name_part: "where"
+      - continue_indent: ""
+      - newindent_block
+        - new_indent: "\t"
+        - statement > expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > variable: "x"
+          - single_name_part: "is"
+          - single_name_part: "not"
+          - single_name_part: "divisible"
+          - single_name_part: "by"
+          - single_name_part: "any"
+          - single_name_part: "in"
+          - expression > unary_expression > simple_expression > variable: "primes"
+  - statement > assignment_statement
+    - variable: "primes"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "join"
+      - expression > unary_expression > simple_expression > variable: "primes"
+      - single_name_part: "and"
+      - expression > unary_expression > simple_expression > variable: "list"
+  - sigiled_comment: ". without the newline this crashes with an access violation\r\n"
+  - sigiled_comment: ". when run in the combined test program\r\n"
+  - sigiled_comment: ".new line\r\n"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "primes"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - EOI: ""
