@@ -1,0 +1,131 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: ".Insertion Sort.\r\n"
+  - sigiled_comment: "================\r\n"
+  - statement > assignment_statement
+    - variable: "array"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-3"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "5"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1.0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "6"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "7"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "999"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "-2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "0"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "10"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "array"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > single_name_part: "in"
+      - name_paren > paren > single_name_part: "array"
+      - name_paren > name_part > single_name_part: "swap"
+      - name_paren > name_part > single_name_part: "element"
+      - name_paren > paren > single_name_part: "first"
+      - name_paren > name_part > single_name_part: "with"
+      - name_paren > paren > single_name_part: "second"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "temp"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > list_element
+          - single_name_part: "array"
+          - expression > unary_expression > simple_expression > variable: "first"
+      - continue_indent: "\t"
+      - statement > list_element_assignment
+        - single_name_part: "array"
+        - expression > unary_expression > simple_expression > variable: "first"
+        - expression > unary_expression > simple_expression > list_element
+          - single_name_part: "array"
+          - expression > unary_expression > simple_expression > variable: "second"
+      - continue_indent: "\t"
+      - statement > list_element_assignment
+        - single_name_part: "array"
+        - expression > unary_expression > simple_expression > variable: "second"
+        - expression > unary_expression > simple_expression > variable: "temp"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > single_name_part: "insertion"
+      - name_paren > name_part > single_name_part: "sort"
+      - name_paren > paren > single_name_part: "list"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "for"
+        - single_name_part: "each"
+        - expression > unary_expression > simple_expression > variable: "i"
+        - single_name_part: "from"
+        - literal > number: "2"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > function_call
+          - single_name_part: "length"
+          - single_name_part: "of"
+          - expression > unary_expression > simple_expression > variable: "list"
+        - continue_indent: "\t"
+        - newindent_block
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "for"
+            - single_name_part: "each"
+            - expression > unary_expression > simple_expression > variable: "j"
+            - single_name_part: "from"
+            - expression > unary_expression > simple_expression > variable: "i"
+            - single_name_part: "to"
+            - literal > number: "2"
+            - continue_indent: "\t\t"
+            - newindent_block
+              - new_indent: "\t"
+              - statement > expression > unary_expression > simple_expression > function_call
+                - single_name_part: "if"
+                - expression > binary_expression
+                  - unary_expression > simple_expression > list_element
+                    - single_name_part: "list"
+                    - expression > binary_expression
+                      - unary_expression > simple_expression > variable: "j"
+                      - operator: "-"
+                      - expression > unary_expression > simple_expression > literal > number: "1"
+                  - operator: ">"
+                  - expression > unary_expression > simple_expression > list_element
+                    - single_name_part: "list"
+                    - expression > unary_expression > simple_expression > variable: "j"
+                - continue_indent: "\t\t\t"
+                - newindent_block
+                  - new_indent: "\t"
+                  - statement > expression > unary_expression > simple_expression > function_call
+                    - single_name_part: "in"
+                    - expression > unary_expression > simple_expression > variable: "list"
+                    - single_name_part: "swap"
+                    - single_name_part: "element"
+                    - expression > binary_expression
+                      - unary_expression > simple_expression > variable: "j"
+                      - operator: "-"
+                      - expression > unary_expression > simple_expression > literal > number: "1"
+                    - single_name_part: "with"
+                    - expression > unary_expression > simple_expression > variable: "j"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "insertion"
+    - single_name_part: "sort"
+    - expression > unary_expression > simple_expression > variable: "array"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "array"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - EOI: ""
