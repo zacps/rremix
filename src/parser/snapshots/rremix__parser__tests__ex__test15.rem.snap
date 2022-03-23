@@ -1,0 +1,82 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "use"
+    - expression > unary_expression > simple_expression > variable: "some"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > variable: "some"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"After - \""
+      - list_item > expression > unary_expression > simple_expression > variable: "some"
+  - statement > assignment_statement
+    - variable: "nums"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "3"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "9"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > variable: "item"
+    - single_name_part: "in"
+    - expression > unary_expression > simple_expression > variable: "nums"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "show"
+        - literal > literal_list > list
+          - list_item > expression > unary_expression > simple_expression > variable: "item"
+          - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "new"
+    - single_name_part: "line"
+  - statement > assignment_statement
+    - variable: "a"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > number: "69"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "inc"
+    - expression > unary_expression > simple_expression > variable: "a"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"a: \""
+      - list_item > expression > unary_expression > simple_expression > variable: "a"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"a: \""
+      - list_item > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "dec"
+        - expression > unary_expression > simple_expression > variable: "a"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > single_name_part: "use"
+      - name_paren > ref_paren > ref_name > name_part > single_name_part: "special"
+      - name_paren > paren > single_name_part: "block"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "#special"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > literal > string: "\"from local\""
+      - continue_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "do"
+        - expression > unary_expression > simple_expression > variable: "block"
+  - EOI: ""

@@ -1,6 +1,6 @@
 ---
 source: src/parser/mod.rs
-assertion_line: 75
+assertion_line: 72
 expression: "format_pair(pair.unwrap(), 0, true)"
 ---
 - program
@@ -14,7 +14,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > binary_expression
-          - unary_expression > simple_expression > single_name_part: "n"
+          - unary_expression > simple_expression > variable: "n"
           - operator: "="
           - expression > unary_expression > simple_expression > literal > number: "0"
         - continue_indent: "\t"
@@ -23,11 +23,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
       - continue_indent: "\t"
       - statement > expression > binary_expression
-        - unary_expression > simple_expression > single_name_part: "n"
+        - unary_expression > simple_expression > variable: "n"
         - operator: "×"
         - expression > unary_expression > simple_expression > function_call
           - expression > binary_expression
-            - unary_expression > simple_expression > single_name_part: "n"
+            - unary_expression > simple_expression > variable: "n"
             - operator: "-"
             - expression > unary_expression > simple_expression > literal > number: "1"
           - single_name_part: "!"
@@ -40,11 +40,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - function_statements
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
-        - expression > unary_expression > simple_expression > single_name_part: "start"
+        - expression > unary_expression > simple_expression > variable: "start"
         - single_name_part: "to"
-        - expression > unary_expression > simple_expression > single_name_part: "finish"
+        - expression > unary_expression > simple_expression > variable: "finish"
   - statement > assignment_statement
-    - single_name_part: "range"
+    - variable: "range"
     - colon: ":"
     - expression > unary_expression > simple_expression > function_call
       - literal > number: "1"
@@ -52,7 +52,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - literal > number: "10"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "start"
-    - expression > unary_expression > simple_expression > single_name_part: "range"
+    - expression > unary_expression > simple_expression > variable: "range"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - literal > string: "\"started ok\""
@@ -60,17 +60,17 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > function_call
       - single_name_part: "next"
-      - expression > unary_expression > simple_expression > single_name_part: "range"
+      - expression > unary_expression > simple_expression > variable: "range"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > function_call
       - single_name_part: "end"
       - single_name_part: "of"
-      - expression > unary_expression > simple_expression > single_name_part: "range"
+      - expression > unary_expression > simple_expression > variable: "range"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
-    - expression > unary_expression > simple_expression > single_name_part: "n"
+    - expression > unary_expression > simple_expression > variable: "n"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > function_call
       - literal > number: "1"
@@ -82,9 +82,9 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > literal_list > list
-          - list_item > expression > unary_expression > simple_expression > single_name_part: "n"
+          - list_item > expression > unary_expression > simple_expression > variable: "n"
           - list_item > expression > unary_expression > simple_expression > literal > string: "\"! = \""
           - list_item > expression > unary_expression > simple_expression > function_call
-            - expression > unary_expression > simple_expression > single_name_part: "n"
+            - expression > unary_expression > simple_expression > variable: "n"
             - single_name_part: "!"
   - EOI: ""

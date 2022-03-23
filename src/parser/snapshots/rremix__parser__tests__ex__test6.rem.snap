@@ -1,6 +1,6 @@
 ---
 source: src/parser/mod.rs
-assertion_line: 75
+assertion_line: 72
 expression: "format_pair(pair.unwrap(), 0, true)"
 ---
 - program
@@ -15,13 +15,13 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
-        - expression > unary_expression > simple_expression > single_name_part: "block"
+        - expression > unary_expression > simple_expression > variable: "block"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "do"
-          - expression > unary_expression > simple_expression > single_name_part: "condition-block"
+          - expression > unary_expression > simple_expression > variable: "condition-block"
         - continue_indent: "\t"
         - newindent_block
           - new_indent: "\t"
@@ -40,69 +40,69 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
-        - expression > unary_expression > simple_expression > single_name_part: "string"
+        - expression > unary_expression > simple_expression > variable: "string"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
-        - expression > unary_expression > simple_expression > single_name_part: "value"
+        - expression > unary_expression > simple_expression > variable: "value"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "new"
         - single_name_part: "line"
   - statement > assignment_statement
-    - single_name_part: "conditionA"
+    - variable: "conditionA"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > boolean: "false"
   - statement > assignment_statement
-    - single_name_part: "conditionB"
+    - variable: "conditionB"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > boolean: "false"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "line"
     - literal > string: "\"conditionA: \""
-    - expression > unary_expression > simple_expression > single_name_part: "conditionA"
+    - expression > unary_expression > simple_expression > variable: "conditionA"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "line"
     - literal > string: "\"conditionB: \""
-    - expression > unary_expression > simple_expression > single_name_part: "conditionB"
+    - expression > unary_expression > simple_expression > variable: "conditionB"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "repeat"
     - single_name_part: "until"
-    - statement > expression > unary_expression > simple_expression > single_name_part: "conditionA"
+    - statement > expression > unary_expression > simple_expression > variable: "conditionA"
     - continue_indent: ""
     - newindent_block
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "line"
         - literal > string: "\"inside conditionA: \""
-        - expression > unary_expression > simple_expression > single_name_part: "conditionA"
+        - expression > unary_expression > simple_expression > variable: "conditionA"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "line"
         - literal > string: "\"inside conditionB: \""
-        - expression > unary_expression > simple_expression > single_name_part: "conditionB"
+        - expression > unary_expression > simple_expression > variable: "conditionB"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
-        - expression > unary_expression > simple_expression > single_name_part: "conditionB"
+        - expression > unary_expression > simple_expression > variable: "conditionB"
         - continue_indent: "\t"
         - newindent_block
           - new_indent: "\t"
           - statement > assignment_statement
-            - single_name_part: "conditionA"
+            - variable: "conditionA"
             - colon: ":"
             - expression > unary_expression > simple_expression > literal > boolean: "true"
       - continue_indent: "\t"
       - statement > assignment_statement
-        - single_name_part: "conditionB"
+        - variable: "conditionB"
         - colon: ":"
         - expression > unary_expression > simple_expression > literal > boolean: "true"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "line"
     - literal > string: "\"conditionA: \""
-    - expression > unary_expression > simple_expression > single_name_part: "conditionA"
+    - expression > unary_expression > simple_expression > variable: "conditionA"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "line"
     - literal > string: "\"conditionB: \""
-    - expression > unary_expression > simple_expression > single_name_part: "conditionB"
+    - expression > unary_expression > simple_expression > variable: "conditionB"
   - EOI: ""

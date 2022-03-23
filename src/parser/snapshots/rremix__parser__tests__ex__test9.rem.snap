@@ -9,7 +9,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
-    - expression > unary_expression > simple_expression > single_name_part: "n"
+    - expression > unary_expression > simple_expression > variable: "n"
     - single_name_part: "from"
     - literal > number: "1"
     - single_name_part: "to"
@@ -20,7 +20,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > single_name_part: "n"
+          - expression > unary_expression > simple_expression > variable: "n"
           - single_name_part: "is"
           - single_name_part: "divisible"
           - single_name_part: "by"
@@ -39,7 +39,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
             - expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > single_name_part: "n"
+              - expression > unary_expression > simple_expression > variable: "n"
               - single_name_part: "is"
               - single_name_part: "divisible"
               - single_name_part: "by"
@@ -58,7 +58,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
               - statement > expression > unary_expression > simple_expression > function_call
                 - single_name_part: "if"
                 - expression > unary_expression > simple_expression > function_call
-                  - expression > unary_expression > simple_expression > single_name_part: "n"
+                  - expression > unary_expression > simple_expression > variable: "n"
                   - single_name_part: "is"
                   - single_name_part: "divisible"
                   - single_name_part: "by"
@@ -75,18 +75,18 @@ expression: "format_pair(pair.unwrap(), 0, true)"
                 - newindent_block
                   - new_indent: "\t"
                   - statement > expression > unary_expression > simple_expression > function_call
-                    - expression > unary_expression > simple_expression > single_name_part: "n"
+                    - expression > unary_expression > simple_expression > variable: "n"
                     - single_name_part: "^"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - literal > string: "\" \""
         - single_name_part: "^"
-  - statement > expression > unary_expression > simple_expression > single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > variable: "↲"
   - eol_comment: "Trying to do same thing with less indentation.\r\n"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
-    - expression > unary_expression > simple_expression > single_name_part: "n"
+    - expression > unary_expression > simple_expression > variable: "n"
     - single_name_part: "from"
     - literal > number: "1"
     - single_name_part: "to"
@@ -102,7 +102,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > single_name_part: "n"
+              - expression > unary_expression > simple_expression > variable: "n"
               - single_name_part: "is"
               - single_name_part: "divisible"
               - single_name_part: "by"
@@ -114,7 +114,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > single_name_part: "n"
+              - expression > unary_expression > simple_expression > variable: "n"
               - single_name_part: "is"
               - single_name_part: "divisible"
               - single_name_part: "by"
@@ -126,7 +126,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > single_name_part: "n"
+              - expression > unary_expression > simple_expression > variable: "n"
               - single_name_part: "is"
               - single_name_part: "divisible"
               - single_name_part: "by"
@@ -137,11 +137,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
               - single_name_part: "^"
           - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > function_call
-            - expression > unary_expression > simple_expression > single_name_part: "n"
+            - expression > unary_expression > simple_expression > variable: "n"
             - single_name_part: "^"
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - literal > string: "\" \""
         - single_name_part: "^"
-  - statement > expression > unary_expression > simple_expression > single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > variable: "↲"
   - EOI: ""

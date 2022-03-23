@@ -40,7 +40,7 @@ teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 // Lists
 //----------------------------------
 key_value = {
-    single_name_part ~ ":" ~ expression
+    variable ~ ":" ~ expression
 }
 list_item = { expression | key_value }
 list = { (list_item ~ ("," | NEWLINE))* ~ list_item{0,1} }
@@ -50,6 +50,8 @@ list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ ex
 // Names
 //----------------------------------
 
+// Variable
+variable = @{ "#"{0,1} ~ (alpha | lead_symbol ) ~ (alpha | digit | symbol )* }
 // A single word
 single_name_part = @{ (alpha | lead_symbol) ~ (alpha | digit | symbol )* }
 // One or more words separated by '/', '/optional' is also allowed
@@ -81,7 +83,7 @@ redo_statement = { redo }
 
 return_statement = { "return" ~ expression* }
 
-assignment_statement = { single_name_part ~ colon ~ expression }
+assignment_statement = { variable ~ colon ~ expression }
 
 setter_call = { "fail" }
 
@@ -121,7 +123,7 @@ simple_expression = {
 	| create_call
 	| function_call 
     | literal
-    | single_name_part
+    | variable
 }
 function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | "," | operator }
 function_call = {

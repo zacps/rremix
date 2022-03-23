@@ -1,6 +1,6 @@
 ---
 source: src/parser/mod.rs
-assertion_line: 75
+assertion_line: 72
 expression: "format_pair(pair.unwrap(), 0, true)"
 ---
 - program
@@ -12,11 +12,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - function_statements
       - new_indent: "\t"
       - statement > expression > binary_expression
-        - unary_expression > simple_expression > single_name_part: "v"
+        - unary_expression > simple_expression > variable: "v"
         - operator: "×"
-        - expression > unary_expression > simple_expression > single_name_part: "v"
+        - expression > unary_expression > simple_expression > variable: "v"
   - statement > assignment_statement
-    - single_name_part: "n"
+    - variable: "n"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > number: "5"
   - statement > expression > unary_expression > simple_expression > function_call
@@ -24,7 +24,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - expression > binary_expression
       - unary_expression > simple_expression > function_call
         - single_name_part: "sqr"
-        - expression > unary_expression > simple_expression > single_name_part: "n"
+        - expression > unary_expression > simple_expression > variable: "n"
       - operator: "+"
       - expression > unary_expression > expression > binary_expression
         - unary_expression > simple_expression > literal > number: "4"

@@ -1,6 +1,6 @@
 ---
 source: src/parser/mod.rs
-assertion_line: 75
+assertion_line: 72
 expression: "format_pair(pair.unwrap(), 0, true)"
 ---
 - program
@@ -15,11 +15,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "repeat"
-        - expression > unary_expression > simple_expression > single_name_part: "block"
+        - expression > unary_expression > simple_expression > variable: "block"
         - single_name_part: "until"
-        - expression > unary_expression > simple_expression > single_name_part: "condition-block"
+        - expression > unary_expression > simple_expression > variable: "condition-block"
   - statement > assignment_statement
-    - single_name_part: "x"
+    - variable: "x"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > number: "1"
   - statement > expression > unary_expression > simple_expression > function_call
@@ -32,18 +32,18 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > single_name_part: "x"
+        - expression > unary_expression > simple_expression > variable: "x"
       - continue_indent: "\t"
       - statement > assignment_statement
-        - single_name_part: "x"
+        - variable: "x"
         - colon: ":"
         - expression > binary_expression
-          - unary_expression > simple_expression > single_name_part: "x"
+          - unary_expression > simple_expression > variable: "x"
           - operator: "+"
           - expression > unary_expression > simple_expression > literal > number: "1"
     - single_name_part: "until"
     - statement > expression > binary_expression
-      - unary_expression > simple_expression > single_name_part: "x"
+      - unary_expression > simple_expression > variable: "x"
       - operator: ">"
       - expression > unary_expression > simple_expression > literal > number: "4"
   - statement > expression > unary_expression > simple_expression > function_call
@@ -53,7 +53,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "repeat"
     - single_name_part: "until"
     - statement > expression > binary_expression
-      - unary_expression > simple_expression > single_name_part: "x"
+      - unary_expression > simple_expression > variable: "x"
       - operator: ">"
       - expression > unary_expression > simple_expression > literal > number: "10"
     - continue_indent: ""
@@ -61,13 +61,13 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > single_name_part: "x"
+        - expression > unary_expression > simple_expression > variable: "x"
       - continue_indent: "\t"
       - statement > assignment_statement
-        - single_name_part: "x"
+        - variable: "x"
         - colon: ":"
         - expression > binary_expression
-          - unary_expression > simple_expression > single_name_part: "x"
+          - unary_expression > simple_expression > variable: "x"
           - operator: "+"
           - expression > unary_expression > simple_expression > literal > number: "2"
   - statement > expression > unary_expression > simple_expression > function_call

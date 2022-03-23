@@ -1,11 +1,11 @@
 ---
 source: src/parser/mod.rs
-assertion_line: 75
+assertion_line: 72
 expression: "format_pair(pair.unwrap(), 0, true)"
 ---
 - program
   - statement > assignment_statement
-    - single_name_part: "list"
+    - variable: "list"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > literal_list > list
       - list_item > expression > binary_expression
@@ -25,15 +25,15 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "showline"
     - literal > literal_list > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"length of \""
-      - list_item > expression > unary_expression > simple_expression > single_name_part: "list"
+      - list_item > expression > unary_expression > simple_expression > variable: "list"
       - list_item > expression > unary_expression > simple_expression > literal > string: "\" = \""
       - list_item > expression > unary_expression > simple_expression > function_call
         - single_name_part: "length"
         - single_name_part: "of"
-        - expression > unary_expression > simple_expression > single_name_part: "list"
+        - expression > unary_expression > simple_expression > variable: "list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "start"
-    - expression > unary_expression > simple_expression > single_name_part: "list"
+    - expression > unary_expression > simple_expression > variable: "list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "while"
     - continue_indent: ""
@@ -44,7 +44,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "at"
         - single_name_part: "end"
         - single_name_part: "of"
-        - expression > unary_expression > simple_expression > single_name_part: "list"
+        - expression > unary_expression > simple_expression > variable: "list"
     - single_name_part: "repeat"
     - continue_indent: ""
     - inline_block
@@ -55,16 +55,16 @@ expression: "format_pair(pair.unwrap(), 0, true)"
           - list_item > expression > unary_expression > simple_expression > function_call
             - single_name_part: "end"
             - single_name_part: "of"
-            - expression > unary_expression > simple_expression > single_name_part: "list"
+            - expression > unary_expression > simple_expression > variable: "list"
           - list_item > expression > unary_expression > simple_expression > literal > string: "\": \""
       - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "next"
-          - expression > unary_expression > simple_expression > single_name_part: "list"
+          - expression > unary_expression > simple_expression > variable: "list"
   - statement > assignment_statement
-    - single_name_part: "powers"
+    - variable: "powers"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > literal_list > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "1"
@@ -75,9 +75,9 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
-    - expression > unary_expression > simple_expression > single_name_part: "item"
+    - expression > unary_expression > simple_expression > variable: "item"
     - single_name_part: "in"
-    - expression > unary_expression > simple_expression > single_name_part: "powers"
+    - expression > unary_expression > simple_expression > variable: "powers"
     - continue_indent: ""
     - newindent_block
       - new_indent: "\t"
@@ -85,11 +85,11 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "showline"
         - literal > literal_list > list
           - list_item > expression > unary_expression > simple_expression > literal > string: "\"item: \""
-          - list_item > expression > unary_expression > simple_expression > single_name_part: "item"
+          - list_item > expression > unary_expression > simple_expression > variable: "item"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
-    - expression > unary_expression > simple_expression > single_name_part: "item"
+    - expression > unary_expression > simple_expression > variable: "item"
     - single_name_part: "in"
     - literal > literal_list > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "1"
@@ -104,5 +104,5 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "showline"
         - literal > literal_list > list
           - list_item > expression > unary_expression > simple_expression > literal > string: "\"item: \""
-          - list_item > expression > unary_expression > simple_expression > single_name_part: "item"
+          - list_item > expression > unary_expression > simple_expression > variable: "item"
   - EOI: ""
