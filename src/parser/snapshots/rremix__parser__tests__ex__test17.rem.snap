@@ -1,0 +1,99 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(pair.unwrap(), 0, true)"
+---
+- program
+  - statement > assignment_statement
+    - variable: "my-list"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > number: "1"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "2"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "4"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "8"
+      - list_item > expression > unary_expression > simple_expression > literal > number: "16"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > list_element
+      - single_name_part: "my-list"
+      - expression > unary_expression > simple_expression > literal > number: "4"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > variable: "i"
+    - single_name_part: "in"
+    - expression > unary_expression > simple_expression > function_call
+      - literal > number: "1"
+      - single_name_part: "to"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "length"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "my-list"
+    - continue_indent: ""
+    - newindent_block
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > list_element
+          - single_name_part: "my-list"
+          - expression > unary_expression > simple_expression > variable: "i"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "my-list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > list_element_assignment
+    - single_name_part: "my-list"
+    - expression > unary_expression > simple_expression > literal > number: "4"
+    - expression > unary_expression > simple_expression > literal > number: "6"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "my-list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > list_element_assignment
+    - single_name_part: "my-list"
+    - expression > unary_expression > simple_expression > literal > number: "1"
+    - expression > unary_expression > simple_expression > literal > number: "99"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "my-list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > assignment_statement
+    - variable: "i"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > number: "2"
+  - statement > list_element_assignment
+    - single_name_part: "my-list"
+    - expression > unary_expression > simple_expression > variable: "i"
+    - expression > unary_expression > simple_expression > literal > string: "\"abc\""
+  - statement > list_element_assignment
+    - single_name_part: "my-list"
+    - expression > unary_expression > simple_expression > literal > number: "3"
+    - expression > unary_expression > simple_expression > list_element
+      - single_name_part: "my-list"
+      - expression > unary_expression > simple_expression > variable: "i"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "my-list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"The first element is \""
+      - list_item > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "first"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "my-list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > literal_list > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"The last element is \""
+      - list_item > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "last"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "my-list"
+  - EOI: ""
