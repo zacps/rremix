@@ -22,7 +22,7 @@ char_single = {!"\'" ~ ANY }
 string_double = { "\"" ~ char_double* ~ "\"" }
 string_single = { "'" ~ char_single* ~ "'" }
 string = @{ string_double | string_single }
-literal = { number | boolean | literal_list | string }
+literal = { number | boolean | list | string }
 
 // Keywords
 //----------------------------------
@@ -42,9 +42,17 @@ teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 key_value = {
     variable ~ ":" ~ expression
 }
-list_item = { expression | key_value }
-list = { (list_item ~ ("," | NEWLINE))* ~ list_item{0,1} }
-literal_list = { ("{" ~ list  ~ "}") | ("{" ~ "}") }
+list_item = !{
+    "[" ~ statement ~ "]" 
+    | expression 
+    | key_value 
+    // | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
+}
+list = {
+    "{" ~ (list_item ~ ",")* ~ list_item{0,1} ~ "}"
+    // | "{" ~ new_indent ~ (list_item ~ NEWLINE ~ continue_indent)* ~ list_item{0,1} ~ DROP ~ "}"
+    | "{" ~ "}"
+}
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
 // Names

@@ -7,7 +7,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > assignment_statement
     - variable: "small"
     - colon: ":"
-    - expression > unary_expression > simple_expression > literal > literal_list > list: ""
+    - expression > unary_expression > simple_expression > literal > list: "{}"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "show"
     - expression > unary_expression > simple_expression > variable: "small"
@@ -15,7 +15,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\" is a list?: \""
       - list_item > expression > binary_expression
         - unary_expression > simple_expression > function_call
@@ -26,7 +26,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > literal > string: "\"list\""
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "7"
       - list_item > expression > unary_expression > simple_expression > literal > string: "\" is a list?: \""
       - list_item > expression > binary_expression
@@ -53,7 +53,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "append"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "99"
       - list_item > expression > unary_expression > simple_expression > literal > number: "100"
     - single_name_part: "to"

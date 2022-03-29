@@ -15,13 +15,13 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "some"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"After - \""
       - list_item > expression > unary_expression > simple_expression > variable: "some"
   - statement > assignment_statement
     - variable: "nums"
     - colon: ":"
-    - expression > unary_expression > simple_expression > literal > literal_list > list
+    - expression > unary_expression > simple_expression > literal > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "1"
       - list_item > expression > unary_expression > simple_expression > literal > number: "2"
       - list_item > expression > unary_expression > simple_expression > literal > number: "3"
@@ -38,7 +38,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
-        - literal > literal_list > list
+        - literal > list
           - list_item > expression > unary_expression > simple_expression > variable: "item"
           - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
   - statement > expression > unary_expression > simple_expression > function_call
@@ -53,12 +53,12 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - expression > unary_expression > simple_expression > variable: "a"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"a: \""
       - list_item > expression > unary_expression > simple_expression > variable: "a"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"a: \""
       - list_item > expression > unary_expression > simple_expression > function_call
         - single_name_part: "dec"

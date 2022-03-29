@@ -81,7 +81,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
-        - literal > literal_list > list
+        - literal > list
           - list_item > expression > unary_expression > simple_expression > variable: "n"
           - list_item > expression > unary_expression > simple_expression > literal > string: "\"! = \""
           - list_item > expression > unary_expression > simple_expression > function_call

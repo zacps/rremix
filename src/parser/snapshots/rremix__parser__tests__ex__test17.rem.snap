@@ -7,7 +7,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > assignment_statement
     - variable: "my-list"
     - colon: ":"
-    - expression > unary_expression > simple_expression > literal > literal_list > list
+    - expression > unary_expression > simple_expression > literal > list
       - list_item > expression > unary_expression > simple_expression > literal > number: "1"
       - list_item > expression > unary_expression > simple_expression > literal > number: "2"
       - list_item > expression > unary_expression > simple_expression > literal > number: "4"
@@ -82,7 +82,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - single_name_part: "list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"The first element is \""
       - list_item > expression > unary_expression > simple_expression > function_call
         - single_name_part: "first"
@@ -90,7 +90,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "my-list"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
-    - literal > literal_list > list
+    - literal > list
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"The last element is \""
       - list_item > expression > unary_expression > simple_expression > function_call
         - single_name_part: "last"

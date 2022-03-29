@@ -428,7 +428,7 @@ impl<'s> Program<'s> {
                 "false" => Literal::Boolean(false),
                 b => panic!("ICE: unknown boolean value {b}"),
             },
-            literal_list => unimplemented!(),
+            list => unimplemented!(),
             string => Literal::String(&pair.as_str()[1..pair.as_str().len() - 1]),
             _ => panic!("ICE: Didn't get a known literal in literal"),
         })
