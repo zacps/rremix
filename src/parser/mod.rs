@@ -69,7 +69,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                assert_snapshot!(path, format_pair(pair.unwrap(), 0, true))
+                assert_snapshot!(path, format_pair(&pair.unwrap(), 0, true))
             }
             Err(e) => {
                 eprintln!("{e}");

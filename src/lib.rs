@@ -6,7 +6,7 @@ use pest::{iterators::Pair, RuleType};
 pub mod parser;
 
 pub fn format_pair<T: RuleType + std::fmt::Debug>(
-    pair: Pair<'_, T>,
+    pair: &Pair<'_, T>,
     indent_level: usize,
     is_newline: bool,
 ) -> String {
@@ -22,7 +22,7 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
         .into_iter()
         .map(|pair| {
             format_pair(
-                pair,
+                &pair,
                 if len > 1 {
                     indent_level + 1
                 } else {
@@ -59,3 +59,4 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
 /// This represents the compiler's state after name resolution, before optimisation and codegen.
 /// We will have rejected the majority of incomplete programs after this is constructed.
 pub mod HIR;
+pub mod resolver;

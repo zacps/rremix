@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 506
+assertion_line: 531
 expression: ast
 ---
 Program {
@@ -32,6 +32,7 @@ Program {
                                 ],
                             ),
                         ],
+                        id: None,
                     },
                 },
             ),
@@ -56,6 +57,7 @@ Program {
                                 },
                             },
                         ],
+                        id: None,
                     },
                 },
             ),

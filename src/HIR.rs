@@ -1,11 +1,15 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{borrow::Borrow, collections::HashSet, hash::Hash};
 
 use super::*;
+use derivative::Derivative;
 use pest::Span;
+
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
+pub struct FunctionID(u64);
 
 /// A single 'word' in a function name, either a part of the name itself,
 /// a 'name', or a parameter.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum FunctionPart<'s> {
     Name { name: Span<'s> },
     Parameter { name: Span<'s>, reference: bool },
@@ -30,6 +34,7 @@ impl<'s> PartialEq for FunctionPart<'s> {
         }
     }
 }
+impl<'s> Eq for FunctionPart<'s> {}
 
 impl<'s> Hash for FunctionPart<'s> {
     fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
@@ -43,12 +48,13 @@ impl<'s> Hash for FunctionPart<'s> {
 }
 
 /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
-#[derive(PartialEq, Hash, Debug)]
+#[derive(Eq, PartialEq, Hash, Debug, Clone)]
 pub struct FunctionName<'s> {
     pub name: Vec<FunctionPart<'s>>,
+    pub id: Option<FunctionID>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Operator {
     Addition,
     Subtraction,
@@ -73,10 +79,10 @@ pub enum Operator {
 //     Unknown(T),
 // }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Variable<'s>(Span<'s>);
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Literal<'s> {
     String(&'s str),
     Integer(
@@ -90,7 +96,7 @@ pub enum Literal<'s> {
     Map(()),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum UnaryExpression<'s> {
     ListElement {
         variable: Variable<'s>,
@@ -103,7 +109,7 @@ pub enum UnaryExpression<'s> {
     Variable(Variable<'s>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Expression<'s> {
     Binary {
         lhs: Box<Expression<'s>>,
@@ -113,7 +119,7 @@ pub enum Expression<'s> {
     Unary(Box<UnaryExpression<'s>>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Statement<'s> {
     Assignment {
         variable: Variable<'s>,
@@ -130,11 +136,18 @@ pub enum Statement<'s> {
 }
 
 /// A function definition
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Function<'s> {
     pub name: FunctionName<'s>,
     pub statements: Vec<Statement<'s>>,
     pub span: Span<'s>,
+    pub id: FunctionID,
+}
+
+impl<'s> Borrow<FunctionName<'s>> for Function<'s> {
+    fn borrow(&self) -> &FunctionName<'s> {
+        &self.name
+    }
 }
 
 impl<'s> PartialEq for Function<'s> {
@@ -174,10 +187,13 @@ impl<'s> VariableScope<'s> {
 }
 
 // TODO: Rename, this more accurately represents the state during parse
-#[derive(Debug)]
+#[derive(Derivative)]
+#[derivative(Debug)]
 pub struct Program<'s> {
-    functions: HashSet<Function<'s>>,
-    main: Vec<Statement<'s>>,
+    pub functions: HashSet<Function<'s>>,
+    pub main: Vec<Statement<'s>>,
+    #[derivative(Debug = "ignore")]
+    pub function_id: Box<dyn Iterator<Item = FunctionID>>,
 }
 
 impl<'s> Program<'s> {
@@ -185,6 +201,7 @@ impl<'s> Program<'s> {
         let mut this = Self {
             functions: HashSet::new(),
             main: Vec::new(),
+            function_id: Box::new((0..).map(|i| FunctionID(i))),
         };
         this.build(pair);
         this
@@ -204,7 +221,7 @@ impl<'s> Program<'s> {
             match pair.as_rule() {
                 function_definition => {
                     let func = self.visit_function(pair);
-                    self.functions.insert(func);
+                    assert!(self.functions.insert(func));
                 }
                 statement => {
                     let st = self.visit_statement(pair);
@@ -218,7 +235,11 @@ impl<'s> Program<'s> {
     fn visit_function(&mut self, pair: Pair<'s, parser::Rule>) -> Function<'s> {
         use parser::Rule::*;
 
-        let mut name = FunctionName { name: Vec::new() };
+        let id = self.function_id.next().unwrap();
+        let mut name = FunctionName {
+            name: Vec::new(),
+            id: Some(id),
+        };
         let mut statements = Vec::new();
         let span = pair.as_span().clone();
 
@@ -261,6 +282,7 @@ impl<'s> Program<'s> {
             name,
             statements,
             span,
+            id: id,
         }
     }
 
@@ -373,7 +395,10 @@ impl<'s> Program<'s> {
         pair: Pair<'s, parser::Rule>,
     ) -> Result<FunctionName<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
-        let mut name = FunctionName { name: Vec::new() };
+        let mut name = FunctionName {
+            name: Vec::new(),
+            id: None,
+        };
         for pair in pair.into_inner() {
             match pair.as_rule() {
                 single_name_part => name.name.push(FunctionPart::Name {
