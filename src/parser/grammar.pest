@@ -142,6 +142,8 @@ simple_expression = {
 	| function_call 
     | literal
     | variable
+    | "[" ~ statement ~ "]"
+    | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
 function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | "," | operator }
 function_call = {
