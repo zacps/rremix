@@ -44,8 +44,8 @@ key_value = {
 }
 list_item = !{
     "[" ~ statement ~ "]" 
-    | expression 
     | key_value 
+    | expression 
     // | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
 list = {
