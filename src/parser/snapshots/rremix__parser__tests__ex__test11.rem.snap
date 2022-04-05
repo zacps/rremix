@@ -1,7 +1,7 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
   - statement > assignment_statement
@@ -78,8 +78,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
     - expression > unary_expression > simple_expression > variable: "item"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > variable: "powers"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
@@ -97,8 +97,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - list_item > expression > unary_expression > simple_expression > literal > string: "\"kapow!\""
       - list_item > expression > unary_expression > simple_expression > literal > number: "8"
       - list_item > expression > unary_expression > simple_expression > literal > number: "16"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"

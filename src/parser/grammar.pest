@@ -95,21 +95,25 @@ assignment_statement = { variable ~ colon ~ expression }
 
 setter_call = { "fail" }
 
-// A block of statements denoted by an indent.
 newindent_block = { 
-    (
-        new_indent ~ statement
-        | new_indent ~ eol_comment
-        | new_indent ~ sigiled_comment
-    ) 
+    continue_indent ~ new_indent ~ (
+        statement
+        // Comments following the function signature *must* be indented so we
+        // can detect the indent
+        | eol_comment
+        | sigiled_comment
+        // Not sure if we can allow this without problems yet
+        // | WHITESPACE* ~ NEWLINE
+    )
     ~ (
-        NEWLINE ~ continue_indent ~ statement ~ &NEWLINE
-        | NEWLINE ~ continue_indent ~ eol_comment ~ &NEWLINE
-        | NEWLINE ~ continue_indent ~ sigiled_comment ~ &NEWLINE
-        | NEWLINE ~ WHITESPACE* ~ &NEWLINE
-    )*
-    ~ DROP
+        NEWLINE ~ continue_indent  ~ statement ~ &NEWLINE
+        | NEWLINE ~ continue_indent ~ !WHITETAB ~ eol_comment ~ &NEWLINE
+        | NEWLINE ~ continue_indent ~ !WHITETAB ~ sigiled_comment ~ &NEWLINE
+        // | WHITESPACE* ~ NEWLINE
+    )* 
+    ~ DROP 
 }
+
 // A block of statements denoted by an indent, unlike newindent_block
 // does not require that it ends in a newline; allowing:
 // function call [
@@ -151,9 +155,9 @@ function_call = {
         | "[" ~ statement ~ "]" 
         | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
         // indented block folowed by continuation
-        | NEWLINE ~ continue_indent ~ newindent_block ~ NEWLINE ~ continue_indent ~ "…"
+        | NEWLINE ~ newindent_block ~ NEWLINE ~ continue_indent ~ "…"
         // indented block
-        | NEWLINE ~ continue_indent ~ newindent_block
+        | NEWLINE ~ newindent_block
         // continuation
         // | NEWLINE ~ DROP ~ continue_indent ~ "…" 
         // ignore continuations at the end of the line
@@ -178,15 +182,16 @@ new_indent = @{ PUSH(" "{2,} | "\t") }
 continue_indent = @{ PEEK_ALL }
 // A function definition
 function_statements = { 
-    (
-        continue_indent ~ new_indent ~ statement ~ NEWLINE
+    continue_indent ~ new_indent ~ (
+        statement
         // Comments following the function signature *must* be indented so we
         // can detect the indent
-        | continue_indent ~ new_indent ~ eol_comment ~ NEWLINE
-        | continue_indent ~ new_indent ~ sigiled_comment ~ NEWLINE
+        | eol_comment
+        | sigiled_comment
         // Not sure if we can allow this without problems yet
         // | WHITESPACE* ~ NEWLINE
-    ) 
+    )
+    ~ NEWLINE
     ~ (
         continue_indent  ~ statement ~ NEWLINE
         | continue_indent ~ !WHITETAB ~ eol_comment ~ NEWLINE

@@ -14,8 +14,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > number: "1"
     - single_name_part: "to"
     - literal > number: "100"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
@@ -25,16 +25,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - single_name_part: "divisible"
           - single_name_part: "by"
           - literal > number: "35"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - literal > string: "\"fizz-bang\""
             - single_name_part: "^"
         - continue_indent: "\t"
         - single_name_part: "otherwise"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
@@ -44,16 +44,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "divisible"
               - single_name_part: "by"
               - literal > number: "5"
-            - continue_indent: "\t\t"
             - newindent_block
+              - continue_indent: "\t\t"
               - new_indent: "\t"
               - statement > expression > unary_expression > simple_expression > function_call
                 - literal > string: "\"fizz\""
                 - single_name_part: "^"
             - continue_indent: "\t\t"
             - single_name_part: "otherwise"
-            - continue_indent: "\t\t"
             - newindent_block
+              - continue_indent: "\t\t"
               - new_indent: "\t"
               - statement > expression > unary_expression > simple_expression > function_call
                 - single_name_part: "if"
@@ -63,16 +63,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
                   - single_name_part: "divisible"
                   - single_name_part: "by"
                   - literal > number: "7"
-                - continue_indent: "\t\t\t"
                 - newindent_block
+                  - continue_indent: "\t\t\t"
                   - new_indent: "\t"
                   - statement > expression > unary_expression > simple_expression > function_call
                     - literal > string: "\"bang\""
                     - single_name_part: "^"
                 - continue_indent: "\t\t\t"
                 - single_name_part: "otherwise"
-                - continue_indent: "\t\t\t"
                 - newindent_block
+                  - continue_indent: "\t\t\t"
                   - new_indent: "\t"
                   - statement > expression > unary_expression > simple_expression > function_call
                     - expression > unary_expression > simple_expression > variable: "n"
@@ -91,14 +91,14 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > number: "1"
     - single_name_part: "to"
     - literal > number: "100"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "choose"
         - single_name_part: "from"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - expression > unary_expression > simple_expression > function_call

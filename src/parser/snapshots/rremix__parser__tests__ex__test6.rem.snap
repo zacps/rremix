@@ -23,8 +23,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "do"
           - expression > unary_expression > simple_expression > variable: "condition-block"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "break"
@@ -71,8 +71,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "repeat"
     - single_name_part: "until"
     - statement > expression > unary_expression > simple_expression > variable: "conditionA"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "line"
@@ -87,8 +87,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "conditionB"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > assignment_statement
             - variable: "conditionA"

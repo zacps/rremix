@@ -7,8 +7,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "use"
     - expression > unary_expression > simple_expression > variable: "some"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
@@ -33,8 +33,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - expression > unary_expression > simple_expression > variable: "item"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > variable: "nums"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"

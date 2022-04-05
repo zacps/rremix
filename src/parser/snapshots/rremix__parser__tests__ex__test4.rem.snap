@@ -29,8 +29,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - unary_expression > simple_expression > variable: "start"
           - operator: "="
           - expression > unary_expression > simple_expression > variable: "finish"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "break"
@@ -59,8 +59,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > number: "1"
     - single_name_part: "to"
     - literal > number: "100"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"

@@ -1,7 +1,7 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
   - statement > assignment_statement
@@ -30,8 +30,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "length"
         - single_name_part: "of"
         - expression > unary_expression > simple_expression > variable: "my-list"
-    - continue_indent: ""
     - newindent_block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"

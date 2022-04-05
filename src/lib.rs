@@ -58,5 +58,6 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
 ///
 /// This represents the compiler's state after name resolution, before optimisation and codegen.
 /// We will have rejected the majority of incomplete programs after this is constructed.
+#[allow(non_snake_case)]
 pub mod HIR;
 pub mod resolver;

@@ -80,8 +80,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - single_name_part: "length"
           - single_name_part: "of"
           - expression > unary_expression > simple_expression > variable: "list"
-        - continue_indent: "\t"
         - newindent_block
+          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "for"
@@ -91,8 +91,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > variable: "i"
             - single_name_part: "to"
             - literal > number: "2"
-            - continue_indent: "\t\t"
             - newindent_block
+              - continue_indent: "\t\t"
               - new_indent: "\t"
               - statement > expression > unary_expression > simple_expression > function_call
                 - single_name_part: "if"
@@ -107,8 +107,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
                   - expression > unary_expression > simple_expression > list_element
                     - single_name_part: "list"
                     - expression > unary_expression > simple_expression > variable: "j"
-                - continue_indent: "\t\t\t"
                 - newindent_block
+                  - continue_indent: "\t\t\t"
                   - new_indent: "\t"
                   - statement > expression > unary_expression > simple_expression > function_call
                     - single_name_part: "in"

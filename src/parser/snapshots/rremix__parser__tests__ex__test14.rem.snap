@@ -41,8 +41,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "by"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
-      - continue_indent: ""
       - newindent_block
+        - continue_indent: ""
         - new_indent: "\t"
         - statement > expression > binary_expression
           - unary_expression > expression > unary_expression > simple_expression > variable: "x"
@@ -57,8 +57,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "from"
       - expression > unary_expression > simple_expression > variable: "positive-rain-fall"
       - single_name_part: "until"
-      - continue_indent: ""
       - newindent_block
+        - continue_indent: ""
         - new_indent: "\t"
         - statement > expression > binary_expression
           - unary_expression > simple_expression > variable: "x"
