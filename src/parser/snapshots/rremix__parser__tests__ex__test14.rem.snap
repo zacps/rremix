@@ -1,11 +1,11 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
-  - eol_comment: ".The rainfall problem.\r\n"
-  - sigiled_comment: "======================\r\n"
+  - eol_comment: ".The rainfall problem."
+  - sigiled_comment: "======================"
   - statement > assignment_statement
     - variable: "rain-fall"
     - colon: ":"

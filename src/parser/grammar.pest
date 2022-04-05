@@ -8,7 +8,7 @@ digit = { '0'..'9' }
 // symbols allowed in variable names; todo: this should be expanded to almost every character
 symbol = { "-" | lead_symbol }
 // Symbols allowed to lead name parts; todo: this should be removed/expanded
-lead_symbol = { "^" | "↲" | "!" | "." }
+lead_symbol = { "^" | "↲" | "!" | ("." ~ !NEWLINE) }
 operator = {"+" | "-" | "×" | "÷" | "%" | "=" | "≠" | "<" | "≤" | ">" | "≥"}
 hash = { "#" }
 colon = { ":" }
@@ -31,9 +31,9 @@ redo = { "redo" }
 // Comments
 //----------------------------------
 // Comment indicated by a period at the *end* of the line
-eol_comment = { (!("."{0,1} ~ NEWLINE) ~ ANY)* ~ "." ~ NEWLINE }
+eol_comment = { (!(("." ~ NEWLINE) | NEWLINE) ~ ANY)* ~ "." ~ &NEWLINE }
 // Comment indicated by sigil at the start of the line
-sigiled_comment = { ( "=" | "- " | "." ) ~ (!NEWLINE ~ ANY)+ ~ NEWLINE }
+sigiled_comment = { ( "=" | "- " | "." ) ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 // Comment indicated by a semicolon; from there to end of line
 teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 
@@ -97,9 +97,15 @@ setter_call = { "fail" }
 
 // A block of statements denoted by an indent.
 newindent_block = { 
-    (new_indent ~ statement) 
+    (
+        new_indent ~ statement
+        | new_indent ~ eol_comment
+        | new_indent ~ sigiled_comment
+    ) 
     ~ (
-        (NEWLINE ~ continue_indent ~ statement ~ &NEWLINE)
+        NEWLINE ~ continue_indent ~ statement ~ &NEWLINE
+        | NEWLINE ~ continue_indent ~ eol_comment ~ &NEWLINE
+        | NEWLINE ~ continue_indent ~ sigiled_comment ~ &NEWLINE
         | NEWLINE ~ WHITESPACE* ~ &NEWLINE
     )*
     ~ DROP
@@ -162,22 +168,34 @@ list_element = { single_name_part ~ "[" ~ expression ~ "]" }
 // Functions
 //----------------------------------
 
+WHITETAB = _{ " " | "\t" }
+
 // A function signature
 function_signature = { name_paren+ }
 // Indentation
 // Put an indent on the stack, future indents must match this indent
-new_indent = @{ PUSH(" "+ | "\t") }
+new_indent = @{ PUSH(" "{2,} | "\t") }
 continue_indent = @{ PEEK_ALL }
 // A function definition
 function_statements = { 
-    (new_indent ~ statement ~ NEWLINE) 
+    (
+        continue_indent ~ new_indent ~ statement ~ NEWLINE
+        // Comments following the function signature *must* be indented so we
+        // can detect the indent
+        | continue_indent ~ new_indent ~ eol_comment ~ NEWLINE
+        | continue_indent ~ new_indent ~ sigiled_comment ~ NEWLINE
+        // Not sure if we can allow this without problems yet
+        // | WHITESPACE* ~ NEWLINE
+    ) 
     ~ (
-        continue_indent ~ statement ~ NEWLINE
-        | WHITESPACE* ~ NEWLINE
+        continue_indent  ~ statement ~ NEWLINE
+        | continue_indent ~ !WHITETAB ~ eol_comment ~ NEWLINE
+        | continue_indent ~ !WHITETAB ~ sigiled_comment ~ NEWLINE
+        // | WHITESPACE* ~ NEWLINE
     )* 
-    ~ DROP 
+    ~ !continue_indent ~ DROP 
 }
-function_definition = { function_signature ~ colon ~ NEWLINE ~ function_statements }
+function_definition = { function_signature ~ colon{1,2} ~ NEWLINE ~ function_statements }
 
 
 // Top level

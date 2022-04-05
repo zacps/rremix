@@ -20,8 +20,15 @@ fn main() {
     let args = Args::parse();
 
     let file = fs::read_to_string(&args.file).expect(&format!("failed to read {:?}", &args.file));
-    let mut parsed = RemixParser::parse(Rule::program, &file).expect("failed parse");
-    print!(
+
+    let mut parsed = match RemixParser::parse(Rule::program, &file) {
+        Ok(parse) => parse,
+        Err(e) => {
+            eprintln!("{e}");
+            panic!("failed to parse {:?}", &args.file);
+        }
+    };
+    println!(
         "{}",
         parsed
             .clone()
@@ -31,8 +38,8 @@ fn main() {
     );
 
     let ast = Program::new(parsed.next().unwrap());
-    println!("{:?}", ast);
+    // println!("{:#?}", ast);
 
     let resolved_ast = Resolver::resolve(ast);
-    println!("{:?}", resolved_ast);
+    // println!("{:#?}", resolved_ast);
 }

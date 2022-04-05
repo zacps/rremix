@@ -14,7 +14,7 @@ mod tests {
 
     use super::*;
 
-    //#[test_case("standard-lib.rem")]
+    #[test_case("standard-lib.rem")]
     //#[test_case("ex/factorial.rem")]
     //#[test_case("ex/factorial2.rem")]
     //#[test_case("ex/primes.rem")]

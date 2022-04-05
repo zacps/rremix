@@ -1,11 +1,11 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
-  - eol_comment: ".Insertion Sort.\r\n"
-  - sigiled_comment: "================\r\n"
+  - eol_comment: ".Insertion Sort."
+  - sigiled_comment: "================"
   - statement > assignment_statement
     - variable: "array"
     - colon: ":"
@@ -40,6 +40,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "second"
     - colon: ":"
     - function_statements
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > assignment_statement
         - variable: "temp"
@@ -66,6 +67,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "for"

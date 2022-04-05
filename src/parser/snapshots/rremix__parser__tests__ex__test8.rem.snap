@@ -1,7 +1,7 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
   - function_definition
@@ -10,6 +10,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "v"
     - colon: ":"
     - function_statements
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > binary_expression
         - unary_expression > simple_expression > variable: "v"

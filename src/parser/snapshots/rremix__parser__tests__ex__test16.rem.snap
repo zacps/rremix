@@ -1,11 +1,11 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
-  - eol_comment: "Filtering lists.\r\n"
-  - sigiled_comment: "================\r\n"
+  - eol_comment: "Filtering lists."
+  - sigiled_comment: "================"
   - statement > assignment_statement
     - variable: "list"
     - colon: ":"
@@ -47,6 +47,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "for"
@@ -77,8 +78,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
               - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
           - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
-  - eol_comment: "Primes to 100.\r\n"
-  - sigiled_comment: "==============\r\n"
+  - eol_comment: "Primes to 100."
+  - sigiled_comment: "=============="
   - statement > assignment_statement
     - variable: "primes"
     - colon: ":"
@@ -119,9 +120,9 @@ expression: "format_pair(pair.unwrap(), 0, true)"
       - expression > unary_expression > simple_expression > variable: "primes"
       - single_name_part: "and"
       - expression > unary_expression > simple_expression > variable: "list"
-  - sigiled_comment: ". without the newline this crashes with an access violation\r\n"
-  - sigiled_comment: ". when run in the combined test program\r\n"
-  - sigiled_comment: ".new line\r\n"
+  - sigiled_comment: ". without the newline this crashes with an access violation"
+  - sigiled_comment: ". when run in the combined test program"
+  - sigiled_comment: ".new line"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > variable: "primes"

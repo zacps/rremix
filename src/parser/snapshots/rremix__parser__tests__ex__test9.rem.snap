@@ -1,11 +1,11 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
-  - eol_comment: ".Fizz-Bang.\r\n"
-  - sigiled_comment: "===========\r\n"
+  - eol_comment: ".Fizz-Bang."
+  - sigiled_comment: "==========="
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
@@ -82,7 +82,7 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - literal > string: "\" \""
         - single_name_part: "^"
   - statement > expression > unary_expression > simple_expression > variable: "↲"
-  - eol_comment: "Trying to do same thing with less indentation.\r\n"
+  - eol_comment: "Trying to do same thing with less indentation."
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
