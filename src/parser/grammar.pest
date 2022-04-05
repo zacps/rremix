@@ -8,7 +8,7 @@ digit = { '0'..'9' }
 // symbols allowed in variable names; todo: this should be expanded to almost every character
 symbol = { "-" | lead_symbol }
 // Symbols allowed to lead name parts; todo: this should be removed/expanded
-lead_symbol = { "^" | "↲" | "!" | ("." ~ !NEWLINE) }
+lead_symbol = { "^" | "↲" | "!" | ("." ~ !NEWLINE) | "⇆" }
 operator = {"+" | "-" | "×" | "÷" | "%" | "=" | "≠" | "<" | "≤" | ">" | "≥"}
 hash = { "#" }
 colon = { ":" }
@@ -142,6 +142,7 @@ simple_expression = {
 	| function_call 
     | literal
     | variable
+    | "[" ~ "]"
     | "[" ~ statement ~ "]"
     | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
@@ -154,6 +155,7 @@ function_call = {
         // Other expressions must be paranthesised
         | "(" ~ expression ~ ")"
         // Bracketed blocks
+        | "[" ~ "]"
         | "[" ~ statement ~ "]" 
         | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
         // indented block folowed by continuation
