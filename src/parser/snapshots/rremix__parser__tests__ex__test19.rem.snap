@@ -9,15 +9,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > list
       - new_indent: "\t"
-      - list_item > statement > expression > unary_expression > simple_expression > function_call
+      - list_item > block > statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > string: "\"first element\""
       - continue_indent: "\t"
-      - list_item > statement > expression > unary_expression > simple_expression > function_call
+      - list_item > block > statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > string: "\"second element\""
       - continue_indent: "\t"
-      - list_item > statement > expression > unary_expression > simple_expression > function_call
+      - list_item > block > statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "calling"
         - single_name_part: "a"
         - single_name_part: "function"

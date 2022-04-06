@@ -1,0 +1,76 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(&pair.unwrap(), 0, true)"
+---
+- program
+  - statement > assignment_statement
+    - variable: "window"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > list
+      - list_item > key_value
+        - variable: "x"
+        - expression > unary_expression > simple_expression > literal > number: "100"
+      - list_item > key_value
+        - variable: "y"
+        - expression > unary_expression > simple_expression > literal > number: "50"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"x: \""
+      - list_item > expression > unary_expression > simple_expression > list_element
+        - single_name_part: "window"
+        - expression > unary_expression > simple_expression > variable: "x"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"y: \""
+      - list_item > expression > unary_expression > simple_expression > list_element
+        - single_name_part: "window"
+        - expression > unary_expression > simple_expression > variable: "y"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "window"
+    - single_name_part: "as"
+    - single_name_part: "map"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > variable: "n"
+    - single_name_part: "from"
+    - literal > number: "1"
+    - single_name_part: "to"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "length"
+      - single_name_part: "of"
+      - expression > unary_expression > simple_expression > variable: "window"
+    - newindent_block
+      - continue_indent: ""
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > list_element
+          - single_name_part: "window"
+          - expression > unary_expression > simple_expression > variable: "n"
+  - statement > list_element_assignment
+    - single_name_part: "window"
+    - expression > unary_expression > simple_expression > variable: "z"
+    - expression > binary_expression
+      - unary_expression > simple_expression > list_element
+        - single_name_part: "window"
+        - expression > unary_expression > simple_expression > variable: "x"
+      - operator: "+"
+      - expression > unary_expression > simple_expression > literal > number: "999"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "window"
+    - single_name_part: "as"
+    - single_name_part: "map"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - literal > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"z: \""
+      - list_item > expression > unary_expression > simple_expression > list_element
+        - single_name_part: "window"
+        - expression > unary_expression > simple_expression > variable: "z"
+  - EOI: ""

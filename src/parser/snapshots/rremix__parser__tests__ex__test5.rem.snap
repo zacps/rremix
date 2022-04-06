@@ -1,7 +1,7 @@
 ---
 source: src/parser/mod.rs
 assertion_line: 72
-expression: "format_pair(pair.unwrap(), 0, true)"
+expression: "format_pair(&pair.unwrap(), 0, true)"
 ---
 - program
   - statement > assignment_statement
@@ -11,16 +11,16 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "if"
     - single_name_part: "false"
-    - teol_comment: "; comment"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - teol_comment: "; comment"
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "a"
     - single_name_part: "otherwise"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
@@ -32,8 +32,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "if"
     - expression > unary_expression > simple_expression > literal > boolean: "true"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
@@ -43,8 +43,8 @@ expression: "format_pair(pair.unwrap(), 0, true)"
         - single_name_part: "new"
         - single_name_part: "line"
     - single_name_part: "otherwise"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"

@@ -43,7 +43,7 @@ key_value = {
     variable ~ ":" ~ expression
 }
 list_item = !{
-    "[" ~ statement ~ "]" 
+    block
     | key_value 
     | expression 
     // | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
@@ -79,7 +79,7 @@ name_paren = { name_part | paren | ref_paren }
 // Statements
 //----------------------------------
 
-end_of_statement = _{ EOI | NEWLINE | &"]" | &";" }
+end_of_statement = _{ EOI | NEWLINE | "]" | ";" }
 statement = {
     (
         assignment_statement 
@@ -124,13 +124,21 @@ newindent_block = {
 //   statement
 //   statement
 // ] more names
-inline_block = { 
+inline_block = _{ 
     (new_indent ~ statement ~ teol_comment{0,1}) 
     ~ (
         (NEWLINE ~ continue_indent ~ statement ~ teol_comment{0,1})
         | NEWLINE ~ WHITESPACE*
     )*
     ~ DROP
+}
+
+// Blocks
+//----------------------------------
+block = {
+    "[" ~ "]"
+    | "[" ~ statement ~ "]"
+    | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
 
 // Expressions
@@ -146,9 +154,7 @@ simple_expression = {
 	| function_call 
     | literal
     | variable
-    | "[" ~ "]"
-    | "[" ~ statement ~ "]"
-    | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
+    | block
 }
 function_call_end = { NEWLINE | EOI | "}" | ")" | "]" | "," | operator }
 function_call = {
@@ -159,9 +165,7 @@ function_call = {
         // Other expressions must be paranthesised
         | "(" ~ expression ~ ")"
         // Bracketed blocks
-        | "[" ~ "]"
-        | "[" ~ statement ~ "]" 
-        | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
+        | block
         // indented block folowed by continuation
         | NEWLINE ~ newindent_block ~ NEWLINE ~ continue_indent ~ "…"
         // indented block

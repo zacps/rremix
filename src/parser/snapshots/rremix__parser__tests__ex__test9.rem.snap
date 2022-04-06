@@ -108,7 +108,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "by"
               - literal > number: "35"
             - single_name_part: "do"
-            - statement > expression > unary_expression > simple_expression > function_call
+            - block > statement > expression > unary_expression > simple_expression > function_call
               - literal > string: "\"fizz-bang\""
               - single_name_part: "^"
           - continue_indent: "\t\t"
@@ -120,7 +120,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "by"
               - literal > number: "5"
             - single_name_part: "do"
-            - statement > expression > unary_expression > simple_expression > function_call
+            - block > statement > expression > unary_expression > simple_expression > function_call
               - literal > string: "\"fizz\""
               - single_name_part: "^"
           - continue_indent: "\t\t"
@@ -132,7 +132,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "by"
               - literal > number: "7"
             - single_name_part: "do"
-            - statement > expression > unary_expression > simple_expression > function_call
+            - block > statement > expression > unary_expression > simple_expression > function_call
               - literal > string: "\"bang\""
               - single_name_part: "^"
           - continue_indent: "\t\t"

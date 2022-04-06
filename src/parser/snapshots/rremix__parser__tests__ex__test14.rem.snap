@@ -85,15 +85,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - unary_expression > simple_expression > variable: "count"
       - operator: "="
       - expression > unary_expression > simple_expression > literal > number: "0"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > string: "\"No valid data.\""
     - single_name_part: "otherwise"
-    - continue_indent: ""
-    - inline_block
+    - block
+      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"

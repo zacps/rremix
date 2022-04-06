@@ -527,7 +527,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - statement > assignment_statement
             - variable: "test"
             - colon: ":"
-            - expression > unary_expression > simple_expression > statement > expression > binary_expression
+            - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
               - unary_expression > simple_expression > variable: "#item"
               - operator: "≤"
               - expression > unary_expression > simple_expression > variable: "finish"
@@ -539,7 +539,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - statement > assignment_statement
             - variable: "test"
             - colon: ":"
-            - expression > unary_expression > simple_expression > statement > expression > binary_expression
+            - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
               - unary_expression > simple_expression > variable: "#item"
               - operator: "≥"
               - expression > unary_expression > simple_expression > variable: "finish"
@@ -646,6 +646,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "on"
         - single_name_part: "each"
         - single_name_part: "row"
+        - block: "[]"
         - expression > unary_expression > simple_expression > variable: "col-block"
   - sigiled_comment: "========================================"
   - eol_comment: "Filter \"list\" using \"condition-block\" on each \"#item\"."
@@ -1189,7 +1190,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > variable: "value"
           - operator: "="
           - expression > unary_expression > simple_expression > literal > string: "\"string\""
-        - statement > expression > unary_expression > simple_expression > function_call
+        - block > statement > expression > unary_expression > simple_expression > function_call
           - single_name_part: "append"
           - literal > string: "\"'\""
           - single_name_part: "to"
@@ -1432,7 +1433,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > literal > number: "0"
         - continue_indent: "\t"
         - single_name_part: "apply"
-        - statement > assignment_statement
+        - block > statement > assignment_statement
           - variable: "sum"
           - colon: ":"
           - expression > binary_expression
@@ -1469,7 +1470,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > literal > number: "0"
         - continue_indent: "\t"
         - single_name_part: "apply"
-        - statement > assignment_statement
+        - block > statement > assignment_statement
           - variable: "product"
           - colon: ":"
           - expression > binary_expression
@@ -1506,7 +1507,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > literal > string: "\"\""
         - continue_indent: "\t"
         - single_name_part: "apply"
-        - statement > expression > unary_expression > simple_expression > function_call
+        - block > statement > expression > unary_expression > simple_expression > function_call
           - single_name_part: "append"
           - expression > unary_expression > simple_expression > variable: "item"
           - single_name_part: "to"
@@ -1559,7 +1560,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - expression > unary_expression > simple_expression > literal > list: "{}"
         - continue_indent: "\t"
         - single_name_part: "apply"
-        - statement > expression > unary_expression > simple_expression > function_call
+        - block > statement > expression > unary_expression > simple_expression > function_call
           - single_name_part: "append"
           - expression > unary_expression > simple_expression > variable: "item"
           - single_name_part: "to"
