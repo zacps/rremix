@@ -52,8 +52,8 @@ list = {
     "{" ~ "}"
     | "{" ~ (list_item ~ ",")* ~ list_item{0,1} ~ "}"
     | "{" ~ teol_comment{0,1} ~ NEWLINE ~ new_indent ~ (
-        list_item ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent
-    )* ~ list_item{0,1} ~ DROP ~ NEWLINE ~ "}" 
+        list_item ~ ","{0,1} ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent
+    )* ~ list_item{0,1} ~ ","{0,1}  ~ DROP ~ NEWLINE ~ "}" 
 }
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
