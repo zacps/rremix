@@ -31,12 +31,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "list"
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "in"
+      - name_paren > name_part > name_list > single_name_part: "in"
       - name_paren > paren > single_name_part: "array"
-      - name_paren > name_part > single_name_part: "swap"
-      - name_paren > name_part > single_name_part: "element"
+      - name_paren > name_part
+        - name_list > single_name_part: "swap"
+        - name_list > single_name_part: "element"
       - name_paren > paren > single_name_part: "first"
-      - name_paren > name_part > single_name_part: "with"
+      - name_paren > name_part > name_list > single_name_part: "with"
       - name_paren > paren > single_name_part: "second"
     - colon: ":"
     - function_statements
@@ -62,8 +63,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "temp"
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "insertion"
-      - name_paren > name_part > single_name_part: "sort"
+      - name_paren > name_part
+        - name_list > single_name_part: "insertion"
+        - name_list > single_name_part: "sort"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements

@@ -7,7 +7,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "n"
-      - name_paren > name_part > single_name_part: "!"
+      - name_paren > name_part > name_list > single_name_part: "!"
     - colon: ":"
     - function_statements
       - continue_indent: ""
@@ -35,7 +35,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "start"
-      - name_paren > name_part > single_name_part: "..."
+      - name_paren > name_part > name_list > single_name_part: "..."
       - name_paren > paren > single_name_part: "finish"
     - colon: ":"
     - function_statements

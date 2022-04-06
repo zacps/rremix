@@ -38,12 +38,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "number"
-      - name_paren > name_part > single_name_part: "is"
-      - name_paren > name_part > single_name_part: "not"
-      - name_paren > name_part > single_name_part: "divisible"
-      - name_paren > name_part > single_name_part: "by"
-      - name_paren > name_part > single_name_part: "any"
-      - name_paren > name_part > single_name_part: "in"
+      - name_paren > name_part
+        - name_list > single_name_part: "is"
+        - name_list > single_name_part: "not"
+        - name_list > single_name_part: "divisible"
+        - name_list > single_name_part: "by"
+        - name_list > single_name_part: "any"
+        - name_list > single_name_part: "in"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements

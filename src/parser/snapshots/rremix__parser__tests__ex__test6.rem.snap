@@ -6,8 +6,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
 - program
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "repeat"
-      - name_paren > name_part > single_name_part: "until"
+      - name_paren > name_part
+        - name_list > single_name_part: "repeat"
+        - name_list > single_name_part: "until"
       - name_paren > paren > single_name_part: "condition-block"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
@@ -33,7 +34,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > redo_statement > redo: "redo"
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "line"
+      - name_paren > name_part > name_list > single_name_part: "line"
       - name_paren > paren > single_name_part: "string"
       - name_paren > paren > single_name_part: "value"
     - colon: ":"

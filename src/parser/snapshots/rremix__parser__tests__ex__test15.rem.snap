@@ -65,8 +65,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "a"
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "use"
-      - name_paren > ref_paren > ref_name > name_part > single_name_part: "special"
+      - name_paren > name_part > name_list > single_name_part: "use"
+      - name_paren > ref_paren > ref_name > single_name_part: "special"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements

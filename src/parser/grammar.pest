@@ -49,9 +49,11 @@ list_item = !{
     // | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
 list = {
-    "{" ~ (list_item ~ ",")* ~ list_item{0,1} ~ "}"
-    | "{" ~ NEWLINE ~ new_indent ~ (list_item ~ NEWLINE ~ continue_indent)* ~ list_item{0,1} ~ DROP ~ NEWLINE ~ "}" 
-    | "{" ~ "}"
+    "{" ~ "}"
+    | "{" ~ (list_item ~ ",")* ~ list_item{0,1} ~ "}"
+    | "{" ~ teol_comment{0,1} ~ NEWLINE ~ new_indent ~ (
+        list_item ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent
+    )* ~ list_item{0,1} ~ DROP ~ NEWLINE ~ "}" 
 }
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
@@ -63,11 +65,13 @@ variable = @{ "#"{0,1} ~ (alpha | lead_symbol ) ~ (alpha | digit | symbol )* }
 // A single word
 single_name_part = @{ (alpha | lead_symbol) ~ (alpha | digit | symbol )* }
 // One or more words separated by '/', '/optional' is also allowed
-name_part = { single_name_part | (single_name_part ~ "/")+ | "/" ~ single_name_part }
+name_list = ${ single_name_part ~ ("/" ~ single_name_part)* }
+optional_name = { "/" ~ single_name_part }
+name_part = { (optional_name | name_list)+ }
 // A parethesised parameter
 paren = { "(" ~ single_name_part ~ ")" }
 // A parethesised reference parameter
-ref_name = ${"#" ~ name_part}
+ref_name = ${"#" ~ single_name_part}
 ref_paren = { "(" ~ ref_name ~ ")" } // no whitespace between # and name_part
 // A name, parameter, or reference parameter
 name_paren = { name_part | paren | ref_paren }
@@ -75,7 +79,7 @@ name_paren = { name_part | paren | ref_paren }
 // Statements
 //----------------------------------
 
-end_of_statement = _{ EOI | NEWLINE | &"]" }
+end_of_statement = _{ EOI | NEWLINE | &"]" | &";" }
 statement = {
     (
         assignment_statement 
@@ -97,7 +101,7 @@ setter_call = { "fail" }
 
 newindent_block = { 
     continue_indent ~ new_indent ~ (
-        statement
+        statement ~ teol_comment{0,1}
         // Comments following the function signature *must* be indented so we
         // can detect the indent
         | eol_comment
@@ -106,7 +110,7 @@ newindent_block = {
         // | WHITESPACE* ~ NEWLINE
     )
     ~ (
-        NEWLINE ~ continue_indent  ~ statement ~ &NEWLINE
+        NEWLINE ~ continue_indent  ~ statement ~ teol_comment{0,1} ~ &NEWLINE
         | NEWLINE ~ continue_indent ~ !WHITETAB ~ eol_comment ~ &NEWLINE
         | NEWLINE ~ continue_indent ~ !WHITETAB ~ sigiled_comment ~ &NEWLINE
         // | WHITESPACE* ~ NEWLINE
@@ -121,9 +125,9 @@ newindent_block = {
 //   statement
 // ] more names
 inline_block = { 
-    (new_indent ~ statement) 
+    (new_indent ~ statement ~ teol_comment{0,1}) 
     ~ (
-        (NEWLINE ~ continue_indent ~ statement)
+        (NEWLINE ~ continue_indent ~ statement ~ teol_comment{0,1})
         | NEWLINE ~ WHITESPACE*
     )*
     ~ DROP
@@ -195,9 +199,9 @@ function_statements = {
         // Not sure if we can allow this without problems yet
         // | WHITESPACE* ~ NEWLINE
     )
-    ~ NEWLINE
+    ~ teol_comment{0,1} ~ NEWLINE
     ~ (
-        continue_indent  ~ statement ~ NEWLINE
+        continue_indent  ~ statement ~ teol_comment{0,1} ~ NEWLINE
         | continue_indent ~ !WHITETAB ~ eol_comment ~ NEWLINE
         | continue_indent ~ !WHITETAB ~ sigiled_comment ~ NEWLINE
         // | WHITESPACE* ~ NEWLINE
@@ -210,5 +214,5 @@ function_definition = { function_signature ~ colon{1,2} ~ NEWLINE ~ function_sta
 // Top level
 //----------------------------------
 program = {
-    (NEWLINE | eol_comment | sigiled_comment | function_definition | statement)+ ~ EOI
+    (teol_comment{0,1} ~ NEWLINE | eol_comment | sigiled_comment | function_definition | statement)+ ~ EOI
 }

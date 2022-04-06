@@ -6,7 +6,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
 - program
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "sqr"
+      - name_paren > name_part > name_list > single_name_part: "sqr"
       - name_paren > paren > single_name_part: "v"
     - colon: ":"
     - function_statements

@@ -6,10 +6,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
 - program
   - function_definition
     - function_signature
-      - name_paren > name_part > single_name_part: "go"
-      - name_paren > name_part > single_name_part: "from"
+      - name_paren > name_part
+        - name_list > single_name_part: "go"
+        - name_list > single_name_part: "from"
       - name_paren > paren > single_name_part: "start"
-      - name_paren > name_part > single_name_part: "to"
+      - name_paren > name_part > name_list > single_name_part: "to"
       - name_paren > paren > single_name_part: "finish"
     - colon: ":"
     - function_statements
