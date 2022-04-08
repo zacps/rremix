@@ -8,7 +8,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "use"
     - expression > unary_expression > simple_expression > variable: "some"
     - newindent_block
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
@@ -34,7 +33,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > variable: "nums"
     - newindent_block
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
@@ -70,13 +68,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > assignment_statement
         - variable: "#special"
         - colon: ":"
         - expression > unary_expression > simple_expression > literal > string: "\"from local\""
-      - continue_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - expression > unary_expression > simple_expression > variable: "block"

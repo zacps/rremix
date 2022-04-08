@@ -1,0 +1,208 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(&pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: "Demonstrate joining a list of words using a separator."
+  - function_definition
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "join"
+      - name_paren > paren > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "with"
+      - name_paren > paren > single_name_part: "separator"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "string"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > literal > string: "\"\""
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "for"
+        - single_name_part: "each"
+        - expression > unary_expression > simple_expression > variable: "word"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "list"
+        - newindent_block
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "append"
+            - expression > unary_expression > simple_expression > variable: "word"
+            - single_name_part: "to"
+            - expression > unary_expression > simple_expression > variable: "string"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "if"
+            - expression > unary_expression > simple_expression > function_call
+              - single_name_part: "not"
+              - single_name_part: "at"
+              - single_name_part: "end"
+              - single_name_part: "of"
+              - expression > unary_expression > simple_expression > variable: "list"
+            - newindent_block
+              - new_indent: "\t"
+              - statement > expression > unary_expression > simple_expression > function_call
+                - single_name_part: "append"
+                - expression > unary_expression > simple_expression > variable: "separator"
+                - single_name_part: "to"
+                - expression > unary_expression > simple_expression > variable: "string"
+      - statement > expression > unary_expression > simple_expression > variable: "string"
+  - statement > assignment_statement
+    - variable: "words"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"cat\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"dog\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"rat\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"pig\""
+  - statement > assignment_statement
+    - variable: "result"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "join"
+      - expression > unary_expression > simple_expression > variable: "words"
+      - single_name_part: "with"
+      - literal > string: "\"-\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "result"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "from"
+      - name_paren > paren > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "execute"
+      - name_paren > paren > single_name_part: "block"
+      - name_paren > name_part
+        - name_list > single_name_part: "with"
+        - name_list > single_name_part: "each"
+      - name_paren > ref_paren > ref_name > single_name_part: "item"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "for"
+        - single_name_part: "each"
+        - expression > unary_expression > simple_expression > variable: "#item"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "list"
+        - expression > unary_expression > simple_expression > variable: "block"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "join2"
+      - name_paren > paren > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "with"
+      - name_paren > paren > single_name_part: "separator"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "string"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > literal > string: "\"\""
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "from"
+        - expression > unary_expression > simple_expression > variable: "list"
+        - single_name_part: "execute"
+        - block
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "append"
+            - expression > unary_expression > simple_expression > variable: "word"
+            - single_name_part: "to"
+            - expression > unary_expression > simple_expression > variable: "string"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "if"
+            - expression > unary_expression > simple_expression > function_call
+              - single_name_part: "not"
+              - single_name_part: "at"
+              - single_name_part: "end"
+              - single_name_part: "of"
+              - expression > unary_expression > simple_expression > variable: "list"
+            - newindent_block
+              - new_indent: "\t"
+              - statement > expression > unary_expression > simple_expression > function_call
+                - single_name_part: "append"
+                - expression > unary_expression > simple_expression > variable: "separator"
+                - single_name_part: "to"
+                - expression > unary_expression > simple_expression > variable: "string"
+        - single_name_part: "with"
+        - single_name_part: "each"
+        - expression > unary_expression > simple_expression > variable: "word"
+      - statement > expression > unary_expression > simple_expression > variable: "string"
+  - eol_comment: ".N.B. Need to fix empty strings to be copied so that the value is not kept. Done."
+  - statement > assignment_statement
+    - variable: "words"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > literal > list
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"cat2\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"dog\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"rat\""
+      - list_item > expression > unary_expression > simple_expression > literal > string: "\"pig\""
+  - statement > assignment_statement
+    - variable: "result"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "join2"
+      - expression > unary_expression > simple_expression > variable: "words"
+      - single_name_part: "with"
+      - literal > string: "\"-\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "result"
+  - function_definition
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "temp"
+      - name_paren > paren > single_name_part: "more"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "word"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > literal > string: "\"2\""
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
+        - expression > unary_expression > simple_expression > variable: "more"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "word"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > variable: "word"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "temp"
+    - literal > string: "\"3\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "temp"
+    - literal > string: "\"4\""
+  - function_definition
+    - function_signature
+      - name_paren > name_part
+        - name_list > single_name_part: "with"
+        - name_list > single_name_part: "list"
+      - name_paren > paren > single_name_part: "more"
+    - colon: ":"
+    - function_statements
+      - new_indent: "\t"
+      - statement > assignment_statement
+        - variable: "list"
+        - colon: ":"
+        - expression > unary_expression > simple_expression > literal > list > list_item > expression > unary_expression > simple_expression > literal > string: "\"2\""
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
+        - expression > unary_expression > simple_expression > variable: "more"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "list"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - expression > unary_expression > simple_expression > variable: "list"
+        - single_name_part: "as"
+        - single_name_part: "list"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "with"
+    - single_name_part: "list"
+    - literal > string: "\"3\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "with"
+    - single_name_part: "list"
+    - literal > string: "\"4\""
+  - EOI: ""

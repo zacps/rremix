@@ -10,7 +10,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "!"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
@@ -19,10 +18,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - operator: "="
           - expression > unary_expression > simple_expression > literal > number: "0"
         - newindent_block
-          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
-      - continue_indent: "\t"
       - statement > expression > binary_expression
         - unary_expression > simple_expression > variable: "n"
         - operator: "×"
@@ -39,7 +36,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "finish"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - expression > unary_expression > simple_expression > variable: "start"
@@ -79,7 +75,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "..."
       - literal > number: "4"
     - newindent_block
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"

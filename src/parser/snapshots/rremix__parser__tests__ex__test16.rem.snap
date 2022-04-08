@@ -19,7 +19,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
       - newindent_block
-        - continue_indent: ""
         - new_indent: "\t"
         - statement > expression > unary_expression > simple_expression > function_call
           - expression > unary_expression > simple_expression > variable: "x"
@@ -48,7 +47,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "for"
@@ -57,14 +55,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
         - newindent_block
-          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "show"
             - literal > list
               - list_item > expression > unary_expression > simple_expression > variable: "divisor"
               - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
-          - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
             - expression > unary_expression > simple_expression > function_call
@@ -74,10 +70,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "by"
               - expression > unary_expression > simple_expression > variable: "divisor"
             - newindent_block
-              - continue_indent: "\t\t"
               - new_indent: "\t"
               - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
-          - continue_indent: "\t\t"
           - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
   - eol_comment: "Primes to 100."
   - sigiled_comment: "=============="
@@ -102,7 +96,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
       - newindent_block
-        - continue_indent: ""
         - new_indent: "\t"
         - statement > expression > unary_expression > simple_expression > function_call
           - expression > unary_expression > simple_expression > variable: "x"

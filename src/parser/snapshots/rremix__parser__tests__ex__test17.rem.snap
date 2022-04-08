@@ -31,7 +31,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "of"
         - expression > unary_expression > simple_expression > variable: "my-list"
     - newindent_block
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"

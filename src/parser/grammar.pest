@@ -46,7 +46,6 @@ list_item = !{
     block
     | key_value 
     | expression 
-    // | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
 }
 list = {
     "{" ~ "}"
@@ -122,27 +121,12 @@ newindent_block = {
     ~ DROP 
 }
 
-// A block of statements denoted by an indent, unlike newindent_block
-// does not require that it ends in a newline; allowing:
-// function call [
-//   statement
-//   statement
-// ] more names
-inline_block = _{ 
-    (new_indent ~ statement ~ teol_comment{0,1}) 
-    ~ (
-        (NEWLINE ~ continue_indent ~ statement ~ teol_comment{0,1})
-        | NEWLINE ~ WHITESPACE*
-    )*
-    ~ DROP
-}
-
 // Blocks
 //----------------------------------
 block = {
     "[" ~ "]"
     | "[" ~ statement ~ "]"
-    | "[" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ inline_block ~ "]"
+    | "[" ~ teol_comment{0,1} ~ NEWLINE ~ inner_statements ~ continue_indent ~ "]"
 }
 
 // Expressions
@@ -196,9 +180,9 @@ function_signature = { name_paren+ }
 // Indentation
 // Put an indent on the stack, future indents must match this indent
 new_indent = @{ PUSH(" "{2,} | "\t") }
-continue_indent = @{ PEEK_ALL }
+continue_indent = _{ PEEK_ALL }
 // A function definition
-function_statements = { 
+inner_statements = _{ 
     continue_indent ~ new_indent ~ (
         statement
         // Comments following the function signature *must* be indented so we
@@ -217,6 +201,7 @@ function_statements = {
     )* 
     ~ !continue_indent ~ DROP 
 }
+function_statements = { inner_statements }
 function_definition = { function_signature ~ colon{1,2} ~ NEWLINE ~ function_statements }
 
 

@@ -41,7 +41,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "second"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > assignment_statement
         - variable: "temp"
@@ -49,14 +48,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > list_element
           - single_name_part: "array"
           - expression > unary_expression > simple_expression > variable: "first"
-      - continue_indent: "\t"
       - statement > list_element_assignment
         - single_name_part: "array"
         - expression > unary_expression > simple_expression > variable: "first"
         - expression > unary_expression > simple_expression > list_element
           - single_name_part: "array"
           - expression > unary_expression > simple_expression > variable: "second"
-      - continue_indent: "\t"
       - statement > list_element_assignment
         - single_name_part: "array"
         - expression > unary_expression > simple_expression > variable: "second"
@@ -69,7 +66,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - continue_indent: ""
       - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "for"
@@ -83,7 +79,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - single_name_part: "of"
           - expression > unary_expression > simple_expression > variable: "list"
         - newindent_block
-          - continue_indent: "\t"
           - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "for"
@@ -94,7 +89,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
             - single_name_part: "to"
             - literal > number: "2"
             - newindent_block
-              - continue_indent: "\t\t"
               - new_indent: "\t"
               - statement > expression > unary_expression > simple_expression > function_call
                 - single_name_part: "if"
@@ -110,7 +104,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
                     - single_name_part: "list"
                     - expression > unary_expression > simple_expression > variable: "j"
                 - newindent_block
-                  - continue_indent: "\t\t\t"
                   - new_indent: "\t"
                   - statement > expression > unary_expression > simple_expression > function_call
                     - single_name_part: "in"
