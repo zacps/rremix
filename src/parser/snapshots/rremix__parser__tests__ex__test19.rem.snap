@@ -8,6 +8,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - variable: "block-list"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > list
+      - continue_indent: ""
       - new_indent: "\t"
       - list_item > block > statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
@@ -21,6 +22,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "calling"
         - single_name_part: "a"
         - single_name_part: "function"
+      - continue_indent: ""
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - literal > list

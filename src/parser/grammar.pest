@@ -51,9 +51,9 @@ list_item = !{
 list = {
     "{" ~ "}"
     | "{" ~ (list_item ~ ",")* ~ list_item{0,1} ~ "}"
-    | "{" ~ teol_comment{0,1} ~ NEWLINE ~ new_indent ~ (
+    | "{" ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent ~ new_indent ~ (
         list_item ~ ","{0,1} ~ teol_comment{0,1} ~ NEWLINE ~ continue_indent
-    )* ~ list_item{0,1} ~ ","{0,1}  ~ DROP ~ NEWLINE ~ "}" 
+    )* ~ list_item{0,1} ~ ","{0,1}  ~ DROP ~ NEWLINE ~ continue_indent ~ "}" 
 }
 list_element_assignment = { single_name_part ~ "[" ~ expression ~ "]" ~ ":" ~ expression }
 
@@ -99,6 +99,8 @@ assignment_statement = { variable ~ colon ~ expression }
 
 setter_call = { "fail" }
 
+never_test = { "aweiuthsedrgkjhdnfxgkldsjf" }
+
 newindent_block = { 
     continue_indent ~ new_indent ~ (
         statement ~ teol_comment{0,1}
@@ -106,13 +108,15 @@ newindent_block = {
         // can detect the indent
         | eol_comment
         | sigiled_comment
+        | never_test
         // Not sure if we can allow this without problems yet
         // | WHITESPACE* ~ NEWLINE
     )
     ~ (
-        NEWLINE ~ continue_indent  ~ statement ~ teol_comment{0,1} ~ &NEWLINE
-        | NEWLINE ~ continue_indent ~ !WHITETAB ~ eol_comment ~ &NEWLINE
-        | NEWLINE ~ continue_indent ~ !WHITETAB ~ sigiled_comment ~ &NEWLINE
+        (NEWLINE ~ continue_indent) ~ (
+            statement ~ teol_comment{0,1}
+            | !WHITETAB ~ (eol_comment | sigiled_comment)
+        ) ~ &NEWLINE
         // | WHITESPACE* ~ NEWLINE
     )* 
     ~ DROP 
@@ -179,7 +183,7 @@ function_call = {
 }
 
 create_call = { "fail" }
-list_element_end = _{ operator | NEWLINE | teol_comment | ")" | "]" | "}" }
+list_element_end = _{ operator | NEWLINE ~ !(continue_indent ~ new_indent) | teol_comment | ")" | "]" | "}" }
 list_element = { single_name_part ~ "[" ~ expression ~ "]" ~ &list_element_end }
 
 // Functions

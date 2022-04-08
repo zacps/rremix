@@ -1,0 +1,91 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(&pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: ". Boolean operator statements ."
+  - sigiled_comment: "==============================="
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "for"
+    - single_name_part: "each"
+    - expression > unary_expression > simple_expression > variable: "n"
+    - single_name_part: "from"
+    - literal > number: "1"
+    - single_name_part: "to"
+    - literal > number: "100"
+    - newindent_block
+      - continue_indent: ""
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "if"
+        - block > statement > expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "n"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - literal > number: "4"
+          - single_name_part: "and"
+          - expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "n"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - literal > number: "5"
+        - newindent_block
+          - continue_indent: "\t"
+          - new_indent: "\t"
+          - statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "showline"
+            - literal > list
+              - list_item > expression > unary_expression > expression > unary_expression > simple_expression > variable: "n"
+              - list_item > expression > unary_expression > simple_expression > literal > string: "\" is divisible by 20\""
+  - statement > assignment_statement
+    - variable: "list"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "filter"
+      - expression > unary_expression > simple_expression > function_call
+        - literal > number: "1"
+        - single_name_part: "to"
+        - literal > number: "1000"
+      - single_name_part: "by"
+      - expression > unary_expression > simple_expression > variable: "n"
+      - single_name_part: "where"
+      - newindent_block
+        - continue_indent: ""
+        - new_indent: "\t"
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "all"
+          - single_name_part: "of"
+          - literal > list
+            - continue_indent: "\t"
+            - new_indent: "\t"
+            - list_item > expression > unary_expression > simple_expression > function_call
+              - expression > unary_expression > simple_expression > variable: "n"
+              - single_name_part: "is"
+              - single_name_part: "divisible"
+              - single_name_part: "by"
+              - literal > number: "7"
+            - continue_indent: "\t\t"
+            - list_item > expression > unary_expression > simple_expression > function_call
+              - expression > unary_expression > simple_expression > variable: "n"
+              - single_name_part: "is"
+              - single_name_part: "divisible"
+              - single_name_part: "by"
+              - literal > number: "5"
+            - continue_indent: "\t\t"
+            - list_item > expression > unary_expression > simple_expression > function_call
+              - expression > unary_expression > simple_expression > variable: "n"
+              - single_name_part: "is"
+              - single_name_part: "divisible"
+              - single_name_part: "by"
+              - literal > number: "3"
+            - continue_indent: "\t"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - single_name_part: "showline"
+    - expression > unary_expression > simple_expression > variable: "list"
+    - single_name_part: "as"
+    - single_name_part: "list"
+  - EOI: ""
