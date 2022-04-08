@@ -12,19 +12,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "nl"
       - single_name_part: "↲"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - literal > string: "\"\r\n\""
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - literal > string: "\"\r\n\""
   - function_definition
     - function_signature > name_paren > name_part
       - name_list > single_name_part: "new"
       - name_list > single_name_part: "line"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > variable: "nl"
+    - function_statements > statement > expression > unary_expression > simple_expression > variable: "nl"
   - eol_comment: "Output the value of \"what\" followed by a newline."
   - function_definition
     - function_signature
@@ -32,7 +28,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "what"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "what"
@@ -44,33 +39,27 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "line"
       - name_paren > paren > single_name_part: "what"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "what"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "what"
   - function_definition
     - function_signature
       - name_paren > name_part > optional_name > single_name_part: "show"
       - name_paren > paren > single_name_part: "what"
       - name_paren > name_part > name_list > single_name_part: "↲"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "what"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "what"
   - eol_comment: "A simplified show function."
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "what"
       - name_paren > name_part > name_list > single_name_part: "^"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - expression > unary_expression > simple_expression > variable: "what"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - expression > unary_expression > simple_expression > variable: "what"
   - sigiled_comment: "========================================"
   - eol_comment: "Just trying out a more verbal version."
   - function_definition
@@ -79,9 +68,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_list > single_name_part: "empty"
       - name_list > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > literal > list: "{}"
+    - function_statements > statement > expression > unary_expression > simple_expression > literal > list: "{}"
   - sigiled_comment: "========================================"
   - eol_comment: "Negate the \"value\"."
   - function_definition
@@ -90,13 +77,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "value"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "value"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
       - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
   - eol_comment: "The boolean \"and\" operation."
   - eol_comment: "The \"if\" in the \"not\" function causes blocks to be evaluated."
@@ -107,23 +91,18 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "value2"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "not"
           - expression > unary_expression > simple_expression > variable: "value1"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "not"
           - expression > unary_expression > simple_expression > variable: "value2"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
       - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
   - eol_comment: "The boolean \"or\" operation."
   - function_definition
@@ -133,19 +112,14 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "value2"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "value1"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "value2"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
       - statement > expression > unary_expression > simple_expression > literal > boolean: "false"
   - eol_comment: "Report if not at the end of the \"list\"."
   - function_definition
@@ -159,14 +133,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "not"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "end"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "not"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "end"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "list"
   - sigiled_comment: "========================================"
   - eol_comment: "Alternative append function."
   - function_definition
@@ -180,13 +152,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - optional_name > single_name_part: "on"
       - name_paren > paren > single_name_part: "more"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "append"
-        - expression > unary_expression > simple_expression > variable: "more"
-        - single_name_part: "to"
-        - expression > unary_expression > simple_expression > variable: "so-far"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "append"
+      - expression > unary_expression > simple_expression > variable: "more"
+      - single_name_part: "to"
+      - expression > unary_expression > simple_expression > variable: "so-far"
   - sigiled_comment: "=== Input operations ==="
   - eol_comment: "Ask for an integer value."
   - function_definition
@@ -199,7 +169,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "prompt"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "input"
         - colon: ":"
@@ -223,18 +192,14 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "not"
-          - expression > unary_expression > simple_expression > variable: "condition"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "not"
+        - expression > unary_expression > simple_expression > variable: "condition"
+      - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "do"
+        - expression > unary_expression > simple_expression > variable: "block"
   - eol_comment: "Repeat the \"block\" for ever."
   - function_definition
     - function_signature
@@ -243,7 +208,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "forever"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - expression > unary_expression > simple_expression > variable: "block"
@@ -257,16 +221,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > binary_expression
           - unary_expression > simple_expression > variable: "count"
           - operator: "≤"
           - expression > unary_expression > simple_expression > literal > number: "0"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
       - statement > assignment_statement
         - variable: "last"
         - colon: ":"
@@ -289,13 +250,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "count"
       - name_paren > name_part > name_list > single_name_part: "times"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "repeat"
-        - expression > unary_expression > simple_expression > variable: "count"
-        - single_name_part: "times"
-        - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "repeat"
+      - expression > unary_expression > simple_expression > variable: "count"
+      - single_name_part: "times"
+      - expression > unary_expression > simple_expression > variable: "block"
   - eol_comment: "While a \"condition\" is true keep doing \"block\"."
   - function_definition
     - function_signature
@@ -305,14 +264,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - single_name_part: "not"
         - expression > unary_expression > simple_expression > variable: "condition"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
       - statement > assignment_statement
         - variable: "last"
         - colon: ":"
@@ -328,11 +284,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "do"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "do"
-        - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "do"
+      - expression > unary_expression > simple_expression > variable: "block"
   - eol_comment: "An alternative name for return without a value, i.e. none."
   - eol_comment: "This is more applicable when breaking out from within a loop or a sequence statement."
   - function_definition
@@ -341,9 +295,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_list > single_name_part: "out"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > return_statement: "return"
+    - function_statements > statement > return_statement: "return"
   - eol_comment: "Repeat a \"block\" until some \"condition\" is true."
   - function_definition
     - function_signature
@@ -353,7 +305,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "condition"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "last"
         - colon: ":"
@@ -363,9 +314,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "condition"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
       - statement > redo_statement > redo: "redo"
   - sigiled_comment: "========================================"
   - eol_comment: "Run \"block\" for each item in \"list\"."
@@ -384,23 +333,19 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "start"
         - expression > unary_expression > simple_expression > variable: "list"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
             - expression > unary_expression > simple_expression > function_call
               - single_name_part: "end"
               - single_name_part: "of"
               - expression > unary_expression > simple_expression > variable: "list"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
+            - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > variable: "last"
           - statement > assignment_statement
             - variable: "#item"
             - colon: ":"
@@ -428,18 +373,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "finish"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "#item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > variable: "start"
-          - single_name_part: "to"
-          - expression > unary_expression > simple_expression > variable: "finish"
-        - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "#item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > variable: "start"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "finish"
+      - expression > unary_expression > simple_expression > variable: "block"
   - eol_comment: "For each with \"start\", \"finish\" and \"step\"."
   - function_definition
     - function_signature
@@ -459,32 +402,27 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > binary_expression
           - unary_expression > simple_expression > variable: "start"
           - operator: "<"
           - expression > unary_expression > simple_expression > variable: "finish"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "test"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
-              - unary_expression > simple_expression > variable: "#item"
-              - operator: "≤"
-              - expression > unary_expression > simple_expression > variable: "finish"
+        - newindent_block > statement > assignment_statement
+          - variable: "test"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
+            - unary_expression > simple_expression > variable: "#item"
+            - operator: "≤"
+            - expression > unary_expression > simple_expression > variable: "finish"
         - single_name_part: "otherwise"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "test"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
-              - unary_expression > simple_expression > variable: "#item"
-              - operator: "≥"
-              - expression > unary_expression > simple_expression > variable: "finish"
+        - newindent_block > statement > assignment_statement
+          - variable: "test"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > block > statement > expression > binary_expression
+            - unary_expression > simple_expression > variable: "#item"
+            - operator: "≥"
+            - expression > unary_expression > simple_expression > variable: "finish"
       - statement > assignment_statement
         - variable: "#item"
         - colon: ":"
@@ -494,7 +432,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "test"
         - single_name_part: "repeat"
         - newindent_block
-          - new_indent: "\t"
           - statement > assignment_statement
             - variable: "last"
             - colon: ":"
@@ -527,34 +464,29 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "row-block"
       - name_paren > paren > single_name_part: "col-block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "#down"
-        - single_name_part: "from"
-        - literal > number: "1"
-        - single_name_part: "to"
-        - expression > unary_expression > simple_expression > variable: "num-rows"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "#down"
+      - single_name_part: "from"
+      - literal > number: "1"
+      - single_name_part: "to"
+      - expression > unary_expression > simple_expression > variable: "num-rows"
+      - newindent_block
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "do"
+          - expression > unary_expression > simple_expression > variable: "row-block"
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "for"
+          - single_name_part: "each"
+          - expression > unary_expression > simple_expression > variable: "#across"
+          - single_name_part: "from"
+          - literal > number: "1"
+          - single_name_part: "to"
+          - expression > unary_expression > simple_expression > variable: "num-cols"
+          - newindent_block > statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "row-block"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "for"
-            - single_name_part: "each"
-            - expression > unary_expression > simple_expression > variable: "#across"
-            - single_name_part: "from"
-            - literal > number: "1"
-            - single_name_part: "to"
-            - expression > unary_expression > simple_expression > variable: "num-cols"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "do"
-                - expression > unary_expression > simple_expression > variable: "col-block"
+            - expression > unary_expression > simple_expression > variable: "col-block"
   - eol_comment: "A 2 dimensional for loop with no \"row-block\"."
   - function_definition
     - function_signature
@@ -566,20 +498,18 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "num-rows"
       - name_paren > paren > single_name_part: "col-block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - expression > unary_expression > simple_expression > variable: "#across"
-        - expression > unary_expression > simple_expression > variable: "num-cols"
-        - single_name_part: "and"
-        - expression > unary_expression > simple_expression > variable: "#down"
-        - expression > unary_expression > simple_expression > variable: "num-rows"
-        - single_name_part: "on"
-        - single_name_part: "each"
-        - single_name_part: "row"
-        - block: "[]"
-        - expression > unary_expression > simple_expression > variable: "col-block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - expression > unary_expression > simple_expression > variable: "#across"
+      - expression > unary_expression > simple_expression > variable: "num-cols"
+      - single_name_part: "and"
+      - expression > unary_expression > simple_expression > variable: "#down"
+      - expression > unary_expression > simple_expression > variable: "num-rows"
+      - single_name_part: "on"
+      - single_name_part: "each"
+      - single_name_part: "row"
+      - block: "[]"
+      - expression > unary_expression > simple_expression > variable: "col-block"
   - sigiled_comment: "========================================"
   - eol_comment: "Filter \"list\" using \"condition-block\" on each \"#item\"."
   - function_definition
@@ -592,7 +522,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "condition-block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "new-list"
         - colon: ":"
@@ -603,18 +532,14 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "#item"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "if"
-            - expression > unary_expression > simple_expression > variable: "condition-block"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "append"
-                - expression > unary_expression > simple_expression > variable: "item"
-                - single_name_part: "to"
-                - expression > unary_expression > simple_expression > variable: "new-list"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "if"
+          - expression > unary_expression > simple_expression > variable: "condition-block"
+          - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+            - single_name_part: "append"
+            - expression > unary_expression > simple_expression > variable: "item"
+            - single_name_part: "to"
+            - expression > unary_expression > simple_expression > variable: "new-list"
       - statement > expression > unary_expression > simple_expression > variable: "new-list"
   - eol_comment: "Collect items from \"list\" until \"condition\" is true."
   - function_definition
@@ -627,7 +552,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "condition"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "new-list"
         - colon: ":"
@@ -639,15 +563,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
             - expression > unary_expression > simple_expression > variable: "condition"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "break"
-                - single_name_part: "out"
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "break"
+              - single_name_part: "out"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "append"
             - expression > unary_expression > simple_expression > variable: "#item"
@@ -670,7 +591,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "result"
         - colon: ":"
@@ -681,15 +601,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "#item"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "append"
-            - expression > unary_expression > simple_expression > function_call
-              - single_name_part: "do"
-              - expression > unary_expression > simple_expression > variable: "block"
-            - single_name_part: "to"
-            - expression > unary_expression > simple_expression > variable: "result"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "append"
+          - expression > unary_expression > simple_expression > function_call
+            - single_name_part: "do"
+            - expression > unary_expression > simple_expression > variable: "block"
+          - single_name_part: "to"
+          - expression > unary_expression > simple_expression > variable: "result"
   - eol_comment: "Create a new list by applying \"block\" \"n\" times."
   - function_definition
     - function_signature
@@ -701,7 +619,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "times"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "result"
         - colon: ":"
@@ -710,15 +627,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "repeat"
         - expression > unary_expression > simple_expression > variable: "n"
         - single_name_part: "times"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "append"
-            - expression > unary_expression > simple_expression > function_call
-              - single_name_part: "do"
-              - expression > unary_expression > simple_expression > variable: "block"
-            - single_name_part: "to"
-            - expression > unary_expression > simple_expression > variable: "result"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "append"
+          - expression > unary_expression > simple_expression > function_call
+            - single_name_part: "do"
+            - expression > unary_expression > simple_expression > variable: "block"
+          - single_name_part: "to"
+          - expression > unary_expression > simple_expression > variable: "result"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list
@@ -728,13 +643,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "times"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "apply"
-        - expression > unary_expression > simple_expression > variable: "block"
-        - expression > unary_expression > simple_expression > variable: "n"
-        - single_name_part: "times"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "apply"
+      - expression > unary_expression > simple_expression > variable: "block"
+      - expression > unary_expression > simple_expression > variable: "n"
+      - single_name_part: "times"
   - eol_comment: "Choose a random item from a list."
   - function_definition
     - function_signature
@@ -745,16 +658,14 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > list_element
-        - single_name_part: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > list_element
+      - single_name_part: "list"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "random"
         - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "random"
-          - expression > unary_expression > simple_expression > function_call
-            - single_name_part: "length"
-            - single_name_part: "of"
-            - expression > unary_expression > simple_expression > variable: "list"
+          - single_name_part: "length"
+          - single_name_part: "of"
+          - expression > unary_expression > simple_expression > variable: "list"
   - sigiled_comment: "========================================"
   - eol_comment: "Return true if all blocks in the {list-of-blocks} are true."
   - function_definition
@@ -764,24 +675,19 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "item-block"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list-of-blocks"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "if"
-            - single_name_part: "not"
-            - expression > unary_expression > simple_expression > variable: "item-block"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
-          - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item-block"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list-of-blocks"
+      - newindent_block
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "if"
+          - single_name_part: "not"
+          - expression > unary_expression > simple_expression > variable: "item-block"
+          - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+        - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
   - eol_comment: "Return true if any block in the {list-of-blocks} are true."
   - function_definition
     - function_signature
@@ -790,23 +696,18 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "item-block"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list-of-blocks"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "if"
-            - expression > unary_expression > simple_expression > variable: "item-block"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
-          - statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item-block"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list-of-blocks"
+      - newindent_block
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "if"
+          - expression > unary_expression > simple_expression > variable: "item-block"
+          - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+        - statement > expression > unary_expression > simple_expression > literal > boolean: "false"
   - eol_comment: "If any. Transparent like \"if\"."
   - function_definition
     - function_signature
@@ -819,15 +720,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "consequence"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "any"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "list-of-blocks"
-        - expression > unary_expression > simple_expression > variable: "consequence"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "any"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "list-of-blocks"
+      - expression > unary_expression > simple_expression > variable: "consequence"
   - eol_comment: "If all. Transparent like \"if\"."
   - function_definition
     - function_signature
@@ -840,15 +739,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "consequence"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "all"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "list-of-blocks"
-        - expression > unary_expression > simple_expression > variable: "consequence"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "all"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "list-of-blocks"
+      - expression > unary_expression > simple_expression > variable: "consequence"
   - sigiled_comment: "========================================"
   - eol_comment: "The \"options-block\" is a sequence of \"[condition] do [block]\" statements."
   - eol_comment: "Optionally followed by a default statement."
@@ -860,11 +757,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "from"
       - name_paren > paren > single_name_part: "options-block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "do"
-        - expression > unary_expression > simple_expression > variable: "options-block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "do"
+      - expression > unary_expression > simple_expression > variable: "options-block"
   - eol_comment: "Note the :: in the following function definition."
   - function_definition
     - function_signature
@@ -873,16 +768,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > variable: "condition"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > variable: "condition"
+      - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "do"
+        - expression > unary_expression > simple_expression > variable: "block"
   - eol_comment: "This is to be used by \"choose from\"."
   - function_definition
     - function_signature
@@ -894,19 +785,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "consequence"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "all"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "conditions"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "consequence"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "all"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "conditions"
+      - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "do"
+        - expression > unary_expression > simple_expression > variable: "consequence"
   - eol_comment: "This is to be used by \"choose from\"."
   - function_definition
     - function_signature
@@ -918,19 +805,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "consequence"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "any"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "conditions"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "consequence"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "any"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "conditions"
+      - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "do"
+        - expression > unary_expression > simple_expression > variable: "consequence"
   - eol_comment: "See ex/middle."
   - function_definition
     - function_signature
@@ -939,14 +822,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "result"
     - colon: ":"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > unary_expression > simple_expression > variable: "condition"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > variable: "result"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > unary_expression > simple_expression > variable: "condition"
+      - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > variable: "result"
   - sigiled_comment: "========================================"
   - eol_comment: "Create a pretty string of \"list\"."
   - function_definition
@@ -957,7 +836,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "result"
         - colon: ":"
@@ -969,7 +847,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "if"
             - expression > unary_expression > simple_expression > function_call
@@ -988,19 +865,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
                   - expression > unary_expression > simple_expression > variable: "item"
                 - operator: "="
                 - expression > unary_expression > simple_expression > literal > string: "\"map\""
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "append"
-                - expression > unary_expression > simple_expression > function_call
-                  - expression > unary_expression > simple_expression > variable: "item"
-                  - single_name_part: "as"
-                  - single_name_part: "list"
-                - single_name_part: "to"
-                - expression > unary_expression > simple_expression > variable: "result"
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "append"
+              - expression > unary_expression > simple_expression > function_call
+                - expression > unary_expression > simple_expression > variable: "item"
+                - single_name_part: "as"
+                - single_name_part: "list"
+              - single_name_part: "to"
+              - expression > unary_expression > simple_expression > variable: "result"
             - single_name_part: "otherwise"
             - newindent_block
-              - new_indent: "\t"
               - statement > expression > unary_expression > simple_expression > function_call
                 - single_name_part: "if"
                 - expression > unary_expression > simple_expression > variable: "item"
@@ -1036,13 +910,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "end"
               - single_name_part: "of"
               - expression > unary_expression > simple_expression > variable: "list"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "append"
-                - literal > string: "\", \""
-                - single_name_part: "to"
-                - expression > unary_expression > simple_expression > variable: "result"
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "append"
+              - literal > string: "\", \""
+              - single_name_part: "to"
+              - expression > unary_expression > simple_expression > variable: "result"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "append"
         - literal > string: "\"}\""
@@ -1061,22 +933,20 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "to"
       - name_paren > paren > single_name_part: "str"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - expression > binary_expression
-          - unary_expression > simple_expression > function_call
-            - single_name_part: "type"
-            - single_name_part: "of"
-            - expression > unary_expression > simple_expression > variable: "value"
-          - operator: "="
-          - expression > unary_expression > simple_expression > literal > string: "\"string\""
-        - block > statement > expression > unary_expression > simple_expression > function_call
-          - single_name_part: "append"
-          - literal > string: "\"'\""
-          - single_name_part: "to"
-          - expression > unary_expression > simple_expression > variable: "str"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - expression > binary_expression
+        - unary_expression > simple_expression > function_call
+          - single_name_part: "type"
+          - single_name_part: "of"
+          - expression > unary_expression > simple_expression > variable: "value"
+        - operator: "="
+        - expression > unary_expression > simple_expression > literal > string: "\"string\""
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
+        - literal > string: "\"'\""
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "str"
   - eol_comment: "Output a pretty printed \"list\"."
   - function_definition
     - function_signature
@@ -1086,14 +956,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "as"
         - name_list > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > variable: "list"
-          - single_name_part: "as"
-          - single_name_part: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > variable: "list"
+        - single_name_part: "as"
+        - single_name_part: "list"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "showline"
@@ -1103,7 +971,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "list"
@@ -1120,13 +987,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "as"
         - name_list > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "list"
-        - single_name_part: "as"
-        - single_name_part: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "list"
+      - single_name_part: "as"
+      - single_name_part: "list"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "list"
@@ -1135,13 +1000,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "list"
         - name_list > single_name_part: "↲"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "list"
-        - single_name_part: "as"
-        - single_name_part: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "list"
+      - single_name_part: "as"
+      - single_name_part: "list"
   - eol_comment: "Output a pretty printed \"map\"."
   - function_definition
     - function_signature
@@ -1152,7 +1015,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "map"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - literal > string: "\"{\""
@@ -1168,7 +1030,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - single_name_part: "of"
           - expression > unary_expression > simple_expression > variable: "map"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "show"
             - expression > unary_expression > simple_expression > list_element
@@ -1183,11 +1044,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
                 - single_name_part: "length"
                 - single_name_part: "of"
                 - expression > unary_expression > simple_expression > variable: "map"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "show"
-                - literal > string: "\", \""
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "show"
+              - literal > string: "\", \""
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - literal > string: "\"}\""
@@ -1200,7 +1059,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "map"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "map"
@@ -1217,13 +1075,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "as"
         - name_list > single_name_part: "map"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "map"
-        - single_name_part: "as"
-        - single_name_part: "map"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "map"
+      - single_name_part: "as"
+      - single_name_part: "map"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "map"
@@ -1232,13 +1088,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "map"
         - name_list > single_name_part: "↲"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "map"
-        - single_name_part: "as"
-        - single_name_part: "map"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "map"
+      - single_name_part: "as"
+      - single_name_part: "map"
   - sigiled_comment: "========================================"
   - eol_comment: "Can be used to create reduce functions."
   - function_definition
@@ -1255,7 +1109,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - expression > unary_expression > simple_expression > variable: "initial"
@@ -1265,11 +1118,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "#item"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "do"
-            - expression > unary_expression > simple_expression > variable: "block"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "do"
+          - expression > unary_expression > simple_expression > variable: "block"
   - sigiled_comment: "- WARNING: To prevent \"item\" leaking into the top level "
   - eol_comment: "we have to give it an initial value."
   - eol_comment: "Sum all the elements in the list (or range)."
@@ -1278,109 +1129,98 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "sum"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "with"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "sum"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > number: "0"
-          - statement > assignment_statement
-            - variable: "item"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > number: "0"
-        - single_name_part: "apply"
-        - block > statement > assignment_statement
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "with"
+      - newindent_block
+        - statement > assignment_statement
           - variable: "sum"
           - colon: ":"
-          - expression > binary_expression
-            - unary_expression > simple_expression > variable: "sum"
-            - operator: "+"
-            - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "on"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list"
+          - expression > unary_expression > simple_expression > literal > number: "0"
+        - statement > assignment_statement
+          - variable: "item"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > number: "0"
+      - single_name_part: "apply"
+      - block > statement > assignment_statement
+        - variable: "sum"
+        - colon: ":"
+        - expression > binary_expression
+          - unary_expression > simple_expression > variable: "sum"
+          - operator: "+"
+          - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "on"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list"
   - eol_comment: "Multiply all the elements in the list (or range)."
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "product"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "with"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "product"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > number: "1"
-          - statement > assignment_statement
-            - variable: "item"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > number: "0"
-        - single_name_part: "apply"
-        - block > statement > assignment_statement
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "with"
+      - newindent_block
+        - statement > assignment_statement
           - variable: "product"
           - colon: ":"
-          - expression > binary_expression
-            - unary_expression > simple_expression > variable: "product"
-            - operator: "×"
-            - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "on"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list"
+          - expression > unary_expression > simple_expression > literal > number: "1"
+        - statement > assignment_statement
+          - variable: "item"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > number: "0"
+      - single_name_part: "apply"
+      - block > statement > assignment_statement
+        - variable: "product"
+        - colon: ":"
+        - expression > binary_expression
+          - unary_expression > simple_expression > variable: "product"
+          - operator: "×"
+          - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "on"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list"
   - eol_comment: "Concatenate values in a list into a string."
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "concatenate"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "with"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "str"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > string: "\"\""
-          - statement > assignment_statement
-            - variable: "item"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > string: "\"\""
-        - single_name_part: "apply"
-        - block > statement > expression > unary_expression > simple_expression > function_call
-          - single_name_part: "append"
-          - expression > unary_expression > simple_expression > variable: "item"
-          - single_name_part: "to"
-          - expression > unary_expression > simple_expression > variable: "str"
-        - single_name_part: "on"
-        - single_name_part: "each"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "with"
+      - newindent_block
+        - statement > assignment_statement
+          - variable: "str"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > string: "\"\""
+        - statement > assignment_statement
+          - variable: "item"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > string: "\"\""
+      - single_name_part: "apply"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
         - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "str"
+      - single_name_part: "on"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list"
   - eol_comment: "Create a copy of the \"list\"."
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "copy"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "based"
-        - single_name_part: "on"
-        - expression > unary_expression > simple_expression > variable: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "based"
+      - single_name_part: "on"
+      - expression > unary_expression > simple_expression > variable: "list"
   - eol_comment: "Join the contents of \"list1\" and \"list2\"."
   - eol_comment: "The original lists remain unchanged."
   - function_definition
@@ -1390,33 +1230,30 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "and"
       - name_paren > paren > single_name_part: "list2"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "with"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "list"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > function_call
-              - single_name_part: "copy"
-              - expression > unary_expression > simple_expression > variable: "list1"
-          - statement > assignment_statement
-            - variable: "item"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > list: "{}"
-        - single_name_part: "apply"
-        - block > statement > expression > unary_expression > simple_expression > function_call
-          - single_name_part: "append"
-          - expression > unary_expression > simple_expression > variable: "item"
-          - single_name_part: "to"
-          - expression > unary_expression > simple_expression > variable: "list"
-        - single_name_part: "on"
-        - single_name_part: "each"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "with"
+      - newindent_block
+        - statement > assignment_statement
+          - variable: "list"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > function_call
+            - single_name_part: "copy"
+            - expression > unary_expression > simple_expression > variable: "list1"
+        - statement > assignment_statement
+          - variable: "item"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > list: "{}"
+      - single_name_part: "apply"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
         - expression > unary_expression > simple_expression > variable: "item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list2"
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "list"
+      - single_name_part: "on"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list2"
   - sigiled_comment: "========================================"
   - function_definition
     - function_signature
@@ -1427,43 +1264,37 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "by"
       - name_paren > paren > single_name_part: "divisor"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > binary_expression
-        - unary_expression > simple_expression > literal > number: "0"
-        - operator: "="
-        - expression > binary_expression
-          - unary_expression > simple_expression > variable: "n"
-          - operator: "%"
-          - expression > unary_expression > simple_expression > variable: "divisor"
+    - function_statements > statement > expression > binary_expression
+      - unary_expression > simple_expression > literal > number: "0"
+      - operator: "="
+      - expression > binary_expression
+        - unary_expression > simple_expression > variable: "n"
+        - operator: "%"
+        - expression > unary_expression > simple_expression > variable: "divisor"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "inc"
       - name_paren > ref_paren > ref_name > single_name_part: "var"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > assignment_statement
-        - variable: "#var"
-        - colon: ":"
-        - expression > binary_expression
-          - unary_expression > simple_expression > variable: "#var"
-          - operator: "+"
-          - expression > unary_expression > simple_expression > literal > number: "1"
+    - function_statements > statement > assignment_statement
+      - variable: "#var"
+      - colon: ":"
+      - expression > binary_expression
+        - unary_expression > simple_expression > variable: "#var"
+        - operator: "+"
+        - expression > unary_expression > simple_expression > literal > number: "1"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "dec"
       - name_paren > ref_paren > ref_name > single_name_part: "var"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > assignment_statement
-        - variable: "#var"
-        - colon: ":"
-        - expression > binary_expression
-          - unary_expression > simple_expression > variable: "#var"
-          - operator: "-"
-          - expression > unary_expression > simple_expression > literal > number: "1"
+    - function_statements > statement > assignment_statement
+      - variable: "#var"
+      - colon: ":"
+      - expression > binary_expression
+        - unary_expression > simple_expression > variable: "#var"
+        - operator: "-"
+        - expression > unary_expression > simple_expression > literal > number: "1"
   - function_definition
     - function_signature
       - name_paren > name_part
@@ -1472,11 +1303,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > list_element
-        - single_name_part: "list"
-        - expression > unary_expression > simple_expression > literal > number: "1"
+    - function_statements > statement > expression > unary_expression > simple_expression > list_element
+      - single_name_part: "list"
+      - expression > unary_expression > simple_expression > literal > number: "1"
   - function_definition
     - function_signature
       - name_paren > name_part
@@ -1485,37 +1314,31 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > list_element
-        - single_name_part: "list"
-        - expression > unary_expression > simple_expression > function_call
-          - single_name_part: "length"
-          - single_name_part: "of"
-          - expression > unary_expression > simple_expression > variable: "list"
+    - function_statements > statement > expression > unary_expression > simple_expression > list_element
+      - single_name_part: "list"
+      - expression > unary_expression > simple_expression > function_call
+        - single_name_part: "length"
+        - single_name_part: "of"
+        - expression > unary_expression > simple_expression > variable: "list"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "square"
       - name_paren > paren > single_name_part: "x"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > binary_expression
-        - unary_expression > simple_expression > variable: "x"
-        - operator: "×"
-        - expression > unary_expression > simple_expression > variable: "x"
+    - function_statements > statement > expression > binary_expression
+      - unary_expression > simple_expression > variable: "x"
+      - operator: "×"
+      - expression > unary_expression > simple_expression > variable: "x"
   - eol_comment: "Return true 50% of the time."
   - function_definition
     - function_signature > name_paren > name_part > name_list > single_name_part: "heads"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > binary_expression
-        - unary_expression > simple_expression > function_call
-          - single_name_part: "random"
-          - literal > number: "2"
-        - operator: "="
-        - expression > unary_expression > simple_expression > literal > number: "1"
+    - function_statements > statement > expression > binary_expression
+      - unary_expression > simple_expression > function_call
+        - single_name_part: "random"
+        - literal > number: "2"
+      - operator: "="
+      - expression > unary_expression > simple_expression > literal > number: "1"
   - eol_comment: "Swap the values of \"a\" and \"b\"."
   - function_definition
     - function_signature
@@ -1526,7 +1349,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > ref_paren > ref_name > single_name_part: "b"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "temp"
         - colon: ":"

@@ -179,7 +179,7 @@ WHITETAB = _{ " " | "\t" }
 function_signature = { name_paren+ }
 // Indentation
 // Put an indent on the stack, future indents must match this indent
-new_indent = @{ PUSH(" "{2,} | "\t") }
+new_indent = _{ PUSH(" "{2,} | "\t") }
 continue_indent = _{ PEEK_ALL }
 // A function definition
 inner_statements = _{ 

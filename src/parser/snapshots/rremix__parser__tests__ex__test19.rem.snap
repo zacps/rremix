@@ -8,7 +8,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - variable: "block-list"
     - colon: ":"
     - expression > unary_expression > simple_expression > literal > list
-      - new_indent: "\t"
       - list_item > block > statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > string: "\"first element\""
@@ -64,20 +63,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_list > single_name_part: "a"
       - name_list > single_name_part: "function"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - literal > string: "\"This is from the called function.\""
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - literal > string: "\"This is from the called function.\""
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "for"
     - single_name_part: "each"
     - expression > unary_expression > simple_expression > variable: "func"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > variable: "block-list"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "do"
-        - expression > unary_expression > simple_expression > variable: "func"
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "do"
+      - expression > unary_expression > simple_expression > variable: "func"
   - EOI: ""

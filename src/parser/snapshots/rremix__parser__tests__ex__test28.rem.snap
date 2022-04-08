@@ -11,16 +11,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "!"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > binary_expression
           - unary_expression > simple_expression > variable: "n"
           - operator: "="
           - expression > unary_expression > simple_expression > literal > number: "0"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
       - statement > expression > binary_expression
         - unary_expression > simple_expression > variable: "n"
         - operator: "×"
@@ -59,13 +56,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - colon: ":"
     - expression > unary_expression > simple_expression > function_call
       - single_name_part: "apply"
-      - block
-        - new_indent: "\t"
-        - statement > expression > unary_expression > simple_expression > function_call
-          - single_name_part: "append"
-          - literal > string: "\"-hi\""
-          - single_name_part: "to"
-          - expression > unary_expression > simple_expression > variable: "word"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "append"
+        - literal > string: "\"-hi\""
+        - single_name_part: "to"
+        - expression > unary_expression > simple_expression > variable: "word"
       - single_name_part: "to"
       - single_name_part: "each"
       - expression > unary_expression > simple_expression > variable: "word"

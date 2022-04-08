@@ -10,16 +10,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "!"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > binary_expression
           - unary_expression > simple_expression > variable: "n"
           - operator: "="
           - expression > unary_expression > simple_expression > literal > number: "0"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
+        - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
       - statement > expression > binary_expression
         - unary_expression > simple_expression > variable: "n"
         - operator: "×"
@@ -35,12 +32,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "..."
       - name_paren > paren > single_name_part: "finish"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - expression > unary_expression > simple_expression > variable: "start"
-        - single_name_part: "to"
-        - expression > unary_expression > simple_expression > variable: "finish"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - expression > unary_expression > simple_expression > variable: "start"
+      - single_name_part: "to"
+      - expression > unary_expression > simple_expression > variable: "finish"
   - statement > assignment_statement
     - variable: "range"
     - colon: ":"
@@ -74,14 +69,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - literal > number: "1"
       - single_name_part: "..."
       - literal > number: "4"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - literal > list
-          - list_item > expression > unary_expression > simple_expression > variable: "n"
-          - list_item > expression > unary_expression > simple_expression > literal > string: "\"! = \""
-          - list_item > expression > unary_expression > simple_expression > function_call
-            - expression > unary_expression > simple_expression > variable: "n"
-            - single_name_part: "!"
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - literal > list
+        - list_item > expression > unary_expression > simple_expression > variable: "n"
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\"! = \""
+        - list_item > expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > variable: "n"
+          - single_name_part: "!"
   - EOI: ""

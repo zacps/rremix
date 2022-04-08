@@ -19,16 +19,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "array"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > literal > number: "999"
+    - function_statements > statement > expression > unary_expression > simple_expression > literal > number: "999"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "print"
       - name_paren > paren > single_name_part: "array"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "a"
         - colon: ":"
@@ -59,7 +56,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "blocker"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - expression > unary_expression > simple_expression > variable: "blocker"
@@ -71,11 +67,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > string: "\"Aargh1!!\""
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "catch"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - literal > string: "\"Aargh2!!\""
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - literal > string: "\"Aargh2!!\""
   - statement > assignment_statement
     - variable: "x"
     - colon: ":"

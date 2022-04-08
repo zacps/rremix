@@ -13,7 +13,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "separator"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "string"
         - colon: ":"
@@ -25,7 +24,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "in"
         - expression > unary_expression > simple_expression > variable: "list"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "append"
             - expression > unary_expression > simple_expression > variable: "word"
@@ -39,13 +37,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "end"
               - single_name_part: "of"
               - expression > unary_expression > simple_expression > variable: "list"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "append"
-                - expression > unary_expression > simple_expression > variable: "separator"
-                - single_name_part: "to"
-                - expression > unary_expression > simple_expression > variable: "string"
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "append"
+              - expression > unary_expression > simple_expression > variable: "separator"
+              - single_name_part: "to"
+              - expression > unary_expression > simple_expression > variable: "string"
       - statement > expression > unary_expression > simple_expression > variable: "string"
   - statement > assignment_statement
     - variable: "words"
@@ -77,15 +73,13 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "#item"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list"
-        - expression > unary_expression > simple_expression > variable: "block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "#item"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list"
+      - expression > unary_expression > simple_expression > variable: "block"
   - function_definition
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "join2"
@@ -94,7 +88,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "separator"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "string"
         - colon: ":"
@@ -104,7 +97,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > variable: "list"
         - single_name_part: "execute"
         - block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: "append"
             - expression > unary_expression > simple_expression > variable: "word"
@@ -118,13 +110,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
               - single_name_part: "end"
               - single_name_part: "of"
               - expression > unary_expression > simple_expression > variable: "list"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > expression > unary_expression > simple_expression > function_call
-                - single_name_part: "append"
-                - expression > unary_expression > simple_expression > variable: "separator"
-                - single_name_part: "to"
-                - expression > unary_expression > simple_expression > variable: "string"
+            - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+              - single_name_part: "append"
+              - expression > unary_expression > simple_expression > variable: "separator"
+              - single_name_part: "to"
+              - expression > unary_expression > simple_expression > variable: "string"
         - single_name_part: "with"
         - single_name_part: "each"
         - expression > unary_expression > simple_expression > variable: "word"
@@ -155,7 +145,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "more"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "word"
         - colon: ":"
@@ -182,7 +171,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "more"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "list"
         - colon: ":"

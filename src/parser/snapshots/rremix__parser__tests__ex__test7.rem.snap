@@ -12,13 +12,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "condition-block"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "repeat"
-        - expression > unary_expression > simple_expression > variable: "block"
-        - single_name_part: "until"
-        - expression > unary_expression > simple_expression > variable: "condition-block"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "repeat"
+      - expression > unary_expression > simple_expression > variable: "block"
+      - single_name_part: "until"
+      - expression > unary_expression > simple_expression > variable: "condition-block"
   - statement > assignment_statement
     - variable: "x"
     - colon: ":"
@@ -29,7 +27,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "repeat"
     - block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - expression > unary_expression > simple_expression > variable: "x"
@@ -56,7 +53,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - operator: ">"
       - expression > unary_expression > simple_expression > literal > number: "10"
     - newindent_block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - expression > unary_expression > simple_expression > variable: "x"

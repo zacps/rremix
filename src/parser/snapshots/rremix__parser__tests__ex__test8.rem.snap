@@ -9,12 +9,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "sqr"
       - name_paren > paren > single_name_part: "v"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > binary_expression
-        - unary_expression > simple_expression > variable: "v"
-        - operator: "×"
-        - expression > unary_expression > simple_expression > variable: "v"
+    - function_statements > statement > expression > binary_expression
+      - unary_expression > simple_expression > variable: "v"
+      - operator: "×"
+      - expression > unary_expression > simple_expression > variable: "v"
   - statement > assignment_statement
     - variable: "n"
     - colon: ":"

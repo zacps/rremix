@@ -41,12 +41,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "by"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
-      - newindent_block
-        - new_indent: "\t"
-        - statement > expression > binary_expression
-          - unary_expression > expression > unary_expression > simple_expression > variable: "x"
-          - operator: "≥"
-          - expression > unary_expression > simple_expression > literal > number: "0"
+      - newindent_block > statement > expression > binary_expression
+        - unary_expression > expression > unary_expression > simple_expression > variable: "x"
+        - operator: "≥"
+        - expression > unary_expression > simple_expression > literal > number: "0"
   - statement > assignment_statement
     - variable: "valid-rain-fall"
     - colon: ":"
@@ -56,12 +54,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "from"
       - expression > unary_expression > simple_expression > variable: "positive-rain-fall"
       - single_name_part: "until"
-      - newindent_block
-        - new_indent: "\t"
-        - statement > expression > binary_expression
-          - unary_expression > simple_expression > variable: "x"
-          - operator: "="
-          - expression > unary_expression > simple_expression > literal > number: "999"
+      - newindent_block > statement > expression > binary_expression
+        - unary_expression > simple_expression > variable: "x"
+        - operator: "="
+        - expression > unary_expression > simple_expression > literal > number: "999"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "show"
     - literal > string: "\"Clean data:\""
@@ -83,22 +79,18 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - unary_expression > simple_expression > variable: "count"
       - operator: "="
       - expression > unary_expression > simple_expression > literal > number: "0"
-    - block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - literal > string: "\"No valid data.\""
+    - block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - literal > string: "\"No valid data.\""
     - single_name_part: "otherwise"
-    - block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - literal > list
-          - list_item > expression > unary_expression > simple_expression > literal > string: "\"The average rainfall is \""
-          - list_item > expression > binary_expression
-            - unary_expression > simple_expression > function_call
-              - single_name_part: "sum"
-              - expression > unary_expression > simple_expression > variable: "valid-rain-fall"
-            - operator: "÷"
-            - expression > unary_expression > simple_expression > variable: "count"
+    - block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - literal > list
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\"The average rainfall is \""
+        - list_item > expression > binary_expression
+          - unary_expression > simple_expression > function_call
+            - single_name_part: "sum"
+            - expression > unary_expression > simple_expression > variable: "valid-rain-fall"
+          - operator: "÷"
+          - expression > unary_expression > simple_expression > variable: "count"
   - EOI: ""

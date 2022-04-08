@@ -44,13 +44,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "length"
       - single_name_part: "of"
       - expression > unary_expression > simple_expression > variable: "window"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > list_element
-          - single_name_part: "window"
-          - expression > unary_expression > simple_expression > variable: "n"
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > list_element
+        - single_name_part: "window"
+        - expression > unary_expression > simple_expression > variable: "n"
   - statement > list_element_assignment
     - single_name_part: "window"
     - expression > unary_expression > simple_expression > variable: "z"

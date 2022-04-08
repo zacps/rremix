@@ -13,13 +13,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "false"
     - block
       - teol_comment: "; comment"
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "a"
     - single_name_part: "otherwise"
     - block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - literal > string: "\"no\""
@@ -30,7 +28,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "if"
     - expression > unary_expression > simple_expression > literal > boolean: "true"
     - block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "a"
@@ -38,9 +35,7 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "new"
         - single_name_part: "line"
     - single_name_part: "otherwise"
-    - block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - literal > string: "\"no\""
+    - block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - literal > string: "\"no\""
   - EOI: ""

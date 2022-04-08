@@ -14,7 +14,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "finish"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "start"
@@ -27,11 +26,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
           - unary_expression > simple_expression > variable: "start"
           - operator: "="
           - expression > unary_expression > simple_expression > variable: "finish"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "break"
-            - single_name_part: "out"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "break"
+          - single_name_part: "out"
       - statement > assignment_statement
         - variable: "start"
         - colon: ":"
@@ -54,11 +51,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > number: "1"
     - single_name_part: "to"
     - literal > number: "100"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - literal > list
-          - list_item > expression > unary_expression > simple_expression > variable: "i"
-          - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - literal > list
+        - list_item > expression > unary_expression > simple_expression > variable: "i"
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
   - EOI: ""

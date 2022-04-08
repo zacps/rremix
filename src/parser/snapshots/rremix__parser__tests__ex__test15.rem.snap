@@ -7,11 +7,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "use"
     - expression > unary_expression > simple_expression > variable: "some"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > variable: "some"
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > variable: "some"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - literal > list
@@ -32,13 +30,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - expression > unary_expression > simple_expression > variable: "item"
     - single_name_part: "in"
     - expression > unary_expression > simple_expression > variable: "nums"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "show"
-        - literal > list
-          - list_item > expression > unary_expression > simple_expression > variable: "item"
-          - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "show"
+      - literal > list
+        - list_item > expression > unary_expression > simple_expression > variable: "item"
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "new"
     - single_name_part: "line"
@@ -68,7 +64,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > assignment_statement
         - variable: "#special"
         - colon: ":"

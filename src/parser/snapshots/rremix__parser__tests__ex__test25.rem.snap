@@ -12,7 +12,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: ".these"
         - literal > string: "'a'"
@@ -51,7 +50,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "a"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "showline"
         - literal > list
@@ -61,7 +59,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "one"
         - expression > unary_expression > simple_expression > variable: "a"
         - newindent_block
-          - new_indent: "\t"
           - statement > expression > unary_expression > simple_expression > function_call
             - single_name_part: ".these"
             - literal > string: "'a'"
@@ -108,7 +105,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "one"
     - expression > unary_expression > simple_expression > variable: "a"
     - newindent_block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: ".these"
         - literal > string: "'a'"

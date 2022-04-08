@@ -14,31 +14,27 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > number: "1"
     - single_name_part: "to"
     - literal > number: "100"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "if"
-        - block > statement > expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > function_call
-            - expression > unary_expression > simple_expression > variable: "n"
-            - single_name_part: "is"
-            - single_name_part: "divisible"
-            - single_name_part: "by"
-            - literal > number: "4"
-          - single_name_part: "and"
-          - expression > unary_expression > simple_expression > function_call
-            - expression > unary_expression > simple_expression > variable: "n"
-            - single_name_part: "is"
-            - single_name_part: "divisible"
-            - single_name_part: "by"
-            - literal > number: "5"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "showline"
-            - literal > list
-              - list_item > expression > unary_expression > expression > unary_expression > simple_expression > variable: "n"
-              - list_item > expression > unary_expression > simple_expression > literal > string: "\" is divisible by 20\""
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "if"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > variable: "n"
+          - single_name_part: "is"
+          - single_name_part: "divisible"
+          - single_name_part: "by"
+          - literal > number: "4"
+        - single_name_part: "and"
+        - expression > unary_expression > simple_expression > function_call
+          - expression > unary_expression > simple_expression > variable: "n"
+          - single_name_part: "is"
+          - single_name_part: "divisible"
+          - single_name_part: "by"
+          - literal > number: "5"
+      - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "showline"
+        - literal > list
+          - list_item > expression > unary_expression > expression > unary_expression > simple_expression > variable: "n"
+          - list_item > expression > unary_expression > simple_expression > literal > string: "\" is divisible by 20\""
   - statement > assignment_statement
     - variable: "list"
     - colon: ":"
@@ -51,31 +47,28 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "by"
       - expression > unary_expression > simple_expression > variable: "n"
       - single_name_part: "where"
-      - newindent_block
-        - new_indent: "\t"
-        - statement > expression > unary_expression > simple_expression > function_call
-          - single_name_part: "all"
-          - single_name_part: "of"
-          - literal > list
-            - new_indent: "\t"
-            - list_item > expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > variable: "n"
-              - single_name_part: "is"
-              - single_name_part: "divisible"
-              - single_name_part: "by"
-              - literal > number: "7"
-            - list_item > expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > variable: "n"
-              - single_name_part: "is"
-              - single_name_part: "divisible"
-              - single_name_part: "by"
-              - literal > number: "5"
-            - list_item > expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > variable: "n"
-              - single_name_part: "is"
-              - single_name_part: "divisible"
-              - single_name_part: "by"
-              - literal > number: "3"
+      - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "all"
+        - single_name_part: "of"
+        - literal > list
+          - list_item > expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "n"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - literal > number: "7"
+          - list_item > expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "n"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - literal > number: "5"
+          - list_item > expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "n"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - literal > number: "3"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > variable: "list"

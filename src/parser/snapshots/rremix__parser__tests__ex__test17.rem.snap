@@ -30,13 +30,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - single_name_part: "length"
         - single_name_part: "of"
         - expression > unary_expression > simple_expression > variable: "my-list"
-    - newindent_block
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "showline"
-        - expression > unary_expression > simple_expression > list_element
-          - single_name_part: "my-list"
-          - expression > unary_expression > simple_expression > variable: "i"
+    - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "showline"
+      - expression > unary_expression > simple_expression > list_element
+        - single_name_part: "my-list"
+        - expression > unary_expression > simple_expression > variable: "i"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > variable: "my-list"

@@ -18,14 +18,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "by"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
-      - newindent_block
-        - new_indent: "\t"
-        - statement > expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > variable: "x"
-          - single_name_part: "is"
-          - single_name_part: "divisible"
-          - single_name_part: "by"
-          - literal > number: "5"
+      - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > variable: "x"
+        - single_name_part: "is"
+        - single_name_part: "divisible"
+        - single_name_part: "by"
+        - literal > number: "5"
   - statement > expression > unary_expression > simple_expression > function_call
     - single_name_part: "showline"
     - expression > unary_expression > simple_expression > variable: "list"
@@ -46,33 +44,28 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - name_list > single_name_part: "in"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
-    - function_statements
-      - new_indent: "\t"
-      - statement > expression > unary_expression > simple_expression > function_call
-        - single_name_part: "for"
-        - single_name_part: "each"
-        - expression > unary_expression > simple_expression > variable: "divisor"
-        - single_name_part: "in"
-        - expression > unary_expression > simple_expression > variable: "list"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "show"
-            - literal > list
-              - list_item > expression > unary_expression > simple_expression > variable: "divisor"
-              - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "if"
-            - expression > unary_expression > simple_expression > function_call
-              - expression > unary_expression > simple_expression > variable: "number"
-              - single_name_part: "is"
-              - single_name_part: "divisible"
-              - single_name_part: "by"
-              - expression > unary_expression > simple_expression > variable: "divisor"
-            - newindent_block
-              - new_indent: "\t"
-              - statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
-          - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
+    - function_statements > statement > expression > unary_expression > simple_expression > function_call
+      - single_name_part: "for"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "divisor"
+      - single_name_part: "in"
+      - expression > unary_expression > simple_expression > variable: "list"
+      - newindent_block
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "show"
+          - literal > list
+            - list_item > expression > unary_expression > simple_expression > variable: "divisor"
+            - list_item > expression > unary_expression > simple_expression > literal > string: "\" \""
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "if"
+          - expression > unary_expression > simple_expression > function_call
+            - expression > unary_expression > simple_expression > variable: "number"
+            - single_name_part: "is"
+            - single_name_part: "divisible"
+            - single_name_part: "by"
+            - expression > unary_expression > simple_expression > variable: "divisor"
+          - newindent_block > statement > return_statement > expression > unary_expression > simple_expression > literal > boolean: "false"
+        - statement > expression > unary_expression > simple_expression > literal > boolean: "true"
   - eol_comment: "Primes to 100."
   - sigiled_comment: "=============="
   - statement > assignment_statement
@@ -95,17 +88,15 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "by"
       - expression > unary_expression > simple_expression > variable: "x"
       - single_name_part: "where"
-      - newindent_block
-        - new_indent: "\t"
-        - statement > expression > unary_expression > simple_expression > function_call
-          - expression > unary_expression > simple_expression > variable: "x"
-          - single_name_part: "is"
-          - single_name_part: "not"
-          - single_name_part: "divisible"
-          - single_name_part: "by"
-          - single_name_part: "any"
-          - single_name_part: "in"
-          - expression > unary_expression > simple_expression > variable: "primes"
+      - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > variable: "x"
+        - single_name_part: "is"
+        - single_name_part: "not"
+        - single_name_part: "divisible"
+        - single_name_part: "by"
+        - single_name_part: "any"
+        - single_name_part: "in"
+        - expression > unary_expression > simple_expression > variable: "primes"
   - statement > assignment_statement
     - variable: "primes"
     - colon: ":"

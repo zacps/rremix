@@ -13,7 +13,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "do"
         - expression > unary_expression > simple_expression > variable: "block"
@@ -22,11 +21,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > function_call
           - single_name_part: "do"
           - expression > unary_expression > simple_expression > variable: "condition-block"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > expression > unary_expression > simple_expression > function_call
-            - single_name_part: "break"
-            - single_name_part: "out"
+        - newindent_block > statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "break"
+          - single_name_part: "out"
       - statement > redo_statement > redo: "redo"
   - function_definition
     - function_signature
@@ -35,7 +32,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "value"
     - colon: ":"
     - function_statements
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "show"
         - expression > unary_expression > simple_expression > variable: "string"
@@ -66,7 +62,6 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - single_name_part: "until"
     - block > statement > expression > unary_expression > simple_expression > variable: "conditionA"
     - newindent_block
-      - new_indent: "\t"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "line"
         - literal > string: "\"inside conditionA: \""
@@ -78,12 +73,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > function_call
         - single_name_part: "if"
         - expression > unary_expression > simple_expression > variable: "conditionB"
-        - newindent_block
-          - new_indent: "\t"
-          - statement > assignment_statement
-            - variable: "conditionA"
-            - colon: ":"
-            - expression > unary_expression > simple_expression > literal > boolean: "true"
+        - newindent_block > statement > assignment_statement
+          - variable: "conditionA"
+          - colon: ":"
+          - expression > unary_expression > simple_expression > literal > boolean: "true"
       - statement > assignment_statement
         - variable: "conditionB"
         - colon: ":"
