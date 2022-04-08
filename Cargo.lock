@@ -353,6 +353,7 @@ dependencies = [
  "codespan-reporting",
  "derivative",
  "insta",
+ "once_cell",
  "pest",
  "pest_derive",
  "test-case",

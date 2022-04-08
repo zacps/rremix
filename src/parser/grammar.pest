@@ -179,7 +179,8 @@ function_call = {
 }
 
 create_call = { "fail" }
-list_element = { single_name_part ~ "[" ~ expression ~ "]" }
+list_element_end = _{ operator | NEWLINE | teol_comment | ")" | "]" | "}" }
+list_element = { single_name_part ~ "[" ~ expression ~ "]" ~ &list_element_end }
 
 // Functions
 //----------------------------------

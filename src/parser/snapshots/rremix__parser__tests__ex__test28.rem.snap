@@ -1,0 +1,132 @@
+---
+source: src/parser/mod.rs
+assertion_line: 72
+expression: "format_pair(&pair.unwrap(), 0, true)"
+---
+- program
+  - eol_comment: "Demonstrating \"apply\"."
+  - function_definition
+    - function_signature
+      - name_paren > paren > single_name_part: "n"
+      - name_paren > name_part > name_list > single_name_part: "!"
+    - colon: ":"
+    - function_statements
+      - continue_indent: ""
+      - new_indent: "\t"
+      - statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "if"
+        - expression > binary_expression
+          - unary_expression > simple_expression > variable: "n"
+          - operator: "="
+          - expression > unary_expression > simple_expression > literal > number: "0"
+        - newindent_block
+          - continue_indent: "\t"
+          - new_indent: "\t"
+          - statement > return_statement > expression > unary_expression > simple_expression > literal > number: "1"
+      - continue_indent: "\t"
+      - statement > expression > binary_expression
+        - unary_expression > simple_expression > variable: "n"
+        - operator: "×"
+        - expression > unary_expression > simple_expression > function_call
+          - expression > binary_expression
+            - unary_expression > simple_expression > variable: "n"
+            - operator: "-"
+            - expression > unary_expression > simple_expression > literal > number: "1"
+          - single_name_part: "!"
+  - statement > assignment_statement
+    - variable: "result"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "apply"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - expression > unary_expression > simple_expression > variable: "n"
+        - single_name_part: "!"
+      - single_name_part: "to"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "n"
+      - single_name_part: "from"
+      - expression > unary_expression > simple_expression > function_call
+        - literal > number: "1"
+        - single_name_part: "to"
+        - literal > number: "10"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "result"
+    - single_name_part: "as"
+    - single_name_part: "list"
+    - single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "n"
+    - single_name_part: "↲"
+  - statement > assignment_statement
+    - variable: "result"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "apply"
+      - block
+        - continue_indent: ""
+        - new_indent: "\t"
+        - statement > expression > unary_expression > simple_expression > function_call
+          - single_name_part: "append"
+          - literal > string: "\"-hi\""
+          - single_name_part: "to"
+          - expression > unary_expression > simple_expression > variable: "word"
+      - single_name_part: "to"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "word"
+      - single_name_part: "from"
+      - literal > list
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\"one\""
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\"two\""
+        - list_item > expression > unary_expression > simple_expression > literal > string: "\"three\""
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "result"
+    - single_name_part: "as"
+    - single_name_part: "list"
+    - single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "word"
+    - single_name_part: "↲"
+  - statement > assignment_statement
+    - variable: "result"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "apply"
+      - block > statement > expression > binary_expression
+        - unary_expression > simple_expression > variable: "a"
+        - operator: "×"
+        - expression > unary_expression > simple_expression > variable: "a"
+      - single_name_part: "to"
+      - single_name_part: "each"
+      - expression > unary_expression > simple_expression > variable: "a"
+      - single_name_part: "from"
+      - expression > unary_expression > simple_expression > function_call
+        - literal > number: "1"
+        - single_name_part: "to"
+        - literal > number: "10"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "result"
+    - single_name_part: "as"
+    - single_name_part: "list"
+    - single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "a"
+    - single_name_part: "↲"
+  - statement > assignment_statement
+    - variable: "another"
+    - colon: ":"
+    - expression > unary_expression > simple_expression > function_call
+      - single_name_part: "apply"
+      - block > statement > expression > unary_expression > simple_expression > function_call
+        - single_name_part: "random"
+        - literal > number: "100"
+      - literal > number: "12"
+      - single_name_part: "times"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "another"
+    - single_name_part: "as"
+    - single_name_part: "list"
+    - single_name_part: "↲"
+  - statement > expression > unary_expression > simple_expression > function_call
+    - expression > unary_expression > simple_expression > variable: "n"
+    - single_name_part: "↲"
+  - EOI: ""

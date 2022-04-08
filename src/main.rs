@@ -37,9 +37,9 @@ fn main() {
             .join("\n")
     );
 
-    let ast = Program::new(parsed.next().unwrap());
+    let mut ast = Program::new(parsed.next().unwrap());
     // println!("{:#?}", ast);
 
-    let resolved_ast = Resolver::resolve(ast);
-    // println!("{:#?}", resolved_ast);
+    Resolver::resolve(&mut ast);
+    println!("{:#?}", ast);
 }

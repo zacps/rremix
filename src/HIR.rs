@@ -1,4 +1,8 @@
-use std::{borrow::Borrow, collections::HashSet, hash::Hash};
+use std::{
+    borrow::Borrow,
+    collections::{HashMap, HashSet},
+    hash::Hash,
+};
 
 use super::*;
 use derivative::Derivative;
@@ -7,6 +11,12 @@ use pest::Span;
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct FunctionID(u64);
 
+impl From<usize> for FunctionID {
+    fn from(n: usize) -> Self {
+        Self(n as u64)
+    }
+}
+
 /// A single 'word' in a function name, either a part of the name itself,
 /// a 'name', or a parameter.
 #[derive(Debug, Clone)]
@@ -14,6 +24,20 @@ pub enum FunctionPart<'s> {
     Name { name: Span<'s> },
     Parameter { name: Span<'s>, reference: bool },
     Statements(Vec<Statement<'s>>),
+}
+
+impl<'s> FunctionPart<'s> {
+    pub fn name(name: &'s str) -> Self {
+        Self::Name {
+            name: Span::new(name, 0, name.len()).unwrap(),
+        }
+    }
+    pub fn param(param: &'s str) -> Self {
+        Self::Parameter {
+            name: Span::new(param, 0, param.len()).unwrap(),
+            reference: param.chars().next().unwrap() == '#',
+        }
+    }
 }
 
 impl<'s> PartialEq for FunctionPart<'s> {
@@ -52,6 +76,15 @@ impl<'s> Hash for FunctionPart<'s> {
 pub struct FunctionName<'s> {
     pub name: Vec<FunctionPart<'s>>,
     pub id: Option<FunctionID>,
+}
+
+impl<'s> FunctionName<'s> {
+    pub fn new(parts: Vec<FunctionPart<'s>>) -> Self {
+        Self {
+            name: parts,
+            id: None,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -201,10 +234,19 @@ impl<'s> Program<'s> {
         let mut this = Self {
             functions: HashSet::new(),
             main: Vec::new(),
-            function_id: Box::new((0..).map(|i| FunctionID(i))),
+            // Non-builtin function IDs start at 1000
+            function_id: Box::new((1000..).map(|i| FunctionID(i))),
         };
         this.build(pair);
         this
+    }
+
+    pub fn symbol_table(&self) -> HashMap<FunctionName<'s>, FunctionID> {
+        let mut map = HashMap::new();
+        for func in &self.functions {
+            map.insert(func.name.clone(), func.id);
+        }
+        map
     }
 
     fn build(&mut self, pair: Pair<'s, parser::Rule>) {
@@ -235,38 +277,14 @@ impl<'s> Program<'s> {
     fn visit_function(&mut self, pair: Pair<'s, parser::Rule>) -> Function<'s> {
         use parser::Rule::*;
 
+        let mut name = None;
         let id = self.function_id.next().unwrap();
-        let mut name = FunctionName {
-            name: Vec::new(),
-            id: Some(id),
-        };
         let mut statements = Vec::new();
         let span = pair.as_span().clone();
 
         for pair in pair.into_inner() {
             match pair.as_rule() {
-                function_signature => {
-                    let pair = pair
-                        .into_inner()
-                        .next()
-                        .expect("function signature must contain name_paren");
-                    for pair in pair.into_inner() {
-                        match pair.as_rule() {
-                            name_part => name.name.push(FunctionPart::Name {
-                                name: pair.as_span(),
-                            }),
-                            paren => name.name.push(FunctionPart::Parameter {
-                                name: pair.as_span(),
-                                reference: false,
-                            }),
-                            ref_paren => name.name.push(FunctionPart::Parameter {
-                                name: pair.as_span(),
-                                reference: true,
-                            }),
-                            _ => (),
-                        }
-                    }
-                }
+                function_signature => name = Some(visit_function_signature(pair, Some(id))),
                 function_statements => {
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
@@ -279,7 +297,7 @@ impl<'s> Program<'s> {
             }
         }
         Function {
-            name,
+            name: name.unwrap(),
             statements,
             span,
             id: id,
@@ -458,6 +476,39 @@ impl<'s> Program<'s> {
             _ => panic!("ICE: Didn't get a known literal in literal"),
         })
     }
+}
+
+pub fn visit_function_signature<'s>(
+    pair: Pair<'s, parser::Rule>,
+    id: Option<FunctionID>,
+) -> FunctionName<'s> {
+    use parser::Rule::*;
+    let mut name = FunctionName {
+        name: Vec::new(),
+        id: id,
+    };
+
+    let pair = pair
+        .into_inner()
+        .next()
+        .expect("function signature must contain name_paren");
+    for pair in pair.into_inner() {
+        match pair.as_rule() {
+            name_part => name.name.push(FunctionPart::Name {
+                name: pair.as_span(),
+            }),
+            paren => name.name.push(FunctionPart::Parameter {
+                name: pair.as_span(),
+                reference: false,
+            }),
+            ref_paren => name.name.push(FunctionPart::Parameter {
+                name: pair.as_span(),
+                reference: true,
+            }),
+            _ => (),
+        }
+    }
+    name
 }
 
 #[cfg(test)]
