@@ -1,10 +1,22 @@
-#![forbid(unsafe_code)]
+#![forbid(unsafe_code, unreachable_patterns)]
 #![deny(rust_2018_idioms)]
 
 use pest::{iterators::Pair, RuleType};
 
+// High level intermediate representation.
+//
+// This represents the compiler's state after name resolution, before optimisation and codegen.
+// We will have rejected the majority of incomplete programs after this is constructed.
+#[allow(non_snake_case)]
+pub mod HIR;
+// Parser
 pub mod parser;
+// Name resolution
+pub mod resolver;
 
+static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
+
+/// Format a parsed token pair nicely.
 pub fn format_pair<T: RuleType + std::fmt::Debug>(
     pair: &Pair<'_, T>,
     indent_level: usize,
@@ -53,11 +65,3 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
         ),
     }
 }
-
-/// High level intermediate representation.
-///
-/// This represents the compiler's state after name resolution, before optimisation and codegen.
-/// We will have rejected the majority of incomplete programs after this is constructed.
-#[allow(non_snake_case)]
-pub mod HIR;
-pub mod resolver;

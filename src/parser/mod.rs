@@ -14,7 +14,7 @@ mod tests {
 
     use super::*;
 
-    #[test_case("standard-lib.rem")]
+    #[test_case("../src/standard-lib.rem")]
     //#[test_case("ex/factorial.rem")]
     //#[test_case("ex/factorial2.rem")]
     //#[test_case("ex/primes.rem")]
@@ -65,7 +65,7 @@ mod tests {
     //#[test_case("ex/test39.rem")]
     fn test_parser(path: &'static str) {
         let file =
-            fs::read_to_string("../Remix/".to_owned() + path).expect("could not find test file");
+            fs::read_to_string("tests/".to_owned() + path).expect("could not find test file");
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();

@@ -16,9 +16,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - single_name_part: "show"
       - literal > string: "\"\r\n\""
   - function_definition
-    - function_signature > name_paren > name_part
-      - name_list > single_name_part: "new"
-      - name_list > single_name_part: "line"
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "new"
+      - name_paren > name_part > name_list > single_name_part: "line"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > variable: "nl"
   - eol_comment: "Output the value of \"what\" followed by a newline."
@@ -34,9 +34,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > variable: "nl"
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "show"
-        - name_list > single_name_part: "line"
+      - name_paren > name_part > name_list > single_name_part: "show"
+      - name_paren > name_part > name_list > single_name_part: "line"
       - name_paren > paren > single_name_part: "what"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -63,10 +62,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - sigiled_comment: "========================================"
   - eol_comment: "Just trying out a more verbal version."
   - function_definition
-    - function_signature > name_paren > name_part
-      - optional_name > single_name_part: "an"
-      - name_list > single_name_part: "empty"
-      - name_list > single_name_part: "list"
+    - function_signature
+      - name_paren > name_part > optional_name > single_name_part: "an"
+      - name_paren > name_part > name_list > single_name_part: "empty"
+      - name_paren > name_part > name_list > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > literal > list: "{}"
   - sigiled_comment: "========================================"
@@ -124,13 +123,12 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Report if not at the end of the \"list\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "not"
-        - name_list > single_name_part: "at"
-        - optional_name > single_name_part: "the"
-        - name_list > single_name_part: "end"
-        - name_list > single_name_part: "of"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "not"
+      - name_paren > name_part > name_list > single_name_part: "at"
+      - name_paren > name_part > optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "end"
+      - name_paren > name_part > name_list > single_name_part: "of"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -145,11 +143,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "to"
       - name_paren > paren > single_name_part: "so-far"
-      - name_paren > name_part
-        - name_list
-          - single_name_part: "add"
-          - single_name_part: "append"
-        - optional_name > single_name_part: "on"
+      - name_paren > name_part > name_list
+        - single_name_part: "add"
+        - single_name_part: "append"
+      - name_paren > name_part > optional_name > single_name_part: "on"
       - name_paren > paren > single_name_part: "more"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -161,11 +158,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Ask for an integer value."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "ask"
-        - name_list > single_name_part: "for"
-        - optional_name > single_name_part: "an"
-        - name_list > single_name_part: "integer"
+      - name_paren > name_part > name_list > single_name_part: "ask"
+      - name_paren > name_part > name_list > single_name_part: "for"
+      - name_paren > name_part > optional_name > single_name_part: "an"
+      - name_paren > name_part > name_list > single_name_part: "integer"
       - name_paren > paren > single_name_part: "prompt"
     - colon: ":"
     - function_statements
@@ -185,9 +181,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Transparent like \"if\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "if"
-        - name_list > single_name_part: "not"
+      - name_paren > name_part > name_list > single_name_part: "if"
+      - name_paren > name_part > name_list > single_name_part: "not"
       - name_paren > paren > single_name_part: "condition"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
@@ -279,9 +274,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Catch the result of \"block\" even if a \"return\" is used."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "catch"
-        - name_list > single_name_part: "do"
+      - name_paren > name_part > name_list > single_name_part: "catch"
+      - name_paren > name_part > name_list > single_name_part: "do"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -290,9 +284,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "An alternative name for return without a value, i.e. none."
   - eol_comment: "This is more applicable when breaking out from within a loop or a sequence statement."
   - function_definition
-    - function_signature > name_paren > name_part
-      - name_list > single_name_part: "break"
-      - name_list > single_name_part: "out"
+    - function_signature
+      - name_paren > name_part > name_list > single_name_part: "break"
+      - name_paren > name_part > name_list > single_name_part: "out"
     - colon: ":"
     - colon: ":"
     - function_statements > statement > return_statement: "return"
@@ -322,13 +316,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Returns either the last statement result or whatever is returned from \"block\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "for"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "for"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
-      - name_paren > name_part
-        - name_list > single_name_part: "in"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "in"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
@@ -363,9 +355,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "A for each with a definite \"start\" and \"finish\" value."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "for"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "for"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
       - name_paren > name_part > name_list > single_name_part: "from"
       - name_paren > paren > single_name_part: "start"
@@ -386,18 +377,16 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "For each with \"start\", \"finish\" and \"step\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "for"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "for"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
       - name_paren > name_part > name_list > single_name_part: "from"
       - name_paren > paren > single_name_part: "start"
       - name_paren > name_part > name_list > single_name_part: "to"
       - name_paren > paren > single_name_part: "finish"
-      - name_paren > name_part
-        - name_list > single_name_part: "in"
-        - name_list > single_name_part: "steps"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "in"
+      - name_paren > name_part > name_list > single_name_part: "steps"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "step"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"
@@ -457,10 +446,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > name_part > name_list > single_name_part: "and"
       - name_paren > ref_paren > ref_name > single_name_part: "down"
       - name_paren > paren > single_name_part: "num-rows"
-      - name_paren > name_part
-        - name_list > single_name_part: "on"
-        - name_list > single_name_part: "each"
-        - name_list > single_name_part: "row"
+      - name_paren > name_part > name_list > single_name_part: "on"
+      - name_paren > name_part > name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "row"
       - name_paren > paren > single_name_part: "row-block"
       - name_paren > paren > single_name_part: "col-block"
     - colon: ":"
@@ -581,13 +569,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "apply"
       - name_paren > paren > single_name_part: "block"
-      - name_paren > name_part
-        - name_list > single_name_part: "to"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "to"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
-      - name_paren > name_part
-        - name_list > single_name_part: "from"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "from"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements
@@ -651,11 +637,10 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Choose a random item from a list."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "pick"
-        - optional_name > single_name_part: "item"
-        - name_list > single_name_part: "from"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "pick"
+      - name_paren > name_part > optional_name > single_name_part: "item"
+      - name_paren > name_part > name_list > single_name_part: "from"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > list_element
@@ -670,9 +655,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Return true if all blocks in the {list-of-blocks} are true."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "all"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "all"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -691,9 +675,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Return true if any block in the {list-of-blocks} are true."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "any"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "any"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -711,10 +694,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "If any. Transparent like \"if\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "if"
-        - name_list > single_name_part: "any"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "if"
+      - name_paren > name_part > name_list > single_name_part: "any"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
       - name_paren > name_part > optional_name > single_name_part: "do"
       - name_paren > paren > single_name_part: "consequence"
@@ -730,10 +712,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "If all. Transparent like \"if\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "if"
-        - name_list > single_name_part: "all"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "if"
+      - name_paren > name_part > name_list > single_name_part: "all"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "list-of-blocks"
       - name_paren > name_part > optional_name > single_name_part: "do"
       - name_paren > paren > single_name_part: "consequence"
@@ -752,9 +733,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "Unlike a simple \"do\" this function catches any \"break out\" calls."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "choose"
-        - name_list > single_name_part: "from"
+      - name_paren > name_part > name_list > single_name_part: "choose"
+      - name_paren > name_part > name_list > single_name_part: "from"
       - name_paren > paren > single_name_part: "options-block"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -777,9 +757,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "This is to be used by \"choose from\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "all"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "all"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "conditions"
       - name_paren > name_part > name_list > single_name_part: "do"
       - name_paren > paren > single_name_part: "consequence"
@@ -797,9 +776,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - eol_comment: "This is to be used by \"choose from\"."
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "any"
-        - name_list > single_name_part: "of"
+      - name_paren > name_part > name_list > single_name_part: "any"
+      - name_paren > name_part > name_list > single_name_part: "of"
       - name_paren > paren > single_name_part: "conditions"
       - name_paren > name_part > name_list > single_name_part: "do"
       - name_paren > paren > single_name_part: "consequence"
@@ -831,9 +809,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "list"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "list"
     - colon: ":"
     - function_statements
       - statement > assignment_statement
@@ -925,12 +902,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "if"
       - name_paren > paren > single_name_part: "value"
-      - name_paren > name_part
-        - name_list > single_name_part: "is"
-        - name_list > single_name_part: "string"
-        - name_list > single_name_part: "append"
-        - name_list > single_name_part: "quote"
-        - name_list > single_name_part: "to"
+      - name_paren > name_part > name_list > single_name_part: "is"
+      - name_paren > name_part > name_list > single_name_part: "string"
+      - name_paren > name_part > name_list > single_name_part: "append"
+      - name_paren > name_part > name_list > single_name_part: "quote"
+      - name_paren > name_part > name_list > single_name_part: "to"
       - name_paren > paren > single_name_part: "str"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -952,9 +928,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "show"
       - name_paren > paren > single_name_part: "list"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
       - single_name_part: "show"
@@ -966,9 +941,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "showline"
       - name_paren > paren > single_name_part: "list"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "list"
     - colon: ":"
     - function_statements
       - statement > expression > unary_expression > simple_expression > function_call
@@ -979,13 +953,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > variable: "nl"
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "show"
-        - name_list > single_name_part: "line"
+      - name_paren > name_part > name_list > single_name_part: "show"
+      - name_paren > name_part > name_list > single_name_part: "line"
       - name_paren > paren > single_name_part: "list"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
       - single_name_part: "showline"
@@ -995,10 +967,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "list"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "list"
-        - name_list > single_name_part: "↲"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "↲"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
       - single_name_part: "showline"
@@ -1010,9 +981,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "show"
       - name_paren > paren > single_name_part: "map"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "map"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "map"
     - colon: ":"
     - function_statements
       - statement > expression > unary_expression > simple_expression > function_call
@@ -1054,9 +1024,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - function_signature
       - name_paren > name_part > name_list > single_name_part: "showline"
       - name_paren > paren > single_name_part: "map"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "map"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "map"
     - colon: ":"
     - function_statements
       - statement > expression > unary_expression > simple_expression > function_call
@@ -1067,13 +1036,11 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - statement > expression > unary_expression > simple_expression > variable: "nl"
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "show"
-        - name_list > single_name_part: "line"
+      - name_paren > name_part > name_list > single_name_part: "show"
+      - name_paren > name_part > name_list > single_name_part: "line"
       - name_paren > paren > single_name_part: "map"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "map"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "map"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
       - single_name_part: "showline"
@@ -1083,10 +1050,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "map"
-      - name_paren > name_part
-        - name_list > single_name_part: "as"
-        - name_list > single_name_part: "map"
-        - name_list > single_name_part: "↲"
+      - name_paren > name_part > name_list > single_name_part: "as"
+      - name_paren > name_part > name_list > single_name_part: "map"
+      - name_paren > name_part > name_list > single_name_part: "↲"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
       - single_name_part: "showline"
@@ -1101,9 +1067,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "initial"
       - name_paren > name_part > name_list > single_name_part: "apply"
       - name_paren > paren > single_name_part: "block"
-      - name_paren > name_part
-        - name_list > single_name_part: "on"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "on"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
       - name_paren > name_part > name_list > single_name_part: "in"
       - name_paren > paren > single_name_part: "list"
@@ -1258,10 +1223,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
   - function_definition
     - function_signature
       - name_paren > paren > single_name_part: "n"
-      - name_paren > name_part
-        - name_list > single_name_part: "is"
-        - name_list > single_name_part: "divisible"
-        - name_list > single_name_part: "by"
+      - name_paren > name_part > name_list > single_name_part: "is"
+      - name_paren > name_part > name_list > single_name_part: "divisible"
+      - name_paren > name_part > name_list > single_name_part: "by"
       - name_paren > paren > single_name_part: "divisor"
     - colon: ":"
     - function_statements > statement > expression > binary_expression
@@ -1297,10 +1261,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
         - expression > unary_expression > simple_expression > literal > number: "1"
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "first"
-        - name_list > single_name_part: "in"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "first"
+      - name_paren > name_part > name_list > single_name_part: "in"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > list_element
@@ -1308,10 +1271,9 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - expression > unary_expression > simple_expression > literal > number: "1"
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "last"
-        - name_list > single_name_part: "in"
-        - optional_name > single_name_part: "the"
+      - name_paren > name_part > name_list > single_name_part: "last"
+      - name_paren > name_part > name_list > single_name_part: "in"
+      - name_paren > name_part > optional_name > single_name_part: "the"
       - name_paren > paren > single_name_part: "list"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > list_element

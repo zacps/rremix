@@ -68,9 +68,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
       - name_paren > paren > single_name_part: "list"
       - name_paren > name_part > name_list > single_name_part: "execute"
       - name_paren > paren > single_name_part: "block"
-      - name_paren > name_part
-        - name_list > single_name_part: "with"
-        - name_list > single_name_part: "each"
+      - name_paren > name_part > name_list > single_name_part: "with"
+      - name_paren > name_part > name_list > single_name_part: "each"
       - name_paren > ref_paren > ref_name > single_name_part: "item"
     - colon: ":"
     - function_statements > statement > expression > unary_expression > simple_expression > function_call
@@ -165,9 +164,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
     - literal > string: "\"4\""
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "with"
-        - name_list > single_name_part: "list"
+      - name_paren > name_part > name_list > single_name_part: "with"
+      - name_paren > name_part > name_list > single_name_part: "list"
       - name_paren > paren > single_name_part: "more"
     - colon: ":"
     - function_statements

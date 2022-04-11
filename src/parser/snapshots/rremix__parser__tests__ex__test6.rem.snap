@@ -6,9 +6,8 @@ expression: "format_pair(&pair.unwrap(), 0, true)"
 - program
   - function_definition
     - function_signature
-      - name_paren > name_part
-        - name_list > single_name_part: "repeat"
-        - name_list > single_name_part: "until"
+      - name_paren > name_part > name_list > single_name_part: "repeat"
+      - name_paren > name_part > name_list > single_name_part: "until"
       - name_paren > paren > single_name_part: "condition-block"
       - name_paren > paren > single_name_part: "block"
     - colon: ":"

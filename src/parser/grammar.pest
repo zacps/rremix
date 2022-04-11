@@ -73,7 +73,7 @@ paren = { "(" ~ single_name_part ~ ")" }
 ref_name = ${"#" ~ single_name_part}
 ref_paren = { "(" ~ ref_name ~ ")" } // no whitespace between # and name_part
 // A name, parameter, or reference parameter
-name_paren = { name_part | paren | ref_paren }
+name_paren = ${ name_part | paren | ref_paren }
 
 // Statements
 //----------------------------------

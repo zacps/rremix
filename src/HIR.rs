@@ -1,6 +1,7 @@
 use std::{
     borrow::Borrow,
     collections::{HashMap, HashSet},
+    fmt::Display,
     hash::Hash,
 };
 
@@ -23,6 +24,7 @@ impl From<usize> for FunctionID {
 pub enum FunctionPart<'s> {
     Name { name: Span<'s> },
     Parameter { name: Span<'s>, reference: bool },
+    // This should be literal/block in future; both are 'unnamed' literals
     Statements(Vec<Statement<'s>>),
 }
 
@@ -60,22 +62,31 @@ impl<'s> PartialEq for FunctionPart<'s> {
 }
 impl<'s> Eq for FunctionPart<'s> {}
 
-impl<'s> Hash for FunctionPart<'s> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        core::mem::discriminant(self).hash(state);
-        match self {
-            Self::Name { name } => name.hash(state),
-            Self::Parameter { name, .. } => name.hash(state),
-            _ => unimplemented!(),
-        }
-    }
-}
-
 /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
-#[derive(Eq, PartialEq, Hash, Debug, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub struct FunctionName<'s> {
     pub name: Vec<FunctionPart<'s>>,
     pub id: Option<FunctionID>,
+}
+
+impl<'s> Display for FunctionName<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for name in &self.name {
+            match name {
+                FunctionPart::Name { name } => f.write_str(name.as_str())?,
+                FunctionPart::Parameter { name, reference } if !reference => {
+                    f.write_str(name.as_str())?
+                }
+                FunctionPart::Parameter { name, reference } if *reference => {
+                    f.write_str(&format!("#{}", name.as_str()))?
+                }
+                FunctionPart::Statements { .. } => f.write_str("[statements]")?,
+                _ => unreachable!(),
+            }
+            f.write_str(" ")?
+        }
+        Ok(())
+    }
 }
 
 impl<'s> FunctionName<'s> {
@@ -84,6 +95,44 @@ impl<'s> FunctionName<'s> {
             name: parts,
             id: None,
         }
+    }
+    pub fn len(&self) -> usize {
+        self.name.len()
+    }
+
+    /// Whether or not this function name should resolve to the name `def`.
+    pub fn resolves_to<'t>(&self, def: &FunctionName<'t>) -> bool {
+        if self.len() != def.len() {
+            return false;
+        }
+        // Iterate until we find a reason to reject or traverse the full name...
+        for (name1, name2) in self.name.iter().zip(&def.name) {
+            match (name1, name2) {
+                // Corresponding name parts must match exactly
+                (FunctionPart::Name { name: name1 }, FunctionPart::Name { name: name2 }) => {
+                    if name1.as_str() != name2.as_str() {
+                        return false;
+                    }
+                }
+
+                // TODO: For now we're rejecting this case but this will have to change when we
+                // implement our name resolution expansion.
+                (FunctionPart::Name { .. }, FunctionPart::Parameter { .. }) => return false,
+                (FunctionPart::Name { .. }, FunctionPart::Statements(..)) => return false,
+
+                // Name in the definition and parameter in the reference always rejects
+                (FunctionPart::Parameter { .. }, FunctionPart::Name { .. }) => return false,
+                (FunctionPart::Statements(..), FunctionPart::Name { .. }) => return false,
+
+                // Corresponding parameters accept
+                (FunctionPart::Parameter { .. }, FunctionPart::Parameter { .. }) => (),
+                (FunctionPart::Statements(..), FunctionPart::Statements(..)) => (),
+                (FunctionPart::Parameter { .. }, FunctionPart::Statements(..)) => (),
+                (FunctionPart::Statements(..), FunctionPart::Parameter { .. }) => (),
+            }
+        }
+
+        true
     }
 }
 
@@ -177,24 +226,24 @@ pub struct Function<'s> {
     pub id: FunctionID,
 }
 
+impl<'s> Hash for Function<'s> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+impl<'s> PartialEq for Function<'s> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
 impl<'s> Borrow<FunctionName<'s>> for Function<'s> {
     fn borrow(&self) -> &FunctionName<'s> {
         &self.name
     }
 }
 
-impl<'s> PartialEq for Function<'s> {
-    fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
-    }
-}
 impl<'s> Eq for Function<'s> {}
-
-impl<'s> Hash for Function<'s> {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
-        self.name.hash(state);
-    }
-}
 
 /// A scope containing variables and possibly inner scopes
 #[derive(Debug)]
@@ -241,10 +290,10 @@ impl<'s> Program<'s> {
         this
     }
 
-    pub fn symbol_table(&self) -> HashMap<FunctionName<'s>, FunctionID> {
-        let mut map = HashMap::new();
+    pub fn symbol_table(&self) -> Vec<(FunctionName<'s>, FunctionID)> {
+        let mut map = Vec::new();
         for func in &self.functions {
-            map.insert(func.name.clone(), func.id);
+            map.push((func.name.clone(), func.id));
         }
         map
     }
@@ -284,7 +333,12 @@ impl<'s> Program<'s> {
 
         for pair in pair.into_inner() {
             match pair.as_rule() {
-                function_signature => name = Some(visit_function_signature(pair, Some(id))),
+                function_signature => {
+                    name = Some(visit_function_signature(
+                        pair.into_inner().next().unwrap(),
+                        Some(id),
+                    ))
+                }
                 function_statements => {
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
@@ -438,7 +492,7 @@ impl<'s> Program<'s> {
                 statement => name
                     .name
                     .push(FunctionPart::Statements(vec![self.visit_statement(pair)])),
-                inline_block => {
+                block => {
                     let mut statements = Vec::new();
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
@@ -487,12 +541,10 @@ pub fn visit_function_signature<'s>(
         name: Vec::new(),
         id: id,
     };
+    assert!(pair.as_rule() == parser::Rule::function_signature);
 
-    let pair = pair
-        .into_inner()
-        .next()
-        .expect("function signature must contain name_paren");
     for pair in pair.into_inner() {
+        let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
             name_part => name.name.push(FunctionPart::Name {
                 name: pair.as_span(),
@@ -509,6 +561,67 @@ pub fn visit_function_signature<'s>(
         }
     }
     name
+}
+
+pub trait VisitAst<'s> {
+    fn walk_program(&mut self, program: &Program<'s>) {
+        for function in &program.functions {
+            self.walk_function(function)
+        }
+        for statement in &program.main {
+            self.walk_statement(statement)
+        }
+    }
+
+    fn walk_function(&mut self, function: &Function<'s>) {
+        self.visit_function(function);
+
+        for statement in &function.statements {
+            self.walk_statement(statement)
+        }
+    }
+    fn walk_statement(&mut self, statement: &Statement<'s>) {
+        use Statement::*;
+        self.visit_statement(statement);
+        match statement {
+            Expression(expr) => self.walk_expression(expr),
+            _ => (),
+        }
+    }
+    fn walk_expression(&mut self, expression: &Expression<'s>) {
+        use Expression::*;
+        self.visit_expression(expression);
+        match expression {
+            Unary(expr) => self.walk_unary_expression(expr),
+            Binary {
+                lhs,
+                operator: _,
+                rhs,
+            } => {
+                self.walk_expression(lhs);
+                self.walk_expression(rhs)
+            }
+        }
+    }
+    fn walk_unary_expression(&mut self, unary: &UnaryExpression<'s>) {
+        use UnaryExpression::*;
+        match unary {
+            FunctionCall { function } => self.walk_function_call(function),
+            ListElement {
+                variable: _var,
+                index,
+            } => self.walk_expression(index),
+            _ => (),
+        }
+    }
+    fn walk_function_call(&mut self, function_name: &FunctionName<'s>) {
+        self.visit_function_call(function_name);
+    }
+
+    fn visit_function(&mut self, _function: &Function<'s>) {}
+    fn visit_statement(&mut self, _statement: &Statement<'s>) {}
+    fn visit_expression(&mut self, _expression: &Expression<'s>) {}
+    fn visit_function_call(&mut self, _function_name: &FunctionName<'s>) {}
 }
 
 #[cfg(test)]
@@ -572,7 +685,7 @@ mod tests {
     //#[test_case("ex/test39.rem")]
     fn test_build_ast(path: &'static str) {
         let file =
-            fs::read_to_string("../Remix/".to_owned() + path).expect("could not find test file");
+            fs::read_to_string("tests/".to_owned() + path).expect("could not find test file");
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
