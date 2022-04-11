@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 531
+assertion_line: 688
 expression: ast
 ---
 Program {
@@ -18,18 +18,14 @@ Program {
                                     end: 4,
                                 },
                             },
-                            Statements(
-                                [
-                                    Expression(
-                                        Unary(
-                                            Literal(
-                                                String(
-                                                    "Hello world!",
-                                                ),
-                                            ),
+                            Expression(
+                                Unary(
+                                    Literal(
+                                        String(
+                                            "Hello world!",
                                         ),
                                     ),
-                                ],
+                                ),
                             ),
                         ],
                         id: None,

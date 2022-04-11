@@ -25,7 +25,8 @@ pub enum FunctionPart<'s> {
     Name { name: Span<'s> },
     Parameter { name: Span<'s>, reference: bool },
     // This should be literal/block in future; both are 'unnamed' literals
-    Statements(Vec<Statement<'s>>),
+    Expression(Expression<'s>),
+    Block(Vec<Statement<'s>>),
 }
 
 impl<'s> FunctionPart<'s> {
@@ -80,7 +81,8 @@ impl<'s> Display for FunctionName<'s> {
                 FunctionPart::Parameter { name, reference } if *reference => {
                     f.write_str(&format!("#{}", name.as_str()))?
                 }
-                FunctionPart::Statements { .. } => f.write_str("[statements]")?,
+                FunctionPart::Expression(..) => f.write_str("(expression)")?,
+                FunctionPart::Block(..) => f.write_str("[statements]")?,
                 _ => unreachable!(),
             }
             f.write_str(" ")?
@@ -102,6 +104,7 @@ impl<'s> FunctionName<'s> {
 
     /// Whether or not this function name should resolve to the name `def`.
     pub fn resolves_to<'t>(&self, def: &FunctionName<'t>) -> bool {
+        use FunctionPart::*;
         if self.len() != def.len() {
             return false;
         }
@@ -109,7 +112,7 @@ impl<'s> FunctionName<'s> {
         for (name1, name2) in self.name.iter().zip(&def.name) {
             match (name1, name2) {
                 // Corresponding name parts must match exactly
-                (FunctionPart::Name { name: name1 }, FunctionPart::Name { name: name2 }) => {
+                (Name { name: name1 }, Name { name: name2 }) => {
                     if name1.as_str() != name2.as_str() {
                         return false;
                     }
@@ -117,18 +120,16 @@ impl<'s> FunctionName<'s> {
 
                 // TODO: For now we're rejecting this case but this will have to change when we
                 // implement our name resolution expansion.
-                (FunctionPart::Name { .. }, FunctionPart::Parameter { .. }) => return false,
-                (FunctionPart::Name { .. }, FunctionPart::Statements(..)) => return false,
+                (Name { .. }, Parameter { .. } | Expression(..) | Block(..)) => return false,
 
                 // Name in the definition and parameter in the reference always rejects
-                (FunctionPart::Parameter { .. }, FunctionPart::Name { .. }) => return false,
-                (FunctionPart::Statements(..), FunctionPart::Name { .. }) => return false,
+                (Parameter { .. } | Expression(..) | Block(..), Name { .. }) => return false,
 
                 // Corresponding parameters accept
-                (FunctionPart::Parameter { .. }, FunctionPart::Parameter { .. }) => (),
-                (FunctionPart::Statements(..), FunctionPart::Statements(..)) => (),
-                (FunctionPart::Parameter { .. }, FunctionPart::Statements(..)) => (),
-                (FunctionPart::Statements(..), FunctionPart::Parameter { .. }) => (),
+                (
+                    Parameter { .. } | Expression(..) | Block(..),
+                    Parameter { .. } | Expression(..) | Block(..),
+                ) => (),
             }
         }
 
@@ -478,20 +479,12 @@ impl<'s> Program<'s> {
                 }),
                 literal => name
                     .name
-                    .push(FunctionPart::Statements(vec![Statement::Expression(
-                        Expression::Unary(Box::new(UnaryExpression::Literal(
-                            self.visit_literal(pair)?,
-                        ))),
-                    )])),
-                expression => {
-                    name.name
-                        .push(FunctionPart::Statements(vec![Statement::Expression(
-                            self.visit_expression(pair),
-                        )]))
-                }
-                statement => name
+                    .push(FunctionPart::Expression(Expression::Unary(Box::new(
+                        UnaryExpression::Literal(self.visit_literal(pair)?),
+                    )))),
+                expression => name
                     .name
-                    .push(FunctionPart::Statements(vec![self.visit_statement(pair)])),
+                    .push(FunctionPart::Expression(self.visit_expression(pair))),
                 block => {
                     let mut statements = Vec::new();
                     for pair in pair.into_inner() {
@@ -500,7 +493,7 @@ impl<'s> Program<'s> {
                             _ => (),
                         }
                     }
-                    name.name.push(FunctionPart::Statements(statements))
+                    name.name.push(FunctionPart::Block(statements))
                 }
                 _ => (),
             }
