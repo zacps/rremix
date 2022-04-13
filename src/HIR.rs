@@ -227,30 +227,6 @@ impl<'s> FunctionCallName<'s> {
                 return false;
             }
 
-            // Debug
-            if let (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) =
-                (&self.name[0], &def.name[0])
-            {
-                match names {
-                    Necessity::Required(names) => {
-                        if name.as_str() == "for" && names[0].as_str() == "for" {
-                            println!(
-                                "trying to match '{}' against '{}' (required)",
-                                &self.name[i], &def.name[j]
-                            )
-                        }
-                    }
-                    Necessity::Optional(names) => {
-                        if name.as_str() == "for" && names[0].as_str() == "for" {
-                            println!(
-                                "trying to match '{}' against '{}' (optional)",
-                                &self.name[i], &def.name[j]
-                            )
-                        }
-                    }
-                }
-            }
-
             match (&self.name[i], &def.name[j]) {
                 // Corresponding name parts must match exactly
                 (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) => {
@@ -279,8 +255,20 @@ impl<'s> FunctionCallName<'s> {
                     FunctionCallPart::Parameter { .. }
                     | FunctionCallPart::Expression(..)
                     | FunctionCallPart::Block(..),
-                    FunctionSignaturePart::Name { .. },
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Required(..),
+                    },
                 ) => return false,
+
+                // Name in the definition and parameter in the reference always rejects
+                (
+                    FunctionCallPart::Parameter { .. }
+                    | FunctionCallPart::Expression(..)
+                    | FunctionCallPart::Block(..),
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Optional(..),
+                    },
+                ) => matched = false,
 
                 // Corresponding parameters accept
                 (
@@ -295,8 +283,7 @@ impl<'s> FunctionCallName<'s> {
             }
             j += 1;
         }
-
-        true
+        i == self.name.len() && j == def.name.len()
     }
 }
 
@@ -781,6 +768,7 @@ pub fn visit_function_signature<'s>(
         id: id,
     };
     let pair = pair.expect(function_signature);
+    let signature_pair = pair.clone();
 
     for pair in pair.into_inner() {
         let pair = pair.descend();
@@ -800,15 +788,12 @@ pub fn visit_function_signature<'s>(
                             names: Necessity::Required(parts),
                         })
                     }
-                    optional_name => {
-                        println!("optional name {}", pair.clone().descend().as_str());
-                        name.name.push(FunctionSignaturePart::Name {
-                            names: Necessity::Optional(vec![pair
-                                .descend()
-                                .expect(single_name_part)
-                                .as_span()]),
-                        })
-                    }
+                    optional_name => name.name.push(FunctionSignaturePart::Name {
+                        names: Necessity::Optional(vec![pair
+                            .descend()
+                            .expect(single_name_part)
+                            .as_span()]),
+                    }),
                     _ => panic!("ICE: unexpected pair in name_part {pair}"),
                 }
             }
@@ -827,8 +812,8 @@ pub fn visit_function_signature<'s>(
 }
 
 pub trait VisitAst<'s> {
-    fn walk_program(&mut self, program: &Program<'s>) {
-        for function in &program.functions {
+    fn walk_program(&mut self, program: &Program<'s>, filter: FunctionLocation) {
+        for function in program.functions.iter().filter(|f| f.location() == filter) {
             self.walk_function(function)
         }
         for statement in &program.main {

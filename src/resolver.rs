@@ -24,7 +24,6 @@ static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>
             "convert (string-input) to integer",
             "convert (item) to string",
             "wait (number) sec/secs",
-            "length of (list)",
             "length of /the (list)",
             "start (list)",
             "next (list)",
@@ -67,29 +66,16 @@ fn symbol_get<'s>(
     function_name: &FunctionCallName<'s>,
 ) -> Option<FunctionID> {
     let mut matches = Vec::new();
-    println!(
-        "----- Attempting to match {function_name} against {} functions -----",
-        table.len()
-    );
     for (def, id) in table {
         if function_name.resolves_to(def) {
             matches.push((*id, def))
         }
     }
-    let result = if matches.len() == 1 {
+    if matches.len() == 1 {
         Some(matches[0].0)
     } else {
         None
-    };
-
-    if result == None {
-        for matched in matches {
-            println!("{}", matched.1);
-        }
     }
-    println!("---------------------------------");
-
-    result
 }
 
 pub struct Resolver<'s> {
@@ -198,7 +184,31 @@ mod tests {
     use std::fs;
     use test_case::test_case;
 
-    //#[test_case("standard-lib.rem")]
+    #[test]
+    fn test_build_stdlib_ast() {
+        let file = "\n";
+        match RemixParser::parse(Rule::program, &file) {
+            Ok(mut parse) => {
+                let pair = parse.next();
+                let mut ast = HIR::Program::new(pair.unwrap());
+
+                Resolver::resolve(&mut ast);
+
+                let resolutions =
+                    ResolveCollector::collect_resolutions(&ast, FunctionLocation::Stdlib);
+
+                // TODO: Replace with assert_snapshot when we have nicer display implementations
+                assert_snapshot!(&resolutions
+                    .iter()
+                    .map(|r| format!("{r} -> {:?}\n", r.id.borrow()))
+                    .collect::<String>());
+            }
+            Err(_) => {
+                panic!("Failed to parse file stdlib")
+            }
+        }
+    }
+
     //#[test_case("ex/factorial.rem")]
     //#[test_case("ex/factorial2.rem")]
     //#[test_case("ex/primes.rem")]
@@ -257,12 +267,13 @@ mod tests {
 
                 Resolver::resolve(&mut ast);
 
-                let resolutions = ResolveCollector::collect_resolutions(&ast);
+                let resolutions =
+                    ResolveCollector::collect_resolutions(&ast, FunctionLocation::User);
 
                 // TODO: Replace with assert_snapshot when we have nicer display implementations
                 assert_snapshot!(&resolutions
                     .iter()
-                    .map(|r| format!("{r} -> {:?}\n", r.id))
+                    .map(|r| format!("{r} -> {:?}\n", r.id.borrow()))
                     .collect::<String>());
             }
             Err(_) => {
@@ -280,11 +291,14 @@ mod tests {
     use HIR::*;
 
     impl<'s> ResolveCollector<'s> {
-        fn collect_resolutions(program: &Program<'s>) -> Vec<FunctionCallName<'s>> {
+        fn collect_resolutions(
+            program: &Program<'s>,
+            filter: FunctionLocation,
+        ) -> Vec<FunctionCallName<'s>> {
             let mut collector = Self {
                 function_resoltions: Vec::new(),
             };
-            collector.walk_program(&program);
+            collector.walk_program(&program, filter);
             collector.function_resoltions
         }
     }
