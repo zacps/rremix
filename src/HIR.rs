@@ -1,7 +1,8 @@
 use std::{
     borrow::Borrow,
+    cell::RefCell,
     collections::{HashMap, HashSet},
-    fmt::Display,
+    fmt::{Debug, Display},
     hash::Hash,
 };
 
@@ -12,6 +13,12 @@ use pest::Span;
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct FunctionID(u64);
 
+impl FunctionID {
+    pub(crate) fn new(id: u64) -> Self {
+        FunctionID(id)
+    }
+}
+
 impl From<usize> for FunctionID {
     fn from(n: usize) -> Self {
         Self(n as u64)
@@ -21,7 +28,7 @@ impl From<usize> for FunctionID {
 /// A single 'word' in a function name, either a part of the name itself,
 /// a 'name', or a parameter.
 #[derive(Debug, Clone)]
-pub enum FunctionPart<'s> {
+pub enum FunctionCallPart<'s> {
     Name { name: Span<'s> },
     Parameter { name: Span<'s>, reference: bool },
     // This should be literal/block in future; both are 'unnamed' literals
@@ -29,60 +36,92 @@ pub enum FunctionPart<'s> {
     Block(Vec<Statement<'s>>),
 }
 
-impl<'s> FunctionPart<'s> {
-    pub fn name(name: &'s str) -> Self {
-        Self::Name {
-            name: Span::new(name, 0, name.len()).unwrap(),
-        }
-    }
-    pub fn param(param: &'s str) -> Self {
-        Self::Parameter {
-            name: Span::new(param, 0, param.len()).unwrap(),
-            reference: param.chars().next().unwrap() == '#',
+impl<'s> Display for FunctionCallPart<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FunctionCallPart::Name { name } => f.write_str(name.as_str()),
+            FunctionCallPart::Parameter { name, reference } => {
+                write!(
+                    f,
+                    "({}{})",
+                    if *reference { "#" } else { "" },
+                    name.as_str()
+                )
+            }
+            FunctionCallPart::Expression(_) => f.write_str("(expression)"),
+            FunctionCallPart::Block(_) => f.write_str("[statements]"),
         }
     }
 }
 
-impl<'s> PartialEq for FunctionPart<'s> {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Name { name: l_name }, Self::Name { name: r_name }) => l_name == r_name,
-            (
-                Self::Parameter {
-                    name: l_name,
-                    reference: _,
-                },
-                Self::Parameter {
-                    name: r_name,
-                    reference: _,
-                },
-            ) => l_name == r_name,
-            _ => false,
+#[derive(Debug, Clone)]
+pub enum Necessity<T> {
+    Required(T),
+    Optional(T),
+}
+
+/// A single 'word' in a function name, either a part of the name itself,
+/// a 'name', or a parameter.
+#[derive(Debug, Clone)]
+pub enum FunctionSignaturePart<'s> {
+    // TODO: Need a way to indicate optional names
+    Name { names: Necessity<Vec<Span<'s>>> },
+    Parameter { name: Span<'s>, reference: bool },
+}
+
+impl<'s> Display for FunctionSignaturePart<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            FunctionSignaturePart::Name { names } => {
+                let str = &match names {
+                    Necessity::Required(names) => {
+                        let n = names
+                            .iter()
+                            .map(|n| n.as_str().to_string() + "/")
+                            .collect::<String>();
+                        n
+                    }
+                    Necessity::Optional(names) => {
+                        let n = names
+                            .iter()
+                            .map(|n| "/".to_string() + n.as_str() + "/")
+                            .collect::<String>();
+                        n
+                    }
+                };
+                f.write_str(&str[0..str.len() - 1])
+            }
+            FunctionSignaturePart::Parameter { name, reference } => {
+                write!(
+                    f,
+                    "({}{})",
+                    if *reference { "#" } else { "" },
+                    name.as_str()
+                )
+            }
         }
     }
 }
-impl<'s> Eq for FunctionPart<'s> {}
 
 /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
-#[derive(Eq, PartialEq, Debug, Clone)]
-pub struct FunctionName<'s> {
-    pub name: Vec<FunctionPart<'s>>,
-    pub id: Option<FunctionID>,
+#[derive(Debug, Clone)]
+pub struct FunctionCallName<'s> {
+    pub name: Vec<FunctionCallPart<'s>>,
+    pub id: RefCell<Option<FunctionID>>,
 }
 
-impl<'s> Display for FunctionName<'s> {
+impl<'s> Display for FunctionCallName<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use FunctionCallPart::*;
         for name in &self.name {
             match name {
-                FunctionPart::Name { name } => f.write_str(name.as_str())?,
-                FunctionPart::Parameter { name, reference } if !reference => {
-                    f.write_str(name.as_str())?
-                }
-                FunctionPart::Parameter { name, reference } if *reference => {
+                Name { name } => f.write_str(name.as_str())?,
+                Parameter { name, reference } if !reference => f.write_str(name.as_str())?,
+                Parameter { name, reference } if *reference => {
                     f.write_str(&format!("#{}", name.as_str()))?
                 }
-                FunctionPart::Expression(..) => f.write_str("(expression)")?,
-                FunctionPart::Block(..) => f.write_str("[statements]")?,
+                Expression(..) => f.write_str("(expression)")?,
+                Block(..) => f.write_str("[statements]")?,
                 _ => unreachable!(),
             }
             f.write_str(" ")?
@@ -91,11 +130,85 @@ impl<'s> Display for FunctionName<'s> {
     }
 }
 
-impl<'s> FunctionName<'s> {
-    pub fn new(parts: Vec<FunctionPart<'s>>) -> Self {
+trait PairExt<R> {
+    /// Unwrap the pair and descend the parse tree, panicking if there was no next token.
+    fn descend(self) -> Self;
+    /// Assert the pair has a particular rule, panicking otherwise
+    fn expect(self, rule: R) -> Self;
+}
+
+impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
+    fn descend(self) -> Self {
+        let rule = self.as_rule();
+        self.into_inner()
+            .next()
+            .expect(&format!("failed to descend from rule {rule:?}"))
+    }
+
+    fn expect(self, rule: parser::Rule) -> Self {
+        assert!(
+            self.as_rule() == rule,
+            "ICE: Expected rule {rule:?} got {:?}",
+            self.as_rule()
+        );
+        self
+    }
+}
+
+/// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
+#[derive(Debug, Clone)]
+pub struct FunctionSignature<'s> {
+    pub name: Vec<FunctionSignaturePart<'s>>,
+    pub id: FunctionID,
+}
+
+impl<'s> FunctionSignature<'s> {
+    fn len(&self) -> usize {
+        self.name.len()
+    }
+}
+
+impl<'s> Display for FunctionSignature<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        use FunctionSignaturePart::*;
+        for name in &self.name {
+            match name {
+                Name { names } => {
+                    let str = &match names {
+                        Necessity::Required(names) => {
+                            let n = names
+                                .iter()
+                                .map(|n| n.as_str().to_string() + "/")
+                                .collect::<String>();
+                            n
+                        }
+                        Necessity::Optional(names) => {
+                            let n = names
+                                .iter()
+                                .map(|n| "/".to_string() + n.as_str() + "/")
+                                .collect::<String>();
+                            n
+                        }
+                    };
+                    f.write_str(&str[0..str.len() - 1])?
+                }
+                Parameter { name, reference } if !reference => f.write_str(name.as_str())?,
+                Parameter { name, reference } if *reference => {
+                    f.write_str(&format!("#{}", name.as_str()))?
+                }
+                _ => unreachable!(),
+            }
+            f.write_str(" ")?
+        }
+        Ok(())
+    }
+}
+
+impl<'s> FunctionCallName<'s> {
+    pub fn new(parts: Vec<FunctionCallPart<'s>>) -> Self {
         Self {
             name: parts,
-            id: None,
+            id: RefCell::new(None),
         }
     }
     pub fn len(&self) -> usize {
@@ -103,34 +216,84 @@ impl<'s> FunctionName<'s> {
     }
 
     /// Whether or not this function name should resolve to the name `def`.
-    pub fn resolves_to<'t>(&self, def: &FunctionName<'t>) -> bool {
-        use FunctionPart::*;
-        if self.len() != def.len() {
-            return false;
-        }
+    pub fn resolves_to<'t>(&self, def: &FunctionSignature<'t>) -> bool {
         // Iterate until we find a reason to reject or traverse the full name...
-        for (name1, name2) in self.name.iter().zip(&def.name) {
-            match (name1, name2) {
+        let (mut i, mut j) = (0, 0);
+        while j != def.name.len() && i != def.name.len() {
+            // We skip advancing the reference if we fail to match against an optional parameter
+            let mut matched = true;
+
+            if let None = self.name.get(i) {
+                return false;
+            }
+
+            // Debug
+            if let (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) =
+                (&self.name[0], &def.name[0])
+            {
+                match names {
+                    Necessity::Required(names) => {
+                        if name.as_str() == "for" && names[0].as_str() == "for" {
+                            println!(
+                                "trying to match '{}' against '{}' (required)",
+                                &self.name[i], &def.name[j]
+                            )
+                        }
+                    }
+                    Necessity::Optional(names) => {
+                        if name.as_str() == "for" && names[0].as_str() == "for" {
+                            println!(
+                                "trying to match '{}' against '{}' (optional)",
+                                &self.name[i], &def.name[j]
+                            )
+                        }
+                    }
+                }
+            }
+
+            match (&self.name[i], &def.name[j]) {
                 // Corresponding name parts must match exactly
-                (Name { name: name1 }, Name { name: name2 }) => {
-                    if name1.as_str() != name2.as_str() {
-                        return false;
+                (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) => {
+                    match names {
+                        Necessity::Optional(names) => {
+                            if !names.iter().map(|n| n.as_str()).any(|n| n == name.as_str()) {
+                                matched = false;
+                            }
+                        }
+                        Necessity::Required(names) => {
+                            if !names.iter().map(|n| n.as_str()).any(|n| n == name.as_str()) {
+                                return false;
+                            }
+                        }
                     }
                 }
 
                 // TODO: For now we're rejecting this case but this will have to change when we
                 // implement our name resolution expansion.
-                (Name { .. }, Parameter { .. } | Expression(..) | Block(..)) => return false,
+                (FunctionCallPart::Name { .. }, FunctionSignaturePart::Parameter { .. }) => {
+                    return false
+                }
 
                 // Name in the definition and parameter in the reference always rejects
-                (Parameter { .. } | Expression(..) | Block(..), Name { .. }) => return false,
+                (
+                    FunctionCallPart::Parameter { .. }
+                    | FunctionCallPart::Expression(..)
+                    | FunctionCallPart::Block(..),
+                    FunctionSignaturePart::Name { .. },
+                ) => return false,
 
                 // Corresponding parameters accept
                 (
-                    Parameter { .. } | Expression(..) | Block(..),
-                    Parameter { .. } | Expression(..) | Block(..),
+                    FunctionCallPart::Parameter { .. }
+                    | FunctionCallPart::Expression(..)
+                    | FunctionCallPart::Block(..),
+                    FunctionSignaturePart::Parameter { .. },
                 ) => (),
             }
+            if matched {
+                i += 1;
+            }
+            j += 1;
         }
 
         true
@@ -175,8 +338,9 @@ pub enum Literal<'s> {
         f64, // TODO:
     ),
     Boolean(bool),
-    List(()),
-    Map(()),
+    // FIXME: This should also accept blocks, which should probably be their own type...
+    List(Vec<Expression<'s>>),
+    Map(HashMap<Variable<'s>, Expression<'s>>),
 }
 
 #[derive(Debug, Clone)]
@@ -186,10 +350,11 @@ pub enum UnaryExpression<'s> {
         index: Expression<'s>,
     },
     FunctionCall {
-        function: FunctionName<'s>,
+        function: FunctionCallName<'s>,
     },
     Literal(Literal<'s>),
     Variable(Variable<'s>),
+    Block(Vec<Statement<'s>>),
 }
 
 #[derive(Debug, Clone)]
@@ -221,10 +386,27 @@ pub enum Statement<'s> {
 /// A function definition
 #[derive(Debug, Clone)]
 pub struct Function<'s> {
-    pub name: FunctionName<'s>,
+    pub name: FunctionSignature<'s>,
     pub statements: Vec<Statement<'s>>,
     pub span: Span<'s>,
     pub id: FunctionID,
+}
+
+#[derive(Eq, PartialEq, Debug)]
+pub enum FunctionLocation {
+    Builtin,
+    Stdlib,
+    User,
+}
+
+impl<'s> Function<'s> {
+    fn location(&self) -> FunctionLocation {
+        match self.id.0 {
+            0..=999 => FunctionLocation::Builtin,
+            1000..=1999 => FunctionLocation::Stdlib,
+            2000.. => FunctionLocation::User,
+        }
+    }
 }
 
 impl<'s> Hash for Function<'s> {
@@ -238,60 +420,75 @@ impl<'s> PartialEq for Function<'s> {
     }
 }
 
-impl<'s> Borrow<FunctionName<'s>> for Function<'s> {
-    fn borrow(&self) -> &FunctionName<'s> {
+impl<'s> Borrow<FunctionSignature<'s>> for Function<'s> {
+    fn borrow(&self) -> &FunctionSignature<'s> {
         &self.name
     }
 }
 
 impl<'s> Eq for Function<'s> {}
 
-/// A scope containing variables and possibly inner scopes
-#[derive(Debug)]
-struct VariableScope<'s> {
-    variables: HashSet<&'s str>,
-    inner: Vec<VariableScope<'s>>,
-}
-
-impl<'s> VariableScope<'s> {
-    // Check if the variable is in scope
-    pub fn search(&self, var: &'s str) -> bool {
-        if self.variables.contains(var) {
-            return true;
-        } else {
-            for scope in &self.inner {
-                if scope.search(var) {
-                    return true;
-                }
-            }
-        }
-        false
-    }
-}
-
 // TODO: Rename, this more accurately represents the state during parse
-#[derive(Derivative)]
-#[derivative(Debug)]
 pub struct Program<'s> {
     pub functions: HashSet<Function<'s>>,
     pub main: Vec<Statement<'s>>,
-    #[derivative(Debug = "ignore")]
     pub function_id: Box<dyn Iterator<Item = FunctionID>>,
 }
 
-impl<'s> Program<'s> {
-    pub fn new(pair: Pair<'s, parser::Rule>) -> Self {
+impl<'s> Debug for Program<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Program")
+            .field(
+                "functions",
+                &self
+                    .functions
+                    .iter()
+                    // Only print user code, skipping builtins and stdlib functions
+                    .filter(|f| f.location() == FunctionLocation::User)
+                    .collect::<HashSet<_>>(),
+            )
+            .field("main", &self.main)
+            .finish()
+    }
+}
+
+impl Program<'static> {
+    /// Parse the standard library into HIR
+    fn standard_library() -> HashSet<Function<'static>> {
+        let tokens = RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
+            .expect("Failed to parse standard library")
+            .next()
+            .unwrap();
         let mut this = Self {
+            // TODO: I'm not sure if this is the right place to inject this...
+            // It's certainly not the traditional linking mechanism or flexible for imports
+            // but it's probably fine for now?
             functions: HashSet::new(),
             main: Vec::new(),
             // Non-builtin function IDs start at 1000
             function_id: Box::new((1000..).map(|i| FunctionID(i))),
         };
+        this.build(tokens);
+        this.functions
+    }
+}
+
+impl<'s> Program<'s> {
+    pub fn new(pair: Pair<'s, parser::Rule>) -> Self {
+        let mut this = Self {
+            // TODO: I'm not sure if this is the right place to inject this...
+            // It's certainly not the traditional linking mechanism or flexible for imports
+            // but it's probably fine for now?
+            functions: Program::standard_library(),
+            main: Vec::new(),
+            // User function IDs start at 2000
+            function_id: Box::new((2000..).map(|i| FunctionID(i))),
+        };
         this.build(pair);
         this
     }
 
-    pub fn symbol_table(&self) -> Vec<(FunctionName<'s>, FunctionID)> {
+    pub fn symbol_table(&self) -> Vec<(FunctionSignature<'s>, FunctionID)> {
         let mut map = Vec::new();
         for func in &self.functions {
             map.push((func.name.clone(), func.id));
@@ -334,12 +531,7 @@ impl<'s> Program<'s> {
 
         for pair in pair.into_inner() {
             match pair.as_rule() {
-                function_signature => {
-                    name = Some(visit_function_signature(
-                        pair.into_inner().next().unwrap(),
-                        Some(id),
-                    ))
-                }
+                function_signature => name = Some(visit_function_signature(pair, id)),
                 function_statements => {
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
@@ -363,10 +555,24 @@ impl<'s> Program<'s> {
         use parser::Rule::*;
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
-            assignment_statement => unimplemented!(),
+            assignment_statement => {
+                let (mut var, mut expr) = (None, None);
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        variable => var = Some(Variable(pair.as_span())),
+                        expression => expr = Some(self.visit_expression(pair)),
+                        colon => (),
+                        _ => panic!("ICE: unexpected pair {pair} in assignment_statement"),
+                    }
+                }
+                Statement::Assignment {
+                    variable: var.unwrap(),
+                    value: expr.unwrap(),
+                }
+            }
             return_statement => Statement::Return,
             redo_statement => Statement::Redo,
-            list_element_assignment => unimplemented!(),
+            list_element_assignment => todo!(),
             expression => Statement::Expression(self.visit_expression(pair)),
             rule => panic!("ICE: Unexpected rule {rule:?}"),
         }
@@ -404,14 +610,12 @@ impl<'s> Program<'s> {
                     }
                 }
                 Expression::Binary {
-                    lhs: Box::new(Expression::Unary(Box::new(lhs.unwrap().unwrap()))),
+                    lhs: Box::new(lhs.unwrap().unwrap()),
                     operator: op.unwrap(),
                     rhs: Box::new(rhs.unwrap()),
                 }
             }
-            unary_expression => {
-                Expression::Unary(Box::new(self.visit_unary_expression(pair).unwrap()))
-            }
+            unary_expression => self.visit_unary_expression(pair).unwrap(),
             rule => panic!("ICE: Unexpected rule {rule:?}"),
         }
     }
@@ -419,10 +623,11 @@ impl<'s> Program<'s> {
     fn visit_unary_expression(
         &self,
         pair: Pair<'s, parser::Rule>,
-    ) -> Result<UnaryExpression<'s>, Box<dyn std::error::Error>> {
+    ) -> Result<Expression<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
+        assert!(pair.as_rule() == unary_expression);
 
-        for pair in pair.into_inner() {
+        for pair in pair.clone().into_inner() {
             match pair.as_rule() {
                 simple_expression => {
                     let pair = pair.into_inner().next().unwrap();
@@ -438,54 +643,76 @@ impl<'s> Program<'s> {
                                     }
                                 }
                             }
-                            return Ok(UnaryExpression::ListElement {
+                            return Ok(Expression::Unary(Box::new(UnaryExpression::ListElement {
                                 variable: var.unwrap(),
                                 index: expr.unwrap(),
-                            });
+                            })));
                         }
                         create_call => unimplemented!(),
                         function_call => {
-                            return Ok(UnaryExpression::FunctionCall {
+                            return Ok(Expression::Unary(Box::new(UnaryExpression::FunctionCall {
                                 function: self.visit_function_call(pair)?,
-                            })
+                            })))
                         }
-                        literal => return Ok(UnaryExpression::Literal(self.visit_literal(pair)?)),
-                        single_name_part => {
-                            return Ok(UnaryExpression::Variable(Variable(pair.as_span())))
+                        literal => {
+                            return Ok(Expression::Unary(Box::new(UnaryExpression::Literal(
+                                self.visit_literal(pair)?,
+                            ))))
                         }
-                        _ => (),
+                        variable => {
+                            return Ok(Expression::Unary(Box::new(UnaryExpression::Variable(
+                                Variable(pair.as_span()),
+                            ))))
+                        }
+                        block => {
+                            let mut statements = Vec::new();
+                            for pair in pair.into_inner() {
+                                match pair.as_rule() {
+                                    statement => statements.push(self.visit_statement(pair)),
+                                    _ => panic!("ICE: unexpected pair {pair} in block"),
+                                }
+                            }
+                            return Ok(Expression::Unary(Box::new(UnaryExpression::Block(
+                                statements,
+                            ))));
+                        }
+                        _ => println!("found unexpected pair in simple_expression {pair}"),
                     }
                 }
-                _ => (),
+                expression => return Ok(self.visit_expression(pair)),
+                _ => panic!("ICE: found unexpected pair {pair}"),
             }
         }
-        panic!("ICE: didn't encounter simple_expression in unary_expression")
+        panic!(
+            "ICE: didn't encounter simple_expression or expression in unary_expression\n{}",
+            pair
+        )
     }
 
     // TODO: The ugliest part yet, please clean this up
     fn visit_function_call(
         &self,
         pair: Pair<'s, parser::Rule>,
-    ) -> Result<FunctionName<'s>, Box<dyn std::error::Error>> {
+    ) -> Result<FunctionCallName<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
-        let mut name = FunctionName {
+        let mut name = FunctionCallName {
             name: Vec::new(),
-            id: None,
+            id: RefCell::new(None),
         };
         for pair in pair.into_inner() {
             match pair.as_rule() {
-                single_name_part => name.name.push(FunctionPart::Name {
+                single_name_part => name.name.push(FunctionCallPart::Name {
                     name: pair.as_span(),
                 }),
                 literal => name
                     .name
-                    .push(FunctionPart::Expression(Expression::Unary(Box::new(
+                    .push(FunctionCallPart::Expression(Expression::Unary(Box::new(
                         UnaryExpression::Literal(self.visit_literal(pair)?),
                     )))),
                 expression => name
                     .name
-                    .push(FunctionPart::Expression(self.visit_expression(pair))),
-                block => {
+                    .push(FunctionCallPart::Expression(self.visit_expression(pair))),
+                block | newindent_block => {
                     let mut statements = Vec::new();
                     for pair in pair.into_inner() {
                         match pair.as_rule() {
@@ -493,7 +720,7 @@ impl<'s> Program<'s> {
                             _ => (),
                         }
                     }
-                    name.name.push(FunctionPart::Block(statements))
+                    name.name.push(FunctionCallPart::Block(statements))
                 }
                 _ => (),
             }
@@ -518,7 +745,26 @@ impl<'s> Program<'s> {
                 "false" => Literal::Boolean(false),
                 b => panic!("ICE: unknown boolean value {b}"),
             },
-            list => unimplemented!(),
+            list => {
+                let mut items = Vec::new();
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        list_item => {
+                            for pair in pair.into_inner() {
+                                match pair.as_rule() {
+                                    block => unimplemented!(),
+                                    // FIXME: Also support maps
+                                    key_value => unimplemented!(),
+                                    expression => items.push(self.visit_expression(pair)),
+                                    _ => panic!("ICE: unexpected pair {} in list_item", pair),
+                                }
+                            }
+                        }
+                        _ => (),
+                    }
+                }
+                Literal::List(items)
+            }
             string => Literal::String(&pair.as_str()[1..pair.as_str().len() - 1]),
             _ => panic!("ICE: Didn't get a known literal in literal"),
         })
@@ -527,27 +773,51 @@ impl<'s> Program<'s> {
 
 pub fn visit_function_signature<'s>(
     pair: Pair<'s, parser::Rule>,
-    id: Option<FunctionID>,
-) -> FunctionName<'s> {
+    id: FunctionID,
+) -> FunctionSignature<'s> {
     use parser::Rule::*;
-    let mut name = FunctionName {
+    let mut name = FunctionSignature {
         name: Vec::new(),
         id: id,
     };
-    assert!(pair.as_rule() == parser::Rule::function_signature);
+    let pair = pair.expect(function_signature);
 
     for pair in pair.into_inner() {
-        let pair = pair.into_inner().next().unwrap();
+        let pair = pair.descend();
         match pair.as_rule() {
-            name_part => name.name.push(FunctionPart::Name {
-                name: pair.as_span(),
-            }),
-            paren => name.name.push(FunctionPart::Parameter {
+            name_part => {
+                let pair = pair.descend();
+                match pair.as_rule() {
+                    name_list => {
+                        let mut parts = Vec::new();
+                        for pair in pair.into_inner() {
+                            match pair.as_rule() {
+                                single_name_part => parts.push(pair.as_span()),
+                                _ => panic!("ICE: unexpected pair in name_list {pair}"),
+                            }
+                        }
+                        name.name.push(FunctionSignaturePart::Name {
+                            names: Necessity::Required(parts),
+                        })
+                    }
+                    optional_name => {
+                        println!("optional name {}", pair.clone().descend().as_str());
+                        name.name.push(FunctionSignaturePart::Name {
+                            names: Necessity::Optional(vec![pair
+                                .descend()
+                                .expect(single_name_part)
+                                .as_span()]),
+                        })
+                    }
+                    _ => panic!("ICE: unexpected pair in name_part {pair}"),
+                }
+            }
+            paren => name.name.push(FunctionSignaturePart::Parameter {
                 name: pair.as_span(),
                 reference: false,
             }),
-            ref_paren => name.name.push(FunctionPart::Parameter {
-                name: pair.as_span(),
+            ref_paren => name.name.push(FunctionSignaturePart::Parameter {
+                name: pair.descend().descend().as_span(),
                 reference: true,
             }),
             _ => (),
@@ -607,14 +877,14 @@ pub trait VisitAst<'s> {
             _ => (),
         }
     }
-    fn walk_function_call(&mut self, function_name: &FunctionName<'s>) {
+    fn walk_function_call(&mut self, function_name: &FunctionCallName<'s>) {
         self.visit_function_call(function_name);
     }
 
     fn visit_function(&mut self, _function: &Function<'s>) {}
     fn visit_statement(&mut self, _statement: &Statement<'s>) {}
     fn visit_expression(&mut self, _expression: &Expression<'s>) {}
-    fn visit_function_call(&mut self, _function_name: &FunctionName<'s>) {}
+    fn visit_function_call(&mut self, _function_name: &FunctionCallName<'s>) {}
 }
 
 #[cfg(test)]

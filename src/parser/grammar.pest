@@ -42,6 +42,7 @@ teol_comment = { ";" ~ (!NEWLINE ~ ANY)+ ~ &NEWLINE }
 key_value = {
     variable ~ ":" ~ expression
 }
+// FIXME: This should deny mixed k/v and list items. This can be done with the stack.
 list_item = !{
     block
     | key_value 
@@ -66,7 +67,7 @@ single_name_part = @{ (alpha | lead_symbol) ~ (alpha | digit | symbol )* }
 // One or more words separated by '/', '/optional' is also allowed
 name_list = ${ single_name_part ~ ("/" ~ single_name_part)* }
 optional_name = { "/" ~ single_name_part }
-name_part = { (optional_name | name_list)+ }
+name_part = { optional_name | name_list }
 // A parethesised parameter
 paren = { "(" ~ single_name_part ~ ")" }
 // A parethesised reference parameter

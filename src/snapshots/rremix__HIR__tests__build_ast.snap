@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 688
+assertion_line: 842
 expression: ast
 ---
 Program {
@@ -9,7 +9,7 @@ Program {
         Expression(
             Unary(
                 FunctionCall {
-                    function: FunctionName {
+                    function: FunctionCallName {
                         name: [
                             Name {
                                 name: Span {
@@ -28,7 +28,9 @@ Program {
                                 ),
                             ),
                         ],
-                        id: None,
+                        id: RefCell {
+                            value: None,
+                        },
                     },
                 },
             ),
@@ -36,7 +38,7 @@ Program {
         Expression(
             Unary(
                 FunctionCall {
-                    function: FunctionName {
+                    function: FunctionCallName {
                         name: [
                             Name {
                                 name: Span {
@@ -53,7 +55,9 @@ Program {
                                 },
                             },
                         ],
-                        id: None,
+                        id: RefCell {
+                            value: None,
+                        },
                     },
                 },
             ),

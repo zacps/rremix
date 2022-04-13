@@ -1,7 +1,11 @@
-#![forbid(unsafe_code, unreachable_patterns)]
+// We deny a few lints which are almost certainly errors.
+// Unreachable patterns in particular is an easy mistake to make in
+// HIR if a use of enum variants is missing.
+#![forbid(unsafe_code, unreachable_patterns, overlapping_range_endpoints)]
 #![deny(rust_2018_idioms)]
 
-use pest::{iterators::Pair, RuleType};
+use parser::RemixParser;
+use pest::{iterators::Pair, Parser, RuleType};
 
 // High level intermediate representation.
 //

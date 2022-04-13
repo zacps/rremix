@@ -1,4 +1,3 @@
-use pest::Parser;
 use pest_derive::*;
 
 #[derive(Parser)]
@@ -9,6 +8,7 @@ pub struct RemixParser;
 mod tests {
     use crate::format_pair;
     use insta::assert_snapshot;
+    use pest::Parser;
     use std::fs;
     use test_case::test_case;
 

@@ -1,2 +1,4 @@
-ask for /an integer (prompt):
-    return
+join2 with:
+	from execute [
+		return
+	] with each

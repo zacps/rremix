@@ -1,6 +1,6 @@
 /// This module is responsible for name resolution, both for variables and functions.
 ///
-use std::{collections::HashMap, sync::Mutex};
+use std::{cell::RefCell, sync::Mutex};
 
 use once_cell::sync::Lazy;
 use pest::Parser;
@@ -9,69 +9,87 @@ use crate::{parser::RemixParser, parser::Rule, HIR::*};
 
 /// Names and corresponding IDs of builtin functions.
 /// These are added to the symbol table during resolution
-static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionName<'static>, FunctionID)>>> = Lazy::new(|| {
-    let mut map = Vec::new();
+static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>>> =
+    Lazy::new(|| {
+        let mut map = Vec::new();
 
-    let builtins = vec![
-        "do (executable)",
-        "based on (original)",
-        "show (output)",
-        "ask (description)",
-        "if (condition) (consequence)",
-        "if (condition) (consequence) otherwise (alternative)",
-        "type of (thing)",
-        "convert (string-input) to integer",
-        "convert (item) to string",
-        "wait (number) sec/secs",
-        "length of (list)",
-        "length of /the (list)",
-        "start (list)",
-        "next (list)",
-        "end of /the (list)",
-        "add/append /the (value) to /the (list)",
-        "(start) to (finish)",
-        // index/key
-        "(list) (index)",
-        "(list) (index) (value)",
-        "randomize",
-        "randomize with (seed)",
-        "random (max-value)",
-        "sine (degrees)",
-        "cosine (degrees)",
-        "arctangent (change-y) over (change-x)",
-        "sqrt/√ (value)",
-    ];
+        let builtins = vec![
+            "do (executable)",
+            "based on (original)",
+            "show (output)",
+            "ask (description)",
+            "if (condition) (consequence)",
+            "if (condition) (consequence) otherwise (alternative)",
+            "type of (thing)",
+            "convert (string-input) to integer",
+            "convert (item) to string",
+            "wait (number) sec/secs",
+            "length of (list)",
+            "length of /the (list)",
+            "start (list)",
+            "next (list)",
+            "end of /the (list)",
+            "add/append /the (value) to /the (list)",
+            "(start) to (finish)",
+            // index/key
+            "(list) (index)",
+            "(list) (index) (value)",
+            "randomize",
+            "randomize with (seed)",
+            "random (max-value)",
+            "sine (degrees)",
+            "cosine (degrees)",
+            "arctangent (change-y) over (change-x)",
+            "sqrt/√ (value)",
+        ];
+        let mut builtin_ids = (2000..).map(|i| FunctionID::new(i));
 
-    for (i, builtin) in builtins.iter().enumerate() {
-        map.push((
-            visit_function_signature(
-                RemixParser::parse(Rule::function_signature, builtin)
-                    .unwrap()
-                    .next()
-                    .unwrap(),
-                None,
-            ),
-            i.into(),
-        ));
-    }
+        for (i, builtin) in builtins.iter().enumerate() {
+            map.push((
+                visit_function_signature(
+                    RemixParser::parse(Rule::function_signature, builtin)
+                        .unwrap()
+                        .next()
+                        .unwrap(),
+                    builtin_ids.next().unwrap(),
+                ),
+                i.into(),
+            ));
+        }
 
-    Mutex::new(map.into())
-});
+        Mutex::new(map.into())
+    });
 
-type SymbolTable<'s> = Vec<(FunctionName<'s>, FunctionID)>;
+type SymbolTable<'s> = Vec<(FunctionSignature<'s>, FunctionID)>;
 
-fn symbol_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionName<'s>) -> Option<FunctionID> {
+fn symbol_get<'s>(
+    table: &SymbolTable<'s>,
+    function_name: &FunctionCallName<'s>,
+) -> Option<FunctionID> {
     let mut matches = Vec::new();
+    println!(
+        "----- Attempting to match {function_name} against {} functions -----",
+        table.len()
+    );
     for (def, id) in table {
         if function_name.resolves_to(def) {
-            matches.push(*id)
+            matches.push((*id, def))
         }
     }
-    if matches.len() == 1 {
-        Some(matches[0])
+    let result = if matches.len() == 1 {
+        Some(matches[0].0)
     } else {
         None
+    };
+
+    if result == None {
+        for matched in matches {
+            println!("{}", matched.1);
+        }
     }
+    println!("---------------------------------");
+
+    result
 }
 
 pub struct Resolver<'s> {
@@ -83,38 +101,52 @@ impl<'s> Resolver<'s> {
         let mut r = Self {
             symbol_table: BUILTIN_SYMBOLS.lock().unwrap().clone(),
         };
-        r.symbol_table.extend(program.symbol_table());
+        let symbol_table = program.symbol_table();
+        r.symbol_table.extend(symbol_table);
         r.resolve_names(program);
         r.symbol_table
     }
 
     fn resolve_names(&self, program: &mut Program<'s>) {
-        use Statement::*;
         for statement in &mut program.main {
-            match statement {
-                Expression(expr) => self.visit_expr(expr),
-                Assignment { variable, value } => {
-                    self.visit_var(variable);
-                    self.visit_expr(value);
-                }
-                ListAssignment {
-                    variable,
-                    index,
-                    value,
-                } => {
-                    self.visit_var(variable);
-                    self.visit_expr(index);
-                    self.visit_expr(value);
-                }
-                Return | Redo => (),
+            self.visit_statement(statement);
+        }
+        for function in &program.functions {
+            for statement in &function.statements {
+                self.visit_statement(statement);
             }
         }
     }
 
-    pub(crate) fn visit_expr(&self, expr: &mut Expression<'s>) -> () {
+    fn visit_statement(&self, statement: &Statement<'s>) {
+        use Statement::*;
+        match statement {
+            Expression(expr) => self.visit_expr(expr),
+            Assignment { variable, value } => {
+                self.visit_var(variable);
+                self.visit_expr(value);
+            }
+            ListAssignment {
+                variable,
+                index,
+                value,
+            } => {
+                self.visit_var(variable);
+                self.visit_expr(index);
+                self.visit_expr(value);
+            }
+            Return | Redo => (),
+        }
+    }
+
+    pub(crate) fn visit_expr(&self, expr: &Expression<'s>) -> () {
         use Expression::*;
         match expr {
-            Binary { lhs, operator, rhs } => {
+            Binary {
+                lhs,
+                operator: _,
+                rhs,
+            } => {
                 self.visit_expr(lhs);
                 self.visit_expr(rhs);
             }
@@ -122,27 +154,33 @@ impl<'s> Resolver<'s> {
         }
     }
 
-    pub(crate) fn visit_var(&self, variable: &mut Variable<'s>) -> () {
-        todo!()
-    }
+    pub(crate) fn visit_var(&self, _variable: &Variable<'s>) -> () {}
 
-    pub(crate) fn visit_unary(&self, unary: &mut UnaryExpression<'s>) {
+    pub(crate) fn visit_unary(&self, unary: &UnaryExpression<'s>) {
         use UnaryExpression::*;
         match unary {
             FunctionCall { function } => {
                 if let Some(_id) = symbol_get(&self.symbol_table, function) {
                     // map function call to function table
-                    function.id = Some(_id)
+                    function.id.replace(Some(_id));
                 } else {
-                    panic!("ICE: Attempted to call unknown function {:?}", function);
+                    panic!(
+                        "ICE: Attempted to call unknown function '{}'\n", //The known functions are:\n{}",
+                        function,
+                    )
                 }
             }
             ListElement { variable, index } => {
                 self.visit_var(variable);
                 self.visit_expr(index);
             }
-            Literal(_) => todo!(),
-            Variable(_) => todo!(),
+            Literal(_) => {}
+            Variable(_) => {}
+            Block(statements) => {
+                for statement in statements {
+                    self.visit_statement(statement)
+                }
+            }
         }
     }
 }
@@ -154,9 +192,9 @@ mod tests {
     use crate::HIR;
     use crate::HIR::VisitAst;
 
-    use insta::assert_debug_snapshot;
+    use insta::{assert_debug_snapshot, assert_display_snapshot, assert_snapshot};
     use pest::Parser;
-    use std::collections::{HashMap, HashSet};
+
     use std::fs;
     use test_case::test_case;
 
@@ -222,7 +260,10 @@ mod tests {
                 let resolutions = ResolveCollector::collect_resolutions(&ast);
 
                 // TODO: Replace with assert_snapshot when we have nicer display implementations
-                assert_debug_snapshot!(resolutions);
+                assert_snapshot!(&resolutions
+                    .iter()
+                    .map(|r| format!("{r} -> {:?}\n", r.id))
+                    .collect::<String>());
             }
             Err(_) => {
                 panic!("Failed to parse file {path}")
@@ -233,15 +274,13 @@ mod tests {
     /// Struct which collects the result of function/method resolutions so they can be
     /// examined in tests.
     struct ResolveCollector<'s> {
-        function_resoltions: Vec<FunctionName<'s>>,
+        function_resoltions: Vec<FunctionCallName<'s>>,
     }
 
     use HIR::*;
 
-    use super::{symbol_get, BUILTIN_SYMBOLS};
-
     impl<'s> ResolveCollector<'s> {
-        fn collect_resolutions(program: &Program<'s>) -> Vec<FunctionName<'s>> {
+        fn collect_resolutions(program: &Program<'s>) -> Vec<FunctionCallName<'s>> {
             let mut collector = Self {
                 function_resoltions: Vec::new(),
             };
@@ -251,19 +290,8 @@ mod tests {
     }
 
     impl<'s> VisitAst<'s> for ResolveCollector<'s> {
-        fn visit_function_call(&mut self, function_name: &FunctionName<'s>) {
+        fn visit_function_call(&mut self, function_name: &FunctionCallName<'s>) {
             self.function_resoltions.push(function_name.clone());
         }
-    }
-
-    /// Parse a function signature
-    fn str_to_name(str: &'static str) -> FunctionName<'static> {
-        visit_function_signature(
-            RemixParser::parse(Rule::function_call, str)
-                .unwrap()
-                .next()
-                .unwrap(),
-            None,
-        )
     }
 }
