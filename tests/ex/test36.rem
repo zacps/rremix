@@ -1,0 +1,41 @@
+a person called (a-name) :
+	create
+		name : a-name
+
+		getter
+			name
+
+		say hello to (me) :
+			showline {"Hi ", name}
+
+		welcome (me) and bye :
+			say hello to (me)
+			showline {"bye now."}
+
+a person called (name) age (years):
+	extend (a person called (name))
+		age : years
+
+		getter
+			age
+
+		make (me) a year older :
+			age : age + 1
+			name : to "older " append (name)
+
+		say hello to (me) :
+			showline {"Hi ", name, " you are ", age, " years old."}
+
+person : a person called "Mary"
+showline (person's name) 
+say hello to (person)
+welcome (person) and bye
+
+person: a person called (person's name) age 25
+showline (person's age)
+make (person) a year older
+make (person) a year older
+say hello to (person)
+welcome (person) and bye
+
+say hello to (a person called "Stu" age 56)

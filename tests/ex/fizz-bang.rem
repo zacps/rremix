@@ -1,0 +1,14 @@
+Fizz-Buzz.
+==========
+
+for each (n) from 1 to 100
+	choose from
+		((n) is divisible by 15) do
+			"fizz-buzz"^
+		((n) is divisible by 3) do
+			"fizz"^
+		((n) is divisible by 5) do
+			"buzz"^
+		(n)^
+	" "^
+↲

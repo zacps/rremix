@@ -1,0 +1,9 @@
+(n)!:
+	product (2 to (n))
+
+for each (n) from 1 to 10
+	{ n, "! = ", (n)! } ↲
+
+(n) ↲
+
+"Finished!" ↲

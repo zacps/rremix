@@ -1,0 +1,30 @@
+a number (n) :
+	create
+		getters
+			number
+			age
+
+		ordinary : 49
+		number : n
+		age : n + n
+		more : none
+		even-more : 0
+
+		setter
+			more
+
+		getter/setter
+			even-more
+
+		see (my) more :
+			showline (more)
+
+x : a number 7
+showline (x's number)
+showline (x's age)
+see x's more
+x's more : x's age + 1
+see x's more
+showline (x's even-more)
+x's even-more : "abc"
+showline (x's even-more)
