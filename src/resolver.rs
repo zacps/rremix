@@ -66,7 +66,7 @@ fn invert<'s>(mut table: SymbolTable<'s>) -> InvSymbolTable<'s> {
     table.drain(0..).map(|(sig, id)| (id, sig)).collect()
 }
 
-fn id_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionCallName<'s>) -> Option<FunctionID> {
+fn id_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionCall<'s>) -> Option<FunctionID> {
     let mut matches = Vec::new();
     for (def, id) in table {
         if function_name.resolves_to(def) {
@@ -307,7 +307,7 @@ mod tests {
     /// Struct which collects the result of function/method resolutions so they can be
     /// examined in tests.
     struct ResolveCollector<'s> {
-        function_resoltions: Vec<FunctionCallName<'s>>,
+        function_resoltions: Vec<FunctionCall<'s>>,
     }
 
     use HIR::*;
@@ -316,7 +316,7 @@ mod tests {
         fn collect_resolutions(
             program: &Program<'s>,
             filter: FunctionLocation,
-        ) -> Vec<FunctionCallName<'s>> {
+        ) -> Vec<FunctionCall<'s>> {
             let mut collector = Self {
                 function_resoltions: Vec::new(),
             };
@@ -326,7 +326,7 @@ mod tests {
     }
 
     impl<'s> VisitAst<'s> for ResolveCollector<'s> {
-        fn visit_function_call(&mut self, function_name: &FunctionCallName<'s>) {
+        fn visit_function_call(&mut self, function_name: &FunctionCall<'s>) {
             self.function_resoltions.push(function_name.clone());
         }
     }

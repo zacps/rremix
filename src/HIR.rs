@@ -111,12 +111,12 @@ impl<'s> Display for FunctionSignaturePart<'s> {
 
 /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
 #[derive(Debug, Clone)]
-pub struct FunctionCallName<'s> {
+pub struct FunctionCall<'s> {
     pub name: Vec<FunctionCallPart<'s>>,
     pub id: RefCell<Option<FunctionID>>,
 }
 
-impl<'s> Display for FunctionCallName<'s> {
+impl<'s> Display for FunctionCall<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use FunctionCallPart::*;
         for name in &self.name {
@@ -211,7 +211,7 @@ impl<'s> Display for FunctionSignature<'s> {
     }
 }
 
-impl<'s> FunctionCallName<'s> {
+impl<'s> FunctionCall<'s> {
     pub fn new(parts: Vec<FunctionCallPart<'s>>) -> Self {
         Self {
             name: parts,
@@ -344,7 +344,7 @@ pub enum UnaryExpression<'s> {
         index: Expression<'s>,
     },
     FunctionCall {
-        function: FunctionCallName<'s>,
+        function: FunctionCall<'s>,
     },
     Literal(Literal<'s>),
     Variable(Variable<'s>),
@@ -687,9 +687,9 @@ impl<'s> Program<'s> {
     fn visit_function_call(
         &self,
         pair: Pair<'s, parser::Rule>,
-    ) -> Result<FunctionCallName<'s>, Box<dyn std::error::Error>> {
+    ) -> Result<FunctionCall<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
-        let mut name = FunctionCallName {
+        let mut name = FunctionCall {
             name: Vec::new(),
             id: RefCell::new(None),
         };
@@ -870,14 +870,14 @@ pub trait VisitAst<'s> {
             _ => (),
         }
     }
-    fn walk_function_call(&mut self, function_name: &FunctionCallName<'s>) {
+    fn walk_function_call(&mut self, function_name: &FunctionCall<'s>) {
         self.visit_function_call(function_name);
     }
 
     fn visit_function(&mut self, _function: &Function<'s>) {}
     fn visit_statement(&mut self, _statement: &Statement<'s>) {}
     fn visit_expression(&mut self, _expression: &Expression<'s>) {}
-    fn visit_function_call(&mut self, _function_name: &FunctionCallName<'s>) {}
+    fn visit_function_call(&mut self, _function_name: &FunctionCall<'s>) {}
 }
 
 #[cfg(test)]
