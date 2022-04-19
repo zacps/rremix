@@ -1,3 +1,12 @@
+//! rRemix is an experimental compiler for the Remix programming language.
+//!
+//! The compiler is implemented as a number of simple sequential passes.
+//! Currently, the following parses are used:
+//! * [Parser](parser)
+//! * [AST](HIR)
+//! * [Function resolution](resolver)
+//! * [Codegen](codegen)
+
 // We deny a few lints which are almost certainly errors.
 // Unreachable patterns in particular is an easy mistake to make in
 // HIR if a use of enum variants is missing.
@@ -7,10 +16,10 @@
 use parser::RemixParser;
 use pest::{iterators::Pair, Parser, RuleType, Span};
 
-// High level intermediate representation.
-//
-// This represents the compiler's state after name resolution, before optimisation and codegen.
-// We will have rejected the majority of incomplete programs after this is constructed.
+/// High level intermediate representation.
+///
+/// This represents the compiler's state after name resolution, before optimisation and codegen.
+/// We will have rejected the majority of incomplete programs after this is constructed.
 #[allow(non_snake_case)]
 pub mod HIR;
 // Parser
@@ -77,6 +86,9 @@ trait SpanExt {
 }
 
 impl<'s> SpanExt for Span<'s> {
+    /// Format a span as a machine/human readable position.
+    ///
+    /// ```{line}:col..line:col```
     fn format(&self) -> String {
         let (start, end) = self.clone().split();
         format!(

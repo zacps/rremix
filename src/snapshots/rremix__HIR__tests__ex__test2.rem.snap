@@ -1,0 +1,90 @@
+---
+source: src/HIR.rs
+assertion_line: 1022
+expression: ast
+---
+Program {
+    functions: {},
+    main: [
+        Assignment {
+            variable: Variable {
+                name: "a",
+                scope: Global,
+                span: Span {
+                    str: "a",
+                    start: 0,
+                    end: 1,
+                },
+            },
+            value: Unary(
+                Literal(
+                    Integer(
+                        4,
+                    ),
+                ),
+            ),
+        },
+        Expression(
+            Unary(
+                FunctionCall {
+                    function: FunctionCall {
+                        name: [
+                            Name {
+                                name: Span {
+                                    str: "show",
+                                    start: 6,
+                                    end: 10,
+                                },
+                            },
+                            Expression(
+                                Unary(
+                                    Variable(
+                                        Variable {
+                                            name: "a",
+                                            scope: Global,
+                                            span: Span {
+                                                str: "a",
+                                                start: 12,
+                                                end: 13,
+                                            },
+                                        },
+                                    ),
+                                ),
+                            ),
+                        ],
+                        id: RefCell {
+                            value: None,
+                        },
+                    },
+                },
+            ),
+        ),
+        Expression(
+            Unary(
+                FunctionCall {
+                    function: FunctionCall {
+                        name: [
+                            Name {
+                                name: Span {
+                                    str: "new",
+                                    start: 16,
+                                    end: 19,
+                                },
+                            },
+                            Name {
+                                name: Span {
+                                    str: "line",
+                                    start: 20,
+                                    end: 24,
+                                },
+                            },
+                        ],
+                        id: RefCell {
+                            value: None,
+                        },
+                    },
+                },
+            ),
+        ),
+    ],
+}

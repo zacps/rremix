@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 951
+assertion_line: 1022
 expression: ast
 ---
 Program {

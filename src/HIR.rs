@@ -10,6 +10,11 @@ use super::*;
 use derivative::Derivative;
 use pest::Span;
 
+/// An ID of a function defined in the program.
+///
+/// To simplify the implementation builtin IDs start at 0,
+/// standard library IDs start at 1000, and user defined
+/// functions start at 2000.
 #[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
 pub struct FunctionID(u64);
 
@@ -60,6 +65,8 @@ impl<'s> Display for FunctionCallPart<'s> {
     }
 }
 
+/// Necessity represents whether or not a part of a function name must be provided
+/// or is optional.
 #[derive(Debug, Clone)]
 pub enum Necessity<T> {
     Required(T),
@@ -136,6 +143,7 @@ impl<'s> Display for FunctionCall<'s> {
     }
 }
 
+/// Some utility methods for parser tokens.
 trait PairExt<R> {
     /// Unwrap the pair and descend the parse tree, panicking if there was no next token.
     fn descend(self) -> Self;
@@ -161,7 +169,12 @@ impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
     }
 }
 
-/// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
+// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
+/// A function signature such as:
+///
+/// ```
+/// this is a function call with a (parameter) and a reference parameter (#ref)
+/// ```
 #[derive(Debug, Clone)]
 pub struct FunctionSignature<'s> {
     pub name: Vec<FunctionSignaturePart<'s>>,
@@ -295,6 +308,8 @@ impl<'s> FunctionCall<'s> {
 }
 
 #[derive(Debug, Clone)]
+
+/// The builtin binary operators.
 pub enum Operator {
     Addition,
     Subtraction,
@@ -319,8 +334,25 @@ pub enum Operator {
 //     Unknown(T),
 // }
 
+/// A variable. Remix does not have separate declarations and definitions.
 #[derive(Debug, Clone)]
-pub struct Variable<'s>(Span<'s>);
+pub struct Variable<'s> {
+    name: &'s str,
+    scope: Scope,
+    span: Span<'s>,
+}
+
+/// Variable scopes.
+#[derive(Debug, Clone)]
+pub enum Scope {
+    /// Variables defined outside of a function (in 'main').
+    Global,
+    /// Variables defined in a function context, including parameters.
+    Function(FunctionID),
+    /// Variables defined in anonymous functions ('blocks') denoted by
+    /// square brackets.
+    Block(),
+}
 
 #[derive(Debug, Clone)]
 pub enum Literal<'s> {
@@ -423,10 +455,14 @@ impl<'s> Borrow<FunctionSignature<'s>> for Function<'s> {
 impl<'s> Eq for Function<'s> {}
 
 // TODO: Rename, this more accurately represents the state during parse
+/// The root of the HIR is the program. This is just a collection of all the
+/// functions defined in the program, and the 'main' method (statements)
+/// defined outside of a function.
 pub struct Program<'s> {
     pub functions: Vec<Function<'s>>,
     pub main: Vec<Statement<'s>>,
-    pub function_id: Box<dyn Iterator<Item = FunctionID>>,
+    function_id: Box<dyn Iterator<Item = FunctionID>>,
+    scope: Scope,
 }
 
 impl<'s> Debug for Program<'s> {
@@ -460,7 +496,8 @@ impl Program<'static> {
             functions: Vec::new(),
             main: Vec::new(),
             // Non-builtin function IDs start at 1000
-            function_id: Box::new((1000..).map(|i| FunctionID(i))),
+            function_id: Box::new((1000..=1999).map(|i| FunctionID(i))),
+            scope: Scope::Global,
         };
         this.build(tokens);
         this.functions
@@ -468,6 +505,7 @@ impl Program<'static> {
 }
 
 impl<'s> Program<'s> {
+    /// Build the AST from the raw parse tree.
     pub fn new(pair: Pair<'s, parser::Rule>) -> Self {
         let mut this = Self {
             // TODO: I'm not sure if this is the right place to inject this...
@@ -477,9 +515,21 @@ impl<'s> Program<'s> {
             main: Vec::new(),
             // User function IDs start at 2000
             function_id: Box::new((2000..).map(|i| FunctionID(i))),
+            scope: Scope::Global,
         };
         this.build(pair);
         this
+    }
+
+    fn with_scope<F, T>(&mut self, scope: Scope, func: F) -> T
+    where
+        F: FnOnce(&mut Self) -> T,
+    {
+        let last = self.scope.clone();
+        self.scope = scope;
+        let t = func(self);
+        self.scope = last;
+        t
     }
 
     pub fn symbol_table(&self) -> Vec<(FunctionSignature<'s>, FunctionID)> {
@@ -523,20 +573,23 @@ impl<'s> Program<'s> {
         let mut statements = Vec::new();
         let span = pair.as_span().clone();
 
-        for pair in pair.into_inner() {
-            match pair.as_rule() {
-                function_signature => name = Some(visit_function_signature(pair, id)),
-                function_statements => {
-                    for pair in pair.into_inner() {
-                        match pair.as_rule() {
-                            statement => statements.push(self.visit_statement(pair)),
-                            _ => (),
+        self.with_scope(Scope::Function(id), |this| {
+            for pair in pair.into_inner() {
+                match pair.as_rule() {
+                    function_signature => name = Some(visit_function_signature(pair, id)),
+                    function_statements => {
+                        for pair in pair.into_inner() {
+                            match pair.as_rule() {
+                                statement => statements.push(this.visit_statement(pair)),
+                                _ => (),
+                            }
                         }
                     }
+                    _ => (),
                 }
-                _ => (),
             }
-        }
+        });
+
         Function {
             name: name.unwrap(),
             statements,
@@ -553,7 +606,14 @@ impl<'s> Program<'s> {
                 let (mut var, mut expr) = (None, None);
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
-                        variable => var = Some(Variable(pair.as_span())),
+                        variable => {
+                            let span = pair.as_span();
+                            var = Some(Variable {
+                                name: span.as_str(),
+                                span: span,
+                                scope: self.scope.clone(),
+                            })
+                        }
                         expression => expr = Some(self.visit_expression(pair)),
                         colon => (),
                         _ => panic!("ICE: unexpected pair {pair} in assignment_statement"),
@@ -577,7 +637,6 @@ impl<'s> Program<'s> {
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
             binary_expression => {
-                // let bin = Expression::Binary {};
                 let (mut lhs, mut op, mut rhs) = (None, None, None);
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
@@ -630,7 +689,14 @@ impl<'s> Program<'s> {
                             let (mut var, mut expr) = (None, None);
                             for pair in pair.into_inner() {
                                 match pair.as_rule() {
-                                    single_name_part => var = Some(Variable(pair.as_span())),
+                                    single_name_part => {
+                                        let span = pair.as_span();
+                                        var = Some(Variable {
+                                            name: span.as_str(),
+                                            span,
+                                            scope: self.scope.clone(),
+                                        })
+                                    }
                                     expression => expr = Some(self.visit_expression(pair)),
                                     rule => {
                                         panic!("ICE: Unexpected rule {rule:?} in list_element")
@@ -654,9 +720,14 @@ impl<'s> Program<'s> {
                             ))))
                         }
                         variable => {
+                            let span = pair.as_span();
                             return Ok(Expression::Unary(Box::new(UnaryExpression::Variable(
-                                Variable(pair.as_span()),
-                            ))))
+                                Variable {
+                                    name: span.as_str(),
+                                    span,
+                                    scope: self.scope.clone(),
+                                },
+                            ))));
                         }
                         block => {
                             let mut statements = Vec::new();
@@ -895,7 +966,7 @@ mod tests {
     //#[test_case("ex/factorial2.rem")]
     //#[test_case("ex/primes.rem")]
     #[test_case("ex/test1.rem")]
-    //#[test_case("ex/test2.rem")]
+    #[test_case("ex/test2.rem")]
     //#[test_case("ex/test3.rem")]
     //#[test_case("ex/test4.rem")]
     //#[test_case("ex/test5.rem")]
@@ -948,7 +1019,7 @@ mod tests {
                 let ast = HIR::Program::new(pair.unwrap());
 
                 // TODO: Replace with assert_snapshot when we have nicer display implementations
-                assert_debug_snapshot!(ast);
+                assert_debug_snapshot!(path, ast);
             }
             Err(e) => {
                 eprintln!("{e}");

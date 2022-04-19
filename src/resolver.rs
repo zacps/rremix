@@ -1,5 +1,4 @@
-/// This module is responsible for name resolution, both for variables and functions.
-///
+/// This module is responsible for name resolution for functions.
 use std::{cell::RefCell, sync::Mutex};
 
 use once_cell::sync::Lazy;
@@ -9,7 +8,7 @@ use crate::{parser::RemixParser, parser::Rule, HIR::*};
 
 /// Names and corresponding IDs of builtin functions.
 /// These are added to the symbol table during resolution
-static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>>> =
+pub static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>>> =
     Lazy::new(|| {
         let mut map = Vec::new();
 
@@ -41,7 +40,7 @@ static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>
             "arctangent (change-y) over (change-x)",
             "sqrt/√ (value)",
         ];
-        let mut builtin_ids = (2000..).map(|i| FunctionID::new(i));
+        let mut builtin_ids = (0..=999).map(|i| FunctionID::new(i));
 
         for (i, builtin) in builtins.iter().enumerate() {
             map.push((
@@ -59,8 +58,8 @@ static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>
         Mutex::new(map.into())
     });
 
-type SymbolTable<'s> = Vec<(FunctionSignature<'s>, FunctionID)>;
-type InvSymbolTable<'s> = Vec<(FunctionID, FunctionSignature<'s>)>;
+pub type SymbolTable<'s> = Vec<(FunctionSignature<'s>, FunctionID)>;
+pub type InvSymbolTable<'s> = Vec<(FunctionID, FunctionSignature<'s>)>;
 
 fn invert<'s>(mut table: SymbolTable<'s>) -> InvSymbolTable<'s> {
     table.drain(0..).map(|(sig, id)| (id, sig)).collect()
@@ -94,11 +93,18 @@ fn symbol_get<'s>(table: &InvSymbolTable<'s>, id: FunctionID) -> Option<Function
     }
 }
 
+/// The `Resolver` is responsible for resolving function names.
+///
+/// This is done as a separate pass to the initial AST construction so that
+/// there is no need to forward declare functions.
 pub struct Resolver<'s> {
     symbol_table: SymbolTable<'s>,
 }
 
 impl<'s> Resolver<'s> {
+    /// Resolves all names in the [`Program`].
+    ///
+    /// This additionally returns the symbol table of the program.
     pub fn resolve(program: &mut Program<'s>) -> SymbolTable<'s> {
         let mut r = Self {
             symbol_table: BUILTIN_SYMBOLS.lock().unwrap().clone(),

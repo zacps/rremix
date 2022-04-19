@@ -1,3 +1,10 @@
+/// The compiler entrypoint.
+///
+/// This sequentially calls a number of 'passes' which do the actual work.
+/// * Parsing
+/// * AST building (HIR)
+/// * Function resolution
+/// * Codegen
 use std::{fs, path::PathBuf};
 
 use clap::Parser;
