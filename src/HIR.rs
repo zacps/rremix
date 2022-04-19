@@ -424,7 +424,7 @@ impl<'s> Eq for Function<'s> {}
 
 // TODO: Rename, this more accurately represents the state during parse
 pub struct Program<'s> {
-    pub functions: HashSet<Function<'s>>,
+    pub functions: Vec<Function<'s>>,
     pub main: Vec<Statement<'s>>,
     pub function_id: Box<dyn Iterator<Item = FunctionID>>,
 }
@@ -448,7 +448,7 @@ impl<'s> Debug for Program<'s> {
 
 impl Program<'static> {
     /// Parse the standard library into HIR
-    fn standard_library() -> HashSet<Function<'static>> {
+    fn standard_library() -> Vec<Function<'static>> {
         let tokens = RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
             .expect("Failed to parse standard library")
             .next()
@@ -457,7 +457,7 @@ impl Program<'static> {
             // TODO: I'm not sure if this is the right place to inject this...
             // It's certainly not the traditional linking mechanism or flexible for imports
             // but it's probably fine for now?
-            functions: HashSet::new(),
+            functions: Vec::new(),
             main: Vec::new(),
             // Non-builtin function IDs start at 1000
             function_id: Box::new((1000..).map(|i| FunctionID(i))),
@@ -504,7 +504,7 @@ impl<'s> Program<'s> {
             match pair.as_rule() {
                 function_definition => {
                     let func = self.visit_function(pair);
-                    assert!(self.functions.insert(func));
+                    self.functions.push(func);
                 }
                 statement => {
                     let st = self.visit_statement(pair);
