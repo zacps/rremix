@@ -1,0 +1,8 @@
+---
+source: src/resolver.rs
+assertion_line: 293
+expression: "&resolutions.iter().map(|r|\n                format!(\"{r} -> {}\\n\",\n                    symbol_get(& inv_symbol_table,\n                    r.id.borrow().unwrap()).unwrap())).collect::<String>()"
+---
+show (expression)  -> show (output) 
+new line  -> new line 
+

@@ -60,11 +60,13 @@ static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, FunctionID)>
     });
 
 type SymbolTable<'s> = Vec<(FunctionSignature<'s>, FunctionID)>;
+type InvSymbolTable<'s> = Vec<(FunctionID, FunctionSignature<'s>)>;
 
-fn symbol_get<'s>(
-    table: &SymbolTable<'s>,
-    function_name: &FunctionCallName<'s>,
-) -> Option<FunctionID> {
+fn invert<'s>(mut table: SymbolTable<'s>) -> InvSymbolTable<'s> {
+    table.drain(0..).map(|(sig, id)| (id, sig)).collect()
+}
+
+fn id_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionCallName<'s>) -> Option<FunctionID> {
     let mut matches = Vec::new();
     for (def, id) in table {
         if function_name.resolves_to(def) {
@@ -73,6 +75,20 @@ fn symbol_get<'s>(
     }
     if matches.len() == 1 {
         Some(matches[0].0)
+    } else {
+        None
+    }
+}
+
+fn symbol_get<'s>(table: &InvSymbolTable<'s>, id: FunctionID) -> Option<FunctionSignature<'s>> {
+    let mut matches = Vec::new();
+    for (id1, sig) in table {
+        if Into::<u64>::into(id) == Into::<u64>::into(id1.clone()) {
+            matches.push((id, sig))
+        }
+    }
+    if matches.len() == 1 {
+        Some(matches[0].1.clone())
     } else {
         None
     }
@@ -146,7 +162,7 @@ impl<'s> Resolver<'s> {
         use UnaryExpression::*;
         match unary {
             FunctionCall { function } => {
-                if let Some(_id) = symbol_get(&self.symbol_table, function) {
+                if let Some(_id) = id_get(&self.symbol_table, function) {
                     // map function call to function table
                     function.id.replace(Some(_id));
                 } else {
@@ -174,11 +190,11 @@ impl<'s> Resolver<'s> {
 #[cfg(test)]
 mod tests {
     use crate::parser::*;
-    use crate::resolver::Resolver;
+    use crate::resolver::{invert, symbol_get, Resolver};
     use crate::HIR;
     use crate::HIR::VisitAst;
 
-    use insta::{assert_debug_snapshot, assert_display_snapshot, assert_snapshot};
+    use insta::assert_snapshot;
     use pest::Parser;
 
     use std::fs;
@@ -192,19 +208,22 @@ mod tests {
                 let pair = parse.next();
                 let mut ast = HIR::Program::new(pair.unwrap());
 
-                Resolver::resolve(&mut ast);
+                let symbol_table = Resolver::resolve(&mut ast);
+                let inv_symbol_table = invert(symbol_table);
 
                 let resolutions =
                     ResolveCollector::collect_resolutions(&ast, FunctionLocation::Stdlib);
 
-                // TODO: Replace with assert_snapshot when we have nicer display implementations
                 assert_snapshot!(&resolutions
                     .iter()
-                    .map(|r| format!("{r} -> {:?}\n", r.id.borrow()))
+                    .map(|r| format!(
+                        "{r} -> {}\n",
+                        symbol_get(&inv_symbol_table, r.id.borrow().unwrap()).unwrap()
+                    ))
                     .collect::<String>());
             }
             Err(_) => {
-                panic!("Failed to parse file stdlib")
+                panic!("Failed to parse stdlib")
             }
         }
     }
@@ -265,15 +284,18 @@ mod tests {
                 let pair = parse.next();
                 let mut ast = HIR::Program::new(pair.unwrap());
 
-                Resolver::resolve(&mut ast);
+                let symbol_table = Resolver::resolve(&mut ast);
+                let inv_symbol_table = invert(symbol_table);
 
                 let resolutions =
                     ResolveCollector::collect_resolutions(&ast, FunctionLocation::User);
 
-                // TODO: Replace with assert_snapshot when we have nicer display implementations
                 assert_snapshot!(&resolutions
                     .iter()
-                    .map(|r| format!("{r} -> {:?}\n", r.id.borrow()))
+                    .map(|r| format!(
+                        "{r} -> {}\n",
+                        symbol_get(&inv_symbol_table, r.id.borrow().unwrap()).unwrap()
+                    ))
                     .collect::<String>());
             }
             Err(_) => {

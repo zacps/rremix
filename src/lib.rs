@@ -5,7 +5,7 @@
 #![deny(rust_2018_idioms)]
 
 use parser::RemixParser;
-use pest::{iterators::Pair, Parser, RuleType};
+use pest::{iterators::Pair, Parser, RuleType, Span};
 
 // High level intermediate representation.
 //
@@ -17,6 +17,8 @@ pub mod HIR;
 pub mod parser;
 // Name resolution
 pub mod resolver;
+// Codegen
+pub mod codegen;
 
 static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
 
@@ -67,5 +69,22 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
             pair.as_rule(),
             children.join("\n")
         ),
+    }
+}
+
+trait SpanExt {
+    fn format(&self) -> String;
+}
+
+impl<'s> SpanExt for Span<'s> {
+    fn format(&self) -> String {
+        let (start, end) = self.clone().split();
+        format!(
+            "{}:{}..{}:{}",
+            start.line_col().0,
+            start.line_col().1,
+            end.line_col().0,
+            end.line_col().1
+        )
     }
 }

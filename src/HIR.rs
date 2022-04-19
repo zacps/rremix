@@ -19,6 +19,12 @@ impl FunctionID {
     }
 }
 
+impl Into<u64> for FunctionID {
+    fn into(self) -> u64 {
+        self.0 as u64
+    }
+}
+
 impl From<usize> for FunctionID {
     fn from(n: usize) -> Self {
         Self(n as u64)
@@ -160,6 +166,7 @@ impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
 pub struct FunctionSignature<'s> {
     pub name: Vec<FunctionSignaturePart<'s>>,
     pub id: FunctionID,
+    pub span: Span<'s>,
 }
 
 impl<'s> FunctionSignature<'s> {
@@ -766,6 +773,7 @@ pub fn visit_function_signature<'s>(
     let mut name = FunctionSignature {
         name: Vec::new(),
         id: id,
+        span: pair.as_span(),
     };
     let pair = pair.expect(function_signature);
     let signature_pair = pair.clone();
