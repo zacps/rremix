@@ -1,10 +1,12 @@
 ---
 source: src/resolver.rs
-assertion_line: 217
+assertion_line: 224
 expression: "&resolutions.iter().map(|r|\n                format!(\"{r} -> {}\\n\",\n                    symbol_get(& inv_symbol_table,\n                    r.id.borrow().unwrap()).unwrap())).collect::<String>()"
 ---
 show (expression)  -> show (output) 
+nl  -> nl/↲ 
 show (expression)  -> show (output) 
+nl  -> nl/↲ 
 showline (expression)  -> showline (what) 
 showline (expression)  -> showline (what) 
 show (expression)  -> show (output) 
@@ -25,19 +27,19 @@ do (expression)  -> do (executable)
 if (expression) [statements]  -> if (condition) (consequence) 
 start (expression)  -> start (list) 
 do [statements]  -> do (executable) 
-for each (expression) in (expression) (expression)  -> for each #item in /the (list) (block) 
+for each (expression) in (expression) (expression)  -> for each (#item) in /the (list) (block) 
 if (expression) [statements] otherwise [statements]  -> if (condition) (consequence) otherwise (alternative) 
 while (expression) repeat [statements]  -> while (condition) repeat (block) 
-for each (expression) from (expression) to (expression) [statements]  -> for each #item from (start) to (finish) (block) 
-for (expression) (expression) and (expression) (expression) on each row [statements] (expression)  -> for #across (num-cols) and #down (num-rows) on each row (row-block) (col-block) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
+for each (expression) from (expression) to (expression) [statements]  -> for each (#item) from (start) to (finish) (block) 
+for (expression) (expression) and (expression) (expression) on each row [statements] (expression)  -> for (#across) (num-cols) and (#down) (num-rows) on each row (row-block) (col-block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
 repeat (expression) times [statements]  -> repeat (count) times (block) 
 apply (expression) (expression) times  -> apply/collect (block) (n) times 
 random (expression)  -> random (max-value) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
 if (expression) (expression)  -> if (condition) (consequence) 
 if (expression) (expression)  -> if (condition) (consequence) 
 do (expression)  -> do (executable) 
@@ -45,26 +47,28 @@ if (expression) [statements]  -> if (condition) (consequence)
 if (expression) [statements]  -> if (condition) (consequence) 
 if (expression) [statements]  -> if (condition) (consequence) 
 if (expression) [statements]  -> if (condition) (consequence) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
 append (expression) to (expression)  -> add/append /the (value) to /the (list) 
 if (expression) [statements]  -> if (condition) (consequence) 
 show (expression)  -> show (output) 
 show (expression) as list  -> show (list) as list 
+nl  -> nl/↲ 
 showline (expression) as list  -> showline (list) as list 
 showline (expression) as list  -> showline (list) as list 
 show (expression)  -> show (output) 
-for each (expression) from (expression) to (expression) [statements]  -> for each #item from (start) to (finish) (block) 
+for each (expression) from (expression) to (expression) [statements]  -> for each (#item) from (start) to (finish) (block) 
 show (expression)  -> show (output) 
 show (expression) as map  -> show (map) as map 
+nl  -> nl/↲ 
 showline (expression) as map  -> showline (map) as map 
 showline (expression) as map  -> showline (map) as map 
 do (expression)  -> do (executable) 
-for each (expression) in (expression) [statements]  -> for each #item in /the (list) (block) 
-with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each #item in (list) 
-with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each #item in (list) 
-with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each #item in (list) 
+for each (expression) in (expression) [statements]  -> for each (#item) in /the (list) (block) 
+with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each (#item) in (list) 
+with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each (#item) in (list) 
+with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each (#item) in (list) 
 based on (expression)  -> based on (original) 
-with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each #item in (list) 
+with [statements] apply [statements] on each (expression) in (expression)  -> with (initial) apply (block) on each (#item) in (list) 
 length of (expression)  -> length of /the (list) 
 random (expression)  -> random (max-value) 
 

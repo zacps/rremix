@@ -231,10 +231,10 @@ impl<'s> Display for FunctionSignature<'s> {
                 }
                 Parameter {
                     name, reference, ..
-                } if !reference => f.write_str(name.as_str())?,
+                } if !reference => write!(f, "({})", name.as_str())?,
                 Parameter {
                     name, reference, ..
-                } if *reference => f.write_str(&format!("#{}", name.as_str()))?,
+                } if *reference => write!(f, "(#{})", name.as_str())?,
                 _ => unreachable!(),
             }
             f.write_str(" ")?
