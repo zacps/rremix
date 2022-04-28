@@ -5,7 +5,7 @@ use std::{fs::File, io::Write};
 use xshell::{cmd, Shell};
 
 use crate::SpanExt;
-use crate::HIR::{self, Function, FunctionSignature, Program, Statement};
+use crate::HIR::{self, Function, FunctionID, FunctionSignature, Program, Statement};
 
 static C_LIBARY: &'static str = include_str!("remix.c");
 
@@ -31,11 +31,11 @@ impl<'s> Codegen {
         for function in &program.functions {
             self.emit_function(function)?;
         }
-        self.emit_main(&program.main);
+        self.emit_main(&program.main)?;
         Ok(())
     }
     fn emit_function(&mut self, function: &Function<'s>) -> fmt::Result {
-        self.emit_signature(&function.name)?;
+        self.emit_signature(function.id, &function.name)?;
         for statement in &function.statements {
             self.emit_statement(&statement)
         }
@@ -66,19 +66,22 @@ impl<'s> Codegen {
         Ok(())
     }
 
-    fn emit_signature(&mut self, name: &FunctionSignature<'s>) -> fmt::Result {
+    fn emit_signature(&mut self, id: FunctionID, name: &FunctionSignature<'s>) -> fmt::Result {
         write!(
             self.c,
             "// Generated from {name} defined at {}",
             name.span.format()
         )?;
-        write!(self.c, "ReObject func_{}(", Into::<u64>::into(name.id))?;
+        write!(self.c, "ReObject func_{}(", Into::<u64>::into(id))?;
         for part in &name.name {
             match part {
                 HIR::FunctionSignaturePart::Name { .. } => (),
-                HIR::FunctionSignaturePart::Parameter { name, reference: _ } => {
-                    // TODO: This should emit a resolved ID
-                    write!(self.c, "{}", name.as_str())?;
+                HIR::FunctionSignaturePart::Parameter {
+                    name,
+                    reference,
+                    id,
+                } => {
+                    write!(self.c, "var_{}", id)?;
                 }
             }
         }

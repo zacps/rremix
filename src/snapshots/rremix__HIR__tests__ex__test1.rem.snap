@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 1022
+assertion_line: 1182
 expression: ast
 ---
 Program {
@@ -63,4 +63,5 @@ Program {
             ),
         ),
     ],
+    global_scope: {},
 }

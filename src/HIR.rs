@@ -20,7 +20,7 @@ pub struct FunctionID(u64);
 
 impl FunctionID {
     pub(crate) fn new(id: u64) -> Self {
-        FunctionID(id)
+        Self(id)
     }
 }
 
@@ -33,6 +33,21 @@ impl Into<u64> for FunctionID {
 impl From<usize> for FunctionID {
     fn from(n: usize) -> Self {
         Self(n as u64)
+    }
+}
+
+#[derive(Eq, PartialEq, Hash, Debug, Clone, Copy)]
+pub struct VariableID(u64);
+
+impl VariableID {
+    pub(crate) fn new(id: u64) -> Self {
+        Self(id)
+    }
+}
+
+impl Display for VariableID {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.0)
     }
 }
 
@@ -78,8 +93,14 @@ pub enum Necessity<T> {
 #[derive(Debug, Clone)]
 pub enum FunctionSignaturePart<'s> {
     // TODO: Need a way to indicate optional names
-    Name { names: Necessity<Vec<Span<'s>>> },
-    Parameter { name: Span<'s>, reference: bool },
+    Name {
+        names: Necessity<Vec<Span<'s>>>,
+    },
+    Parameter {
+        name: Span<'s>,
+        reference: bool,
+        id: VariableID,
+    },
 }
 
 impl<'s> Display for FunctionSignaturePart<'s> {
@@ -104,7 +125,9 @@ impl<'s> Display for FunctionSignaturePart<'s> {
                 };
                 f.write_str(&str[0..str.len() - 1])
             }
-            FunctionSignaturePart::Parameter { name, reference } => {
+            FunctionSignaturePart::Parameter {
+                name, reference, ..
+            } => {
                 write!(
                     f,
                     "({}{})",
@@ -178,14 +201,7 @@ impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
 #[derive(Debug, Clone)]
 pub struct FunctionSignature<'s> {
     pub name: Vec<FunctionSignaturePart<'s>>,
-    pub id: FunctionID,
     pub span: Span<'s>,
-}
-
-impl<'s> FunctionSignature<'s> {
-    fn len(&self) -> usize {
-        self.name.len()
-    }
 }
 
 impl<'s> Display for FunctionSignature<'s> {
@@ -212,10 +228,12 @@ impl<'s> Display for FunctionSignature<'s> {
                     };
                     f.write_str(&str[0..str.len() - 1])?
                 }
-                Parameter { name, reference } if !reference => f.write_str(name.as_str())?,
-                Parameter { name, reference } if *reference => {
-                    f.write_str(&format!("#{}", name.as_str()))?
-                }
+                Parameter {
+                    name, reference, ..
+                } if !reference => f.write_str(name.as_str())?,
+                Parameter {
+                    name, reference, ..
+                } if *reference => f.write_str(&format!("#{}", name.as_str()))?,
                 _ => unreachable!(),
             }
             f.write_str(" ")?
@@ -337,13 +355,33 @@ pub enum Operator {
 /// A variable. Remix does not have separate declarations and definitions.
 #[derive(Debug, Clone)]
 pub struct Variable<'s> {
+    id: VariableID,
     name: &'s str,
     scope: Scope,
     span: Span<'s>,
 }
 
+impl<'s> Display for Variable<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{} at {}", self.name, self.span.format())
+    }
+}
+
+impl<'s> Hash for Variable<'s> {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.id.hash(state);
+    }
+}
+
+impl<'s> PartialEq for Variable<'s> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+impl<'s> Eq for Variable<'s> {}
+
 /// Variable scopes.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum Scope {
     /// Variables defined outside of a function (in 'main').
     Global,
@@ -352,6 +390,16 @@ pub enum Scope {
     /// Variables defined in anonymous functions ('blocks') denoted by
     /// square brackets.
     Block(),
+}
+
+impl Display for Scope {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
+        match self {
+            Scope::Global => write!(f, "Scope::Global"),
+            Scope::Function(id) => write!(f, "Scope::Function::{}", id.0),
+            Scope::Block() => write!(f, "Scope::Block"),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -366,20 +414,20 @@ pub enum Literal<'s> {
     Boolean(bool),
     // FIXME: This should also accept blocks, which should probably be their own type...
     List(Vec<Expression<'s>>),
-    Map(HashMap<Variable<'s>, Expression<'s>>),
+    Map(HashMap<VariableID, Expression<'s>>),
 }
 
 #[derive(Debug, Clone)]
 pub enum UnaryExpression<'s> {
     ListElement {
-        variable: Variable<'s>,
+        variable: VariableID,
         index: Expression<'s>,
     },
     FunctionCall {
         function: FunctionCall<'s>,
     },
     Literal(Literal<'s>),
-    Variable(Variable<'s>),
+    Variable(VariableID),
     Block(Vec<Statement<'s>>),
 }
 
@@ -396,14 +444,14 @@ pub enum Expression<'s> {
 #[derive(Debug, Clone)]
 pub enum Statement<'s> {
     Assignment {
-        variable: Variable<'s>,
+        variable: VariableID,
         value: Expression<'s>,
     },
     Return,
     Redo,
     Expression(Expression<'s>),
     ListAssignment {
-        variable: Variable<'s>,
+        variable: VariableID,
         index: Expression<'s>,
         value: Expression<'s>,
     },
@@ -414,6 +462,7 @@ pub enum Statement<'s> {
 pub struct Function<'s> {
     pub name: FunctionSignature<'s>,
     pub statements: Vec<Statement<'s>>,
+    pub scope: Variables<'s>,
     pub span: Span<'s>,
     pub id: FunctionID,
 }
@@ -454,6 +503,8 @@ impl<'s> Borrow<FunctionSignature<'s>> for Function<'s> {
 
 impl<'s> Eq for Function<'s> {}
 
+pub type Variables<'s> = HashSet<Variable<'s>>;
+
 // TODO: Rename, this more accurately represents the state during parse
 /// The root of the HIR is the program. This is just a collection of all the
 /// functions defined in the program, and the 'main' method (statements)
@@ -461,8 +512,11 @@ impl<'s> Eq for Function<'s> {}
 pub struct Program<'s> {
     pub functions: Vec<Function<'s>>,
     pub main: Vec<Statement<'s>>,
+    pub global_scope: Variables<'s>,
     function_id: Box<dyn Iterator<Item = FunctionID>>,
-    scope: Scope,
+    variable_id: Box<dyn Iterator<Item = VariableID>>,
+    current_scope: Scope,
+    building_function: Option<Function<'s>>,
 }
 
 impl<'s> Debug for Program<'s> {
@@ -478,6 +532,7 @@ impl<'s> Debug for Program<'s> {
                     .collect::<HashSet<_>>(),
             )
             .field("main", &self.main)
+            .field("global_scope", &self.global_scope)
             .finish()
     }
 }
@@ -495,9 +550,12 @@ impl Program<'static> {
             // but it's probably fine for now?
             functions: Vec::new(),
             main: Vec::new(),
+            global_scope: HashSet::new(),
             // Non-builtin function IDs start at 1000
             function_id: Box::new((1000..=1999).map(|i| FunctionID(i))),
-            scope: Scope::Global,
+            variable_id: Box::new((10000..=19999).map(|i| VariableID(i))),
+            current_scope: Scope::Global,
+            building_function: None,
         };
         this.build(tokens);
         this.functions
@@ -513,23 +571,92 @@ impl<'s> Program<'s> {
             // but it's probably fine for now?
             functions: Program::standard_library(),
             main: Vec::new(),
+            global_scope: HashSet::new(),
             // User function IDs start at 2000
             function_id: Box::new((2000..).map(|i| FunctionID(i))),
-            scope: Scope::Global,
+            variable_id: Box::new((20000..=29999).map(|i| VariableID(i))),
+            current_scope: Scope::Global,
+            building_function: None,
         };
         this.build(pair);
         this
     }
 
+    /// Process the AST, assigning all variables to a particular scope, restoring to the
+    /// previous scope afterwards.
+    ///
+    /// Due to rust's ownership rules a mutable reference to [Program] is passed into the
+    /// closure, it may not be captured by the closure itself.
     fn with_scope<F, T>(&mut self, scope: Scope, func: F) -> T
     where
         F: FnOnce(&mut Self) -> T,
     {
-        let last = self.scope.clone();
-        self.scope = scope;
+        let last = self.current_scope.clone();
+        self.current_scope = scope;
         let t = func(self);
-        self.scope = last;
+        self.current_scope = last;
         t
+    }
+
+    /// Get a reference to the current scope to put a variable in
+    fn scope(&mut self) -> &mut Variables<'s> {
+        match self.current_scope {
+            Scope::Global => &mut self.global_scope,
+            Scope::Function(id) => &mut self.function_mut(id).unwrap().scope,
+            Scope::Block() => todo!(),
+        }
+    }
+
+    /// Define or mutate a new variable.
+    fn new_variable(&mut self, span: Span<'s>) -> VariableID {
+        // The variable exists in scope, reference it
+        if let Some(id) = self.find_var(span.as_str()) {
+            return id;
+        }
+
+        // The variable does not exist in scope, assign a new ID
+        let id = self.variable_id.next().unwrap();
+        let scope = self.current_scope;
+        self.scope().insert(Variable {
+            id: id,
+            name: span.as_str(),
+            span: span,
+            scope,
+        });
+        id
+    }
+
+    /// Attempt to find a variable in the current scope.
+    fn find_var(&mut self, name: &'s str) -> Option<VariableID> {
+        match self.current_scope {
+            Scope::Global => self
+                .global_scope
+                .iter()
+                .filter(|var| var.name == name)
+                .map(|var| var.id)
+                .next(),
+            Scope::Function(id) => self.function(id).and_then(|f| {
+                f.scope
+                    .iter()
+                    .filter(|var| var.name == name)
+                    .map(|var| var.id)
+                    .next()
+                    .or_else(|| {
+                        for part in &f.name.name {
+                            match part {
+                                FunctionSignaturePart::Name { .. } => (),
+                                FunctionSignaturePart::Parameter { name: span, id, .. } => {
+                                    if span.as_str() == name {
+                                        return Some(*id);
+                                    }
+                                }
+                            }
+                        }
+                        None
+                    })
+            }),
+            Scope::Block() => todo!(),
+        }
     }
 
     pub fn symbol_table(&self) -> Vec<(FunctionSignature<'s>, FunctionID)> {
@@ -538,6 +665,26 @@ impl<'s> Program<'s> {
             map.push((func.name.clone(), func.id));
         }
         map
+    }
+
+    /// Get a function by id.
+    ///
+    /// The function may not yet be complete if it was retrieved from `self.building_function`.
+    fn function(&mut self, id: FunctionID) -> Option<&Function<'s>> {
+        self.functions
+            .iter()
+            .filter(|f| f.id == id)
+            .next()
+            .or_else(|| self.building_function.as_ref().filter(|f| f.id == id))
+    }
+
+    /// Get a function by id
+    fn function_mut(&mut self, id: FunctionID) -> Option<&mut Function<'s>> {
+        self.functions
+            .iter_mut()
+            .filter(|f| f.id == id)
+            .next()
+            .or_else(|| self.building_function.as_mut().filter(|f| f.id == id))
     }
 
     fn build(&mut self, pair: Pair<'s, parser::Rule>) {
@@ -568,19 +715,38 @@ impl<'s> Program<'s> {
     fn visit_function(&mut self, pair: Pair<'s, parser::Rule>) -> Function<'s> {
         use parser::Rule::*;
 
-        let mut name = None;
         let id = self.function_id.next().unwrap();
-        let mut statements = Vec::new();
         let span = pair.as_span().clone();
+
+        self.building_function = Some(Function {
+            name: FunctionSignature {
+                name: Vec::new(),
+                span: Span::new("0", 0, 0).unwrap(),
+            },
+            statements: Vec::new(),
+            scope: HashSet::new(),
+            span,
+            id: id,
+        });
 
         self.with_scope(Scope::Function(id), |this| {
             for pair in pair.into_inner() {
                 match pair.as_rule() {
-                    function_signature => name = Some(visit_function_signature(pair, id)),
+                    function_signature => {
+                        this.building_function.as_mut().unwrap().name =
+                            visit_function_signature(pair, &mut this.variable_id)
+                    }
                     function_statements => {
                         for pair in pair.into_inner() {
                             match pair.as_rule() {
-                                statement => statements.push(this.visit_statement(pair)),
+                                statement => {
+                                    let parsed = this.visit_statement(pair);
+                                    this.building_function
+                                        .as_mut()
+                                        .unwrap()
+                                        .statements
+                                        .push(parsed)
+                                }
                                 _ => (),
                             }
                         }
@@ -590,15 +756,10 @@ impl<'s> Program<'s> {
             }
         });
 
-        Function {
-            name: name.unwrap(),
-            statements,
-            span,
-            id: id,
-        }
+        self.building_function.take().unwrap()
     }
 
-    fn visit_statement(&self, pair: Pair<'s, parser::Rule>) -> Statement<'s> {
+    fn visit_statement(&mut self, pair: Pair<'s, parser::Rule>) -> Statement<'s> {
         use parser::Rule::*;
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
@@ -606,14 +767,7 @@ impl<'s> Program<'s> {
                 let (mut var, mut expr) = (None, None);
                 for pair in pair.into_inner() {
                     match pair.as_rule() {
-                        variable => {
-                            let span = pair.as_span();
-                            var = Some(Variable {
-                                name: span.as_str(),
-                                span: span,
-                                scope: self.scope.clone(),
-                            })
-                        }
+                        variable => var = Some(self.new_variable(pair.as_span())),
                         expression => expr = Some(self.visit_expression(pair)),
                         colon => (),
                         _ => panic!("ICE: unexpected pair {pair} in assignment_statement"),
@@ -632,7 +786,7 @@ impl<'s> Program<'s> {
         }
     }
 
-    fn visit_expression(&self, pair: Pair<'s, parser::Rule>) -> Expression<'s> {
+    fn visit_expression(&mut self, pair: Pair<'s, parser::Rule>) -> Expression<'s> {
         use parser::Rule::*;
         let pair = pair.into_inner().next().unwrap();
         match pair.as_rule() {
@@ -674,7 +828,7 @@ impl<'s> Program<'s> {
     }
 
     fn visit_unary_expression(
-        &self,
+        &mut self,
         pair: Pair<'s, parser::Rule>,
     ) -> Result<Expression<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
@@ -690,12 +844,12 @@ impl<'s> Program<'s> {
                             for pair in pair.into_inner() {
                                 match pair.as_rule() {
                                     single_name_part => {
-                                        let span = pair.as_span();
-                                        var = Some(Variable {
-                                            name: span.as_str(),
-                                            span,
-                                            scope: self.scope.clone(),
-                                        })
+                                        let name = &pair.as_str();
+                                        var = Some(self.find_var(name).expect(&format!(
+                                            "Failed to resolve variable '{}' at {}",
+                                            name,
+                                            pair.as_span().format()
+                                        )))
                                     }
                                     expression => expr = Some(self.visit_expression(pair)),
                                     rule => {
@@ -720,14 +874,19 @@ impl<'s> Program<'s> {
                             ))))
                         }
                         variable => {
-                            let span = pair.as_span();
-                            return Ok(Expression::Unary(Box::new(UnaryExpression::Variable(
-                                Variable {
-                                    name: span.as_str(),
-                                    span,
-                                    scope: self.scope.clone(),
-                                },
-                            ))));
+                            let name = &pair.as_str();
+                            if let Some(id) = self.find_var(name) {
+                                return Ok(Expression::Unary(Box::new(UnaryExpression::Variable(
+                                    id,
+                                ))));
+                            } else {
+                                // Treat this as a function which we'll attempt to resolve later
+                                return Ok(Expression::Unary(Box::new(
+                                    UnaryExpression::FunctionCall {
+                                        function: self.visit_function_call(pair)?,
+                                    },
+                                )));
+                            }
                         }
                         block => {
                             let mut statements = Vec::new();
@@ -756,7 +915,7 @@ impl<'s> Program<'s> {
 
     // TODO: The ugliest part yet, please clean this up
     fn visit_function_call(
-        &self,
+        &mut self,
         pair: Pair<'s, parser::Rule>,
     ) -> Result<FunctionCall<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
@@ -794,7 +953,7 @@ impl<'s> Program<'s> {
     }
 
     fn visit_literal(
-        &self,
+        &mut self,
         pair: Pair<'s, parser::Rule>,
     ) -> Result<Literal<'s>, Box<dyn std::error::Error>> {
         use parser::Rule::*;
@@ -838,12 +997,11 @@ impl<'s> Program<'s> {
 
 pub fn visit_function_signature<'s>(
     pair: Pair<'s, parser::Rule>,
-    id: FunctionID,
+    id_generator: &mut dyn Iterator<Item = VariableID>,
 ) -> FunctionSignature<'s> {
     use parser::Rule::*;
     let mut name = FunctionSignature {
         name: Vec::new(),
-        id: id,
         span: pair.as_span(),
     };
     let pair = pair.expect(function_signature);
@@ -877,12 +1035,14 @@ pub fn visit_function_signature<'s>(
                 }
             }
             paren => name.name.push(FunctionSignaturePart::Parameter {
-                name: pair.as_span(),
+                name: pair.descend().as_span(),
                 reference: false,
+                id: id_generator.next().unwrap(),
             }),
             ref_paren => name.name.push(FunctionSignaturePart::Parameter {
                 name: pair.descend().descend().as_span(),
                 reference: true,
+                id: id_generator.next().unwrap(),
             }),
             _ => (),
         }

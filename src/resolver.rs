@@ -40,7 +40,7 @@ pub static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, Function
             "arctangent (change-y) over (change-x)",
             "sqrt/√ (value)",
         ];
-        let mut builtin_ids = (0..=999).map(|i| FunctionID::new(i));
+        let mut builtin_var_ids = (0..=9999).map(|i| VariableID::new(i));
 
         for (i, builtin) in builtins.iter().enumerate() {
             map.push((
@@ -49,7 +49,7 @@ pub static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, Function
                         .unwrap()
                         .next()
                         .unwrap(),
-                    builtin_ids.next().unwrap(),
+                    &mut builtin_var_ids,
                 ),
                 i.into(),
             ));
@@ -74,20 +74,6 @@ fn id_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionCall<'s>) -> Opti
     }
     if matches.len() == 1 {
         Some(matches[0].0)
-    } else {
-        None
-    }
-}
-
-fn symbol_get<'s>(table: &InvSymbolTable<'s>, id: FunctionID) -> Option<FunctionSignature<'s>> {
-    let mut matches = Vec::new();
-    for (id1, sig) in table {
-        if Into::<u64>::into(id) == Into::<u64>::into(id1.clone()) {
-            matches.push((id, sig))
-        }
-    }
-    if matches.len() == 1 {
-        Some(matches[0].1.clone())
     } else {
         None
     }
@@ -162,7 +148,7 @@ impl<'s> Resolver<'s> {
         }
     }
 
-    pub(crate) fn visit_var(&self, _variable: &Variable<'s>) -> () {}
+    pub(crate) fn visit_var(&self, _variable: &VariableID) -> () {}
 
     pub(crate) fn visit_unary(&self, unary: &UnaryExpression<'s>) {
         use UnaryExpression::*;
@@ -196,7 +182,7 @@ impl<'s> Resolver<'s> {
 #[cfg(test)]
 mod tests {
     use crate::parser::*;
-    use crate::resolver::{invert, symbol_get, Resolver};
+    use crate::resolver::{invert, InvSymbolTable, Resolver};
     use crate::HIR;
     use crate::HIR::VisitAst;
 
@@ -205,6 +191,20 @@ mod tests {
 
     use std::fs;
     use test_case::test_case;
+
+    fn symbol_get<'s>(table: &InvSymbolTable<'s>, id: FunctionID) -> Option<FunctionSignature<'s>> {
+        let mut matches = Vec::new();
+        for (id1, sig) in table {
+            if Into::<u64>::into(id) == Into::<u64>::into(id1.clone()) {
+                matches.push((id, sig))
+            }
+        }
+        if matches.len() == 1 {
+            Some(matches[0].1.clone())
+        } else {
+            None
+        }
+    }
 
     #[test]
     fn test_build_stdlib_ast() {
