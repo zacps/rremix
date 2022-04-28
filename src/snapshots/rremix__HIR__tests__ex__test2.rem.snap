@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 1182
+assertion_line: 1178
 expression: ast
 ---
 Program {
@@ -43,6 +43,11 @@ Program {
                         id: RefCell {
                             value: None,
                         },
+                        span: Span {
+                            str: "show (a)",
+                            start: 6,
+                            end: 14,
+                        },
                     },
                 },
             ),
@@ -69,6 +74,11 @@ Program {
                         ],
                         id: RefCell {
                             value: None,
+                        },
+                        span: Span {
+                            str: "new line",
+                            start: 16,
+                            end: 24,
                         },
                     },
                 },

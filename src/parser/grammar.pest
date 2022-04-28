@@ -10,7 +10,6 @@ symbol = { "-" | lead_symbol }
 // Symbols allowed to lead name parts; todo: this should be removed/expanded
 lead_symbol = { "^" | "↲" | "!" | ("." ~ !NEWLINE) | "⇆" }
 operator = {"+" | "-" | "×" | "÷" | "%" | "=" | "≠" | "<" | "≤" | ">" | "≥"}
-hash = { "#" }
 colon = { ":" }
 
 // Literals

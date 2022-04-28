@@ -144,6 +144,7 @@ impl<'s> Display for FunctionSignaturePart<'s> {
 pub struct FunctionCall<'s> {
     pub name: Vec<FunctionCallPart<'s>>,
     pub id: RefCell<Option<FunctionID>>,
+    pub span: Span<'s>,
 }
 
 impl<'s> Display for FunctionCall<'s> {
@@ -243,12 +244,6 @@ impl<'s> Display for FunctionSignature<'s> {
 }
 
 impl<'s> FunctionCall<'s> {
-    pub fn new(parts: Vec<FunctionCallPart<'s>>) -> Self {
-        Self {
-            name: parts,
-            id: RefCell::new(None),
-        }
-    }
     pub fn len(&self) -> usize {
         self.name.len()
     }
@@ -649,6 +644,12 @@ impl<'s> Program<'s> {
                                     if span.as_str() == name {
                                         return Some(*id);
                                     }
+                                    if name.len() > 0
+                                        && name.chars().next().unwrap() == '#'
+                                        && &name[1..] == span.as_str()
+                                    {
+                                        return Some(*id);
+                                    }
                                 }
                             }
                         }
@@ -874,16 +875,23 @@ impl<'s> Program<'s> {
                             ))))
                         }
                         variable => {
-                            let name = &pair.as_str();
+                            let name = &pair.as_str().trim();
                             if let Some(id) = self.find_var(name) {
                                 return Ok(Expression::Unary(Box::new(UnaryExpression::Variable(
                                     id,
                                 ))));
                             } else {
                                 // Treat this as a function which we'll attempt to resolve later
+                                println!("created speculative function call '{}'", name);
                                 return Ok(Expression::Unary(Box::new(
                                     UnaryExpression::FunctionCall {
-                                        function: self.visit_function_call(pair)?,
+                                        function: FunctionCall {
+                                            name: vec![FunctionCallPart::Name {
+                                                name: pair.as_span(),
+                                            }],
+                                            id: RefCell::new(None),
+                                            span: pair.as_span(),
+                                        },
                                     },
                                 )));
                             }
@@ -900,7 +908,7 @@ impl<'s> Program<'s> {
                                 statements,
                             ))));
                         }
-                        _ => println!("found unexpected pair in simple_expression {pair}"),
+                        _ => panic!("ICE: found unexpected pair in simple_expression {pair}"),
                     }
                 }
                 expression => return Ok(self.visit_expression(pair)),
@@ -922,6 +930,7 @@ impl<'s> Program<'s> {
         let mut name = FunctionCall {
             name: Vec::new(),
             id: RefCell::new(None),
+            span: pair.as_span(),
         };
         for pair in pair.into_inner() {
             match pair.as_rule() {
@@ -949,6 +958,11 @@ impl<'s> Program<'s> {
                 _ => (),
             }
         }
+        assert!(
+            name.name.len() > 0,
+            "failed to parse function_call at {}",
+            name.span.format(),
+        );
         Ok(name)
     }
 

@@ -4,7 +4,7 @@ use std::{cell::RefCell, sync::Mutex};
 use once_cell::sync::Lazy;
 use pest::Parser;
 
-use crate::{parser::RemixParser, parser::Rule, HIR::*};
+use crate::{parser::RemixParser, parser::Rule, SpanExt, HIR::*};
 
 /// Names and corresponding IDs of builtin functions.
 /// These are added to the symbol table during resolution
@@ -159,8 +159,9 @@ impl<'s> Resolver<'s> {
                     function.id.replace(Some(_id));
                 } else {
                     panic!(
-                        "ICE: Attempted to call unknown function '{}'\n", //The known functions are:\n{}",
+                        "Attempted to call unknown function '{}' at {}", //The known functions are:\n{}",
                         function,
+                        function.span.format()
                     )
                 }
             }
