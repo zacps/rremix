@@ -10,15 +10,11 @@ use crate::HIR::{self, Function, FunctionID, FunctionSignature, Program, Stateme
 static C_LIBARY: &'static str = include_str!("remix.c");
 
 pub fn compile_c(program: &str) -> Result<(), Box<dyn std::error::Error>> {
-    eprintln!("compile start");
     let mut file = File::create("transpiled.c")?;
     file.write_all(program.as_bytes())?;
 
     let sh = Shell::new()?;
-    cmd!(sh, "'C:/Program Files (x86)/Microsoft Visual Studio/2019/Community/VC/Auxiliary/Build/vcvars64.bat'").run()?;
     cmd!(sh, "clang transpiled.c -o built.exe").run()?;
-
-    eprintln!("compile end");
     Ok(())
 }
 

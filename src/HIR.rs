@@ -196,7 +196,7 @@ impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
 // TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
 /// A function signature such as:
 ///
-/// ```
+/// ```remix
 /// this is a function call with a (parameter) and a reference parameter (#ref)
 /// ```
 #[derive(Debug, Clone)]
