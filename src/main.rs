@@ -5,12 +5,16 @@
 /// * AST building (HIR)
 /// * Function resolution
 /// * Codegen
-use std::{fs, path::PathBuf};
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::PathBuf,
+};
 
 use clap::Parser;
 use pest::Parser as PestParser;
 use rremix::{
-    format_pair,
+    codegen::Codegen,
     parser::{RemixParser, Rule},
     resolver::Resolver,
     HIR::Program,
@@ -28,6 +32,7 @@ fn main() {
 
     let file = fs::read_to_string(&args.file).expect(&format!("failed to read {:?}", &args.file));
 
+    // Parse the program
     let mut parsed = match RemixParser::parse(Rule::program, &file) {
         Ok(parse) => parse,
         Err(e) => {
@@ -35,18 +40,26 @@ fn main() {
             panic!("failed to parse {:?}", &args.file);
         }
     };
-    println!(
-        "{}",
-        parsed
-            .clone()
-            .map(|ref pair| format_pair(pair, 0, true))
-            .collect::<Vec<_>>()
-            .join("\n")
-    );
 
-    let mut ast = Program::new(parsed.next().unwrap());
-    // println!("{:#?}", ast);
+    // Build the AST
+    // This step also resolves variable names (but not functions) and resolves
+    // what ambiguities we can.
+    let mut ast = Program::new(parsed.next().unwrap(), false);
 
+    // Resolve functions
+    // This is a separate step to avoid needing forward declarations.
     Resolver::resolve(&mut ast);
-    println!("{:#?}", ast);
+
+    // Codegen
+    // Where the magic happens. Currently we just emit C which is compiled
+    // by clang.
+    File::create("out.c")
+        .unwrap()
+        .write(
+            Codegen::new()
+                .emit_program(ast)
+                .expect("codegen failed")
+                .as_bytes(),
+        )
+        .unwrap();
 }

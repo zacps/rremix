@@ -56,26 +56,15 @@ impl Display for VariableID {
 #[derive(Debug, Clone)]
 pub enum FunctionCallPart<'s> {
     Name { name: Span<'s> },
-    Parameter { name: Span<'s>, reference: bool },
     // This should be literal/block in future; both are 'unnamed' literals
     Expression(Expression<'s>),
-    Block(Vec<Statement<'s>>),
 }
 
 impl<'s> Display for FunctionCallPart<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             FunctionCallPart::Name { name } => f.write_str(name.as_str()),
-            FunctionCallPart::Parameter { name, reference } => {
-                write!(
-                    f,
-                    "({}{})",
-                    if *reference { "#" } else { "" },
-                    name.as_str()
-                )
-            }
             FunctionCallPart::Expression(_) => f.write_str("(expression)"),
-            FunctionCallPart::Block(_) => f.write_str("[statements]"),
         }
     }
 }
@@ -147,19 +136,19 @@ pub struct FunctionCall<'s> {
     pub span: Span<'s>,
 }
 
+impl<'s> FunctionCall<'s> {
+    pub fn builtin(&self) -> bool {
+        self.id.borrow().unwrap().0 < 1000
+    }
+}
+
 impl<'s> Display for FunctionCall<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use FunctionCallPart::*;
         for name in &self.name {
             match name {
                 Name { name } => f.write_str(name.as_str())?,
-                Parameter { name, reference } if !reference => f.write_str(name.as_str())?,
-                Parameter { name, reference } if *reference => {
-                    f.write_str(&format!("#{}", name.as_str()))?
-                }
                 Expression(..) => f.write_str("(expression)")?,
-                Block(..) => f.write_str("[statements]")?,
-                _ => unreachable!(),
             }
             f.write_str(" ")?
         }
@@ -285,9 +274,7 @@ impl<'s> FunctionCall<'s> {
 
                 // Name in the definition and parameter in the reference always rejects
                 (
-                    FunctionCallPart::Parameter { .. }
-                    | FunctionCallPart::Expression(..)
-                    | FunctionCallPart::Block(..),
+                    FunctionCallPart::Expression(..),
                     FunctionSignaturePart::Name {
                         names: Necessity::Required(..),
                     },
@@ -295,21 +282,14 @@ impl<'s> FunctionCall<'s> {
 
                 // Name in the definition and parameter in the reference always rejects
                 (
-                    FunctionCallPart::Parameter { .. }
-                    | FunctionCallPart::Expression(..)
-                    | FunctionCallPart::Block(..),
+                    FunctionCallPart::Expression(..),
                     FunctionSignaturePart::Name {
                         names: Necessity::Optional(..),
                     },
                 ) => matched = false,
 
                 // Corresponding parameters accept
-                (
-                    FunctionCallPart::Parameter { .. }
-                    | FunctionCallPart::Expression(..)
-                    | FunctionCallPart::Block(..),
-                    FunctionSignaturePart::Parameter { .. },
-                ) => (),
+                (FunctionCallPart::Expression(..), FunctionSignaturePart::Parameter { .. }) => (),
             }
             if matched {
                 i += 1;
@@ -407,9 +387,10 @@ pub enum Literal<'s> {
         f64, // TODO:
     ),
     Boolean(bool),
-    // FIXME: This should also accept blocks, which should probably be their own type...
     List(Vec<Expression<'s>>),
     Map(HashMap<VariableID, Expression<'s>>),
+    // Not sure if this can be created explicitly but a function with a bare return creates this
+    None,
 }
 
 #[derive(Debug, Clone)]
@@ -442,7 +423,7 @@ pub enum Statement<'s> {
         variable: VariableID,
         value: Expression<'s>,
     },
-    Return,
+    Return(Expression<'s>),
     Redo,
     Expression(Expression<'s>),
     ListAssignment {
@@ -534,11 +515,18 @@ impl<'s> Debug for Program<'s> {
 
 impl Program<'static> {
     /// Parse the standard library into HIR
-    fn standard_library() -> Vec<Function<'static>> {
-        let tokens = RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
-            .expect("Failed to parse standard library")
-            .next()
-            .unwrap();
+    fn standard_library(minimal_stdlib: bool) -> Vec<Function<'static>> {
+        let tokens = if minimal_stdlib {
+            RemixParser::parse(parser::Rule::program, &MINIMAL_STANDARD_LIB)
+                .expect("Failed to parse standard library")
+                .next()
+                .unwrap()
+        } else {
+            RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
+                .expect("Failed to parse standard library")
+                .next()
+                .unwrap()
+        };
         let mut this = Self {
             // TODO: I'm not sure if this is the right place to inject this...
             // It's certainly not the traditional linking mechanism or flexible for imports
@@ -559,12 +547,12 @@ impl Program<'static> {
 
 impl<'s> Program<'s> {
     /// Build the AST from the raw parse tree.
-    pub fn new(pair: Pair<'s, parser::Rule>) -> Self {
+    pub fn new(pair: Pair<'s, parser::Rule>, minimal_stdlib: bool) -> Self {
         let mut this = Self {
             // TODO: I'm not sure if this is the right place to inject this...
             // It's certainly not the traditional linking mechanism or flexible for imports
             // but it's probably fine for now?
-            functions: Program::standard_library(),
+            functions: Program::standard_library(minimal_stdlib),
             main: Vec::new(),
             global_scope: HashSet::new(),
             // User function IDs start at 2000
@@ -779,7 +767,20 @@ impl<'s> Program<'s> {
                     value: expr.unwrap(),
                 }
             }
-            return_statement => Statement::Return,
+            return_statement => {
+                let mut ret = None;
+                for pair in pair.into_inner() {
+                    match pair.as_rule() {
+                        expression => {
+                            ret = Some(Statement::Return(self.visit_expression(pair.clone())))
+                        }
+                        _ => (),
+                    }
+                }
+                ret.unwrap_or(Statement::Return(Expression::Unary(Box::new(
+                    UnaryExpression::Literal(Literal::None),
+                ))))
+            }
             redo_statement => Statement::Redo,
             list_element_assignment => todo!(),
             expression => Statement::Expression(self.visit_expression(pair)),
@@ -953,7 +954,10 @@ impl<'s> Program<'s> {
                             _ => (),
                         }
                     }
-                    name.name.push(FunctionCallPart::Block(statements))
+                    name.name
+                        .push(FunctionCallPart::Expression(Expression::Unary(Box::new(
+                            UnaryExpression::Block(statements),
+                        ))))
                 }
                 _ => (),
             }
@@ -1019,7 +1023,6 @@ pub fn visit_function_signature<'s>(
         span: pair.as_span(),
     };
     let pair = pair.expect(function_signature);
-    let signature_pair = pair.clone();
 
     for pair in pair.into_inner() {
         let pair = pair.descend();
@@ -1190,7 +1193,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let ast = HIR::Program::new(pair.unwrap());
+                let ast = HIR::Program::new(pair.unwrap(), false);
 
                 // TODO: Replace with assert_snapshot when we have nicer display implementations
                 assert_debug_snapshot!(path, ast);

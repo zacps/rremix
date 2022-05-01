@@ -1,0 +1,7 @@
+---
+source: src/codegen.rs
+assertion_line: 356
+expression: "String::from_utf8_lossy(&out.stdout)"
+---
+Hello world!
+

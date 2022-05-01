@@ -30,6 +30,10 @@ pub mod resolver;
 pub mod codegen;
 
 static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
+static MINIMAL_STANDARD_LIB: &'static str = include_str!("standard-lib-min.rem");
+
+static C_LIB: &'static str = include_str!("remix.c");
+static C_HEADER: &'static str = include_str!("remix.h");
 
 /// Format a parsed token pair nicely.
 pub fn format_pair<T: RuleType + std::fmt::Debug>(

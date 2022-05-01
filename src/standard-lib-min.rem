@@ -1,0 +1,31 @@
+The Remix standard library.
+===========================
+
+Output a newline character.
+nl/↲:
+	show "
+"
+
+new line:
+	nl
+
+Output the value of "what" followed by a newline.
+showline (what):
+	show (what)
+	nl
+
+show line (what):
+	showline (what)
+
+/show (what) ↲:
+	showline (what)
+
+A simplified show function.
+(what) ^ :
+	show (what)
+
+========================================
+Just trying out a more verbal version.
+
+/an empty list :
+	{}

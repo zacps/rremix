@@ -129,7 +129,7 @@ impl<'s> Resolver<'s> {
                 self.visit_expr(index);
                 self.visit_expr(value);
             }
-            Return | Redo => (),
+            Return(_) | Redo => (),
         }
     }
 
@@ -213,7 +213,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let mut ast = HIR::Program::new(pair.unwrap());
+                let mut ast = HIR::Program::new(pair.unwrap(), false);
 
                 let symbol_table = Resolver::resolve(&mut ast);
                 let inv_symbol_table = invert(symbol_table);
@@ -289,7 +289,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let mut ast = HIR::Program::new(pair.unwrap());
+                let mut ast = HIR::Program::new(pair.unwrap(), false);
 
                 let symbol_table = Resolver::resolve(&mut ast);
                 let inv_symbol_table = invert(symbol_table);

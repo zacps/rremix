@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "remix.h"
 
 // Reobjects
@@ -11,19 +12,30 @@ ReObject new_object(ReType type)
     {
     case 0:
         size = sizeof(ReInt);
+        break;
     case 1:
         size = sizeof(ReFloat);
+        break;
     case 2:
         size = sizeof(ReString);
+        break;
     case 3:
         size = sizeof(ReList);
+        break;
     case 4:
         size = sizeof(ReBool);
+        break;
     case 5:
         size = sizeof(ReRange);
+        break;
     case 6:
         size = sizeof(ReIterator);
+        break;
+    case 7:
+        size = sizeof(ReNone);
+        break;
     default:
+        printf("unknown type in new_object");
         exit(-1);
     }
 
@@ -48,59 +60,69 @@ void create_reference(ReObject *object)
 void extend(ReObject *list, ReObject *object)
 {
 }
+
 ReObject pop(ReObject *list)
 {
+    return new_object(renone);
 }
 
 // Operators
 // =========================================
-// ReObject add(ReObject a, ReObject b)
-// {
-//     switch (a.determinant)
-//     {
-//     case reint:
-//         if (b.determinant == reint)
-//         {
-//             ReObject obj = new_object(reint);
-//             obj.object = (ReObjects){{a.object._int.data + b.object._int.data}};
-//             return obj;
-//         }
-//         exit(-1);
-//     case refloat:
-//         if (b.determinant == refloat)
-//         {
-//             ReObject obj = new_object(refloat);
-//             obj.object = (ReObjects){{a.object._float.data + b.object._float.data}};
-//             return obj;
-//         }
-//         exit(-1);
-//     case restring:
-//         if (b.determinant == restring)
-//         {
-//             return new_string(
-//                 a.object.string.data + b.object.string.data,
-//                 a.object.string.size + b.object.string.size);
-//         }
-//         break;
-//     case relist:
-//         /* code */
-//         break;
-//     default:
-//         exit(-1);
-//     }
-// }
-ReObject sub(ReObject a, ReObject b) {}
-ReObject mult(ReObject a, ReObject b) {}
-ReObject div(ReObject a, ReObject b) {}
-ReObject pow(ReObject a, ReObject b) {}
+ReObject o_sub(ReObject a, ReObject b)
+{
+    return new_object(renone);
+}
+ReObject o_mult(ReObject a, ReObject b)
+{
+    return new_object(renone);
+}
+ReObject o_div(ReObject a, ReObject b)
+{
+    return new_object(renone);
+}
+ReObject o_rpow(ReObject a, ReObject b)
+{
+    return new_object(renone);
+}
 
 // Builtins
 // =========================================
-void show(ReObject string)
+ReObject b_show(ReObject string)
 {
     if (string.determinant != restring)
     {
+        printf("tried to show a variable that wasn't a string");
         exit(-1);
     }
     printf("%.*s", string.object.string.size, string.object.string.data);
+    return new_object(renone);
+}
+
+// Constructors
+// =========================================
+
+ReObject new_string(char *data, unsigned int size)
+{
+    ReObject str = new_object(restring);
+    str.object.string.data = data;
+    str.object.string.size = size;
+    return str;
+}
+
+ReObject new_list()
+{
+    return new_list_cap(LIST_INIT_CAP);
+}
+
+ReObject new_list_cap(unsigned int cap)
+{
+    ReObject list = new_object(relist);
+    list.object.list.data = malloc(sizeof(ReObject) * cap);
+    if (list.object.list.data == NULL)
+    {
+        exit(-1);
+    }
+    list.object.list.len = 0;
+    list.object.list.cap = cap;
+    return list;
 }
