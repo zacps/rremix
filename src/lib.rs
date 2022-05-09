@@ -15,6 +15,7 @@
 
 use parser::RemixParser;
 use pest::{iterators::Pair, Parser, RuleType, Span};
+use HIR::FileSpan;
 
 /// High level intermediate representation.
 ///
@@ -28,8 +29,11 @@ pub mod parser;
 pub mod resolver;
 // Codegen
 pub mod codegen;
+// Error messages
+pub mod errors;
 
-static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
+// static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
+static STANDARD_LIB: &'static str = include_str!("standard-lib-no-parens.rem");
 static MINIMAL_STANDARD_LIB: &'static str = include_str!("standard-lib-min.rem");
 
 static C_LIB: &'static str = include_str!("remix.c");
@@ -85,11 +89,12 @@ pub fn format_pair<T: RuleType + std::fmt::Debug>(
     }
 }
 
-trait SpanExt {
+trait SpanExt<'s> {
     fn format(&self) -> String;
+    fn with_file(self, text: &'s str) -> FileSpan<'s>;
 }
 
-impl<'s> SpanExt for Span<'s> {
+impl<'s> SpanExt<'s> for Span<'s> {
     /// Format a span as a machine/human readable position.
     ///
     /// ```{line}:col..line:col```
@@ -102,5 +107,9 @@ impl<'s> SpanExt for Span<'s> {
             end.line_col().0,
             end.line_col().1
         )
+    }
+
+    fn with_file(self, text: &'s str) -> FileSpan<'s> {
+        FileSpan { span: self, text }
     }
 }

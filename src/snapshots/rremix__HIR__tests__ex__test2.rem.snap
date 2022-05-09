@@ -1,6 +1,6 @@
 ---
 source: src/HIR.rs
-assertion_line: 1178
+assertion_line: 1314
 expression: ast
 ---
 Program {
@@ -23,22 +23,26 @@ Program {
                 FunctionCall {
                     function: FunctionCall {
                         name: [
-                            Name {
-                                name: Span {
-                                    str: "show",
-                                    start: 6,
-                                    end: 10,
+                            RefCell {
+                                value: Name {
+                                    name: Span {
+                                        str: "show",
+                                        start: 6,
+                                        end: 10,
+                                    },
                                 },
                             },
-                            Expression(
-                                Unary(
-                                    Variable(
-                                        VariableID(
-                                            20000,
+                            RefCell {
+                                value: Expression(
+                                    Unary(
+                                        Variable(
+                                            VariableID(
+                                                20000,
+                                            ),
                                         ),
                                     ),
                                 ),
-                            ),
+                            },
                         ],
                         id: RefCell {
                             value: None,
@@ -57,18 +61,22 @@ Program {
                 FunctionCall {
                     function: FunctionCall {
                         name: [
-                            Name {
-                                name: Span {
-                                    str: "new",
-                                    start: 16,
-                                    end: 19,
+                            RefCell {
+                                value: Name {
+                                    name: Span {
+                                        str: "new",
+                                        start: 16,
+                                        end: 19,
+                                    },
                                 },
                             },
-                            Name {
-                                name: Span {
-                                    str: "line",
-                                    start: 20,
-                                    end: 24,
+                            RefCell {
+                                value: Name {
+                                    name: Span {
+                                        str: "line",
+                                        start: 20,
+                                        end: 24,
+                                    },
                                 },
                             },
                         ],

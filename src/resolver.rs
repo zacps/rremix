@@ -1,10 +1,19 @@
 /// This module is responsible for name resolution for functions.
-use std::{cell::RefCell, sync::Mutex};
+use std::{cell::RefCell, ops::DerefMut, process::exit, sync::Mutex};
 
 use once_cell::sync::Lazy;
 use pest::Parser;
 
-use crate::{parser::RemixParser, parser::Rule, SpanExt, HIR::*};
+use crate::{
+    errors::{
+        experimental_function_resolution_ambiguous, experimental_function_resolution_fail,
+        experimental_function_resolution_var_missing,
+    },
+    parser::RemixParser,
+    parser::Rule,
+    SpanExt,
+    HIR::*,
+};
 
 /// Names and corresponding IDs of builtin functions.
 /// These are added to the symbol table during resolution
@@ -50,6 +59,7 @@ pub static BUILTIN_SYMBOLS: Lazy<Mutex<Vec<(FunctionSignature<'static>, Function
                         .next()
                         .unwrap(),
                     &mut builtin_var_ids,
+                    &builtin,
                 ),
                 i.into(),
             ));
@@ -79,12 +89,85 @@ fn id_get<'s>(table: &SymbolTable<'s>, function_name: &FunctionCall<'s>) -> Opti
     }
 }
 
+fn id_get_experimental<'s>(
+    program: &Program<'s>,
+    table: &SymbolTable<'s>,
+    function_name: &FunctionCall<'s>,
+    scope: Scope,
+) -> Option<FunctionID> {
+    let mut matches = Vec::new();
+    for (def, id) in table {
+        if function_name.resolves_to_experimental(def) {
+            matches.push((*id, def))
+        }
+    }
+    match matches.len() {
+        1 => {
+            // Resolve any parts which were converted to variables
+            for part in &function_name.name {
+                match part.borrow_mut().deref_mut() {
+                    ref mut name @ FunctionCallPart::Defered(..) => {
+                        let span = if let FunctionCallPart::Defered(span) = name {
+                            span
+                        } else {
+                            unreachable!()
+                        };
+                        match program.find_var_scope(span.as_str(), scope) {
+                            Some(id) => *name = &mut FunctionCallPart::var(id),
+                            None => experimental_function_resolution_var_missing(
+                                span.clone().with_file(program.text),
+                                matches[0].1.span.clone(),
+                            ),
+                        }
+                    }
+                    _ => (),
+                }
+            }
+            Some(matches[0].0)
+        }
+        0 => {
+            experimental_function_resolution_fail(function_name.span.clone());
+            return None;
+        }
+        _ => {
+            // no specialisation
+            if true {
+                experimental_function_resolution_ambiguous(
+                    function_name.span.clone(),
+                    matches.iter().map(|(_, sig)| sig.span.clone()),
+                );
+                return None;
+            // specialisation
+            } else {
+                // try a definition
+                for (id, attempt) in &matches {
+                    // check that all other matches are a specialisation of that definition
+                    if matches
+                        .iter()
+                        .all(|(_, def)| attempt.is_specialisation(def))
+                    {
+                        return Some(*id);
+                    }
+                }
+                // no matched definition is a specialisation of all other matches
+                experimental_function_resolution_ambiguous(
+                    function_name.span.clone(),
+                    matches.iter().map(|(_, sig)| sig.span.clone()),
+                );
+                return None;
+            }
+        }
+    }
+}
+
 /// The `Resolver` is responsible for resolving function names.
 ///
 /// This is done as a separate pass to the initial AST construction so that
 /// there is no need to forward declare functions.
 pub struct Resolver<'s> {
     symbol_table: SymbolTable<'s>,
+    scope: Scope,
+    error: bool,
 }
 
 impl<'s> Resolver<'s> {
@@ -94,31 +177,38 @@ impl<'s> Resolver<'s> {
     pub fn resolve(program: &mut Program<'s>) -> SymbolTable<'s> {
         let mut r = Self {
             symbol_table: BUILTIN_SYMBOLS.lock().unwrap().clone(),
+            scope: Scope::Global,
+            error: false,
         };
         let symbol_table = program.symbol_table();
         r.symbol_table.extend(symbol_table);
         r.resolve_names(program);
+        if r.error {
+            exit(-1);
+        }
         r.symbol_table
     }
 
-    fn resolve_names(&self, program: &mut Program<'s>) {
-        for statement in &mut program.main {
-            self.visit_statement(statement);
+    fn resolve_names(&mut self, program: &mut Program<'s>) {
+        for statement in &program.main {
+            self.visit_statement(program, statement);
         }
         for function in &program.functions {
+            self.scope = Scope::Function(function.id);
             for statement in &function.statements {
-                self.visit_statement(statement);
+                self.visit_statement(program, statement);
             }
+            self.scope = Scope::Global;
         }
     }
 
-    fn visit_statement(&self, statement: &Statement<'s>) {
+    fn visit_statement(&mut self, program: &Program<'s>, statement: &Statement<'s>) {
         use Statement::*;
         match statement {
-            Expression(expr) => self.visit_expr(expr),
+            Expression(expr) => self.visit_expr(program, expr),
             Assignment { variable, value } => {
                 self.visit_var(variable);
-                self.visit_expr(value);
+                self.visit_expr(program, value);
             }
             ListAssignment {
                 variable,
@@ -126,14 +216,14 @@ impl<'s> Resolver<'s> {
                 value,
             } => {
                 self.visit_var(variable);
-                self.visit_expr(index);
-                self.visit_expr(value);
+                self.visit_expr(program, index);
+                self.visit_expr(program, value);
             }
             Return(_) | Redo => (),
         }
     }
 
-    pub(crate) fn visit_expr(&self, expr: &Expression<'s>) -> () {
+    pub(crate) fn visit_expr(&mut self, program: &Program<'s>, expr: &Expression<'s>) -> () {
         use Expression::*;
         match expr {
             Binary {
@@ -141,39 +231,37 @@ impl<'s> Resolver<'s> {
                 operator: _,
                 rhs,
             } => {
-                self.visit_expr(lhs);
-                self.visit_expr(rhs);
+                self.visit_expr(program, lhs);
+                self.visit_expr(program, rhs);
             }
-            Unary(unary) => self.visit_unary(unary),
+            Unary(unary) => self.visit_unary(program, unary),
         }
     }
 
     pub(crate) fn visit_var(&self, _variable: &VariableID) -> () {}
 
-    pub(crate) fn visit_unary(&self, unary: &UnaryExpression<'s>) {
+    pub(crate) fn visit_unary(&mut self, program: &Program<'s>, unary: &UnaryExpression<'s>) {
         use UnaryExpression::*;
         match unary {
             FunctionCall { function } => {
-                if let Some(_id) = id_get(&self.symbol_table, function) {
+                //let id = id_get(&self.symbol_table, function);
+                let id = id_get_experimental(program, &self.symbol_table, function, self.scope);
+                if let Some(_id) = id {
                     // map function call to function table
                     function.id.replace(Some(_id));
                 } else {
-                    panic!(
-                        "Attempted to call unknown function '{}' at {}", //The known functions are:\n{}",
-                        function,
-                        function.span.format()
-                    )
+                    self.error = true;
                 }
             }
             ListElement { variable, index } => {
                 self.visit_var(variable);
-                self.visit_expr(index);
+                self.visit_expr(program, index);
             }
             Literal(_) => {}
             Variable(_) => {}
             Block(statements) => {
                 for statement in statements {
-                    self.visit_statement(statement)
+                    self.visit_statement(program, statement)
                 }
             }
         }
@@ -213,7 +301,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let mut ast = HIR::Program::new(pair.unwrap(), false);
+                let mut ast = HIR::Program::new(&file, pair.unwrap(), false);
 
                 let symbol_table = Resolver::resolve(&mut ast);
                 let inv_symbol_table = invert(symbol_table);
@@ -289,7 +377,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let mut ast = HIR::Program::new(pair.unwrap(), false);
+                let mut ast = HIR::Program::new(&file, pair.unwrap(), false);
 
                 let symbol_table = Resolver::resolve(&mut ast);
                 let inv_symbol_table = invert(symbol_table);

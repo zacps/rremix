@@ -1,7 +1,7 @@
 use core::fmt;
 use std::collections::HashMap;
-use std::env::temp_dir;
 use std::fmt::Write as FmtWrite;
+use std::ops::Deref;
 use std::path::Path;
 use std::sync::Mutex;
 use std::{fs::File, io::Write};
@@ -120,7 +120,7 @@ impl<'s> Codegen {
         write!(
             self.c,
             "// Generated from {name} defined at {}\n",
-            name.span.format()
+            name.span.span.format()
         )?;
         write!(self.c, "ReObject func_{}(", Into::<u64>::into(id))?;
         for part in &name.name {
@@ -171,11 +171,12 @@ impl<'s> Codegen {
                 HIR::UnaryExpression::FunctionCall { function } => {
                     let mut args = Vec::new();
                     for part in &function.name {
-                        match part {
+                        match part.borrow().deref() {
                             HIR::FunctionCallPart::Name { .. } => (),
                             HIR::FunctionCallPart::Expression(expr) => {
-                                args.push(self.emit_expression(expr)?);
+                                args.push(self.emit_expression(&expr)?);
                             }
+                            HIR::FunctionCallPart::Defered(..) => todo!(),
                         }
                     }
                     let name = if function.builtin() {
@@ -344,7 +345,7 @@ mod tests {
                 let dir = tempdir().unwrap();
                 let test = dir.path().join("test.exe");
                 let pair = parse.next();
-                let mut ast = HIR::Program::new(pair.unwrap(), true);
+                let mut ast = HIR::Program::new(&file, pair.unwrap(), true);
 
                 Resolver::resolve(&mut ast);
 

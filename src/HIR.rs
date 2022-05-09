@@ -4,10 +4,10 @@ use std::{
     collections::{HashMap, HashSet},
     fmt::{Debug, Display},
     hash::Hash,
+    ops::{Deref, DerefMut},
 };
 
 use super::*;
-use derivative::Derivative;
 use pest::Span;
 
 /// An ID of a function defined in the program.
@@ -51,6 +51,18 @@ impl Display for VariableID {
     }
 }
 
+#[derive(Clone)]
+pub struct FileSpan<'s> {
+    pub text: &'s str,
+    pub span: Span<'s>,
+}
+
+impl<'s> Debug for FileSpan<'s> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.span.fmt(f)
+    }
+}
+
 /// A single 'word' in a function name, either a part of the name itself,
 /// a 'name', or a parameter.
 #[derive(Debug, Clone)]
@@ -58,6 +70,14 @@ pub enum FunctionCallPart<'s> {
     Name { name: Span<'s> },
     // This should be literal/block in future; both are 'unnamed' literals
     Expression(Expression<'s>),
+    // Defered resolution in experimental function resolution
+    Defered(Span<'s>),
+}
+
+impl<'s> FunctionCallPart<'s> {
+    pub fn var(id: VariableID) -> Self {
+        Self::Expression(Expression::unary(UnaryExpression::Variable(id)))
+    }
 }
 
 impl<'s> Display for FunctionCallPart<'s> {
@@ -65,6 +85,7 @@ impl<'s> Display for FunctionCallPart<'s> {
         match self {
             FunctionCallPart::Name { name } => f.write_str(name.as_str()),
             FunctionCallPart::Expression(_) => f.write_str("(expression)"),
+            FunctionCallPart::Defered(..) => todo!(),
         }
     }
 }
@@ -131,9 +152,11 @@ impl<'s> Display for FunctionSignaturePart<'s> {
 /// TODO: This will probably need a more compliated implementation at some point so disallow some overlapping names.
 #[derive(Debug, Clone)]
 pub struct FunctionCall<'s> {
-    pub name: Vec<FunctionCallPart<'s>>,
+    // Interior mutability to allow updating names/parameters in experimental function
+    // resolution.
+    pub name: Vec<RefCell<FunctionCallPart<'s>>>,
     pub id: RefCell<Option<FunctionID>>,
-    pub span: Span<'s>,
+    pub span: FileSpan<'s>,
 }
 
 impl<'s> FunctionCall<'s> {
@@ -146,9 +169,10 @@ impl<'s> Display for FunctionCall<'s> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         use FunctionCallPart::*;
         for name in &self.name {
-            match name {
+            match name.borrow().deref() {
                 Name { name } => f.write_str(name.as_str())?,
                 Expression(..) => f.write_str("(expression)")?,
+                Defered(..) => todo!(),
             }
             f.write_str(" ")?
         }
@@ -191,7 +215,103 @@ impl<'s> PairExt<parser::Rule> for Pair<'s, parser::Rule> {
 #[derive(Debug, Clone)]
 pub struct FunctionSignature<'s> {
     pub name: Vec<FunctionSignaturePart<'s>>,
-    pub span: Span<'s>,
+    pub span: FileSpan<'s>,
+}
+
+impl<'s> FunctionSignature<'s> {
+    /// Returns true if `self` is a specialisation of `other`.
+    pub fn is_specialisation<'t>(&self, other: &FunctionSignature<'t>) -> bool {
+        // Iterate until we find a reason to reject or traverse the full name...
+        let (mut i, mut j) = (0, 0);
+        while j < other.name.len() || i < other.name.len() {
+            // We skip advancing the reference if we fail to match against an optional parameter
+            let mut matched_l = true;
+            let mut matched_r = true;
+
+            match (self.name[i].borrow().deref(), &other.name[j]) {
+                // Corresponding name parts must match exactly
+                (
+                    FunctionSignaturePart::Name { names: names1 },
+                    FunctionSignaturePart::Name { names: names2 },
+                ) => match (names1, names2) {
+                    (Necessity::Optional(names1), Necessity::Optional(names2)) => {
+                        for (name1, name2) in names1.iter().zip(names2) {
+                            if name1.as_str() != name2.as_str() {
+                                return false;
+                            }
+                        }
+                    }
+                    (Necessity::Required(names1), Necessity::Required(names2)) => {
+                        for (name1, name2) in names1.iter().zip(names2) {
+                            if name1.as_str() != name2.as_str() {
+                                return false;
+                            }
+                        }
+                    }
+                    (Necessity::Required(names1), Necessity::Optional(names2)) => {
+                        for (name1, name2) in names1.iter().zip(names2) {
+                            if name1.as_str() != name2.as_str() {
+                                return false;
+                            }
+                        }
+                    }
+                    (Necessity::Optional(names1), Necessity::Required(names2)) => {
+                        // TODO: allow this probably
+                        for (name1, name2) in names1.iter().zip(names2) {
+                            if name1.as_str() != name2.as_str() {
+                                return false;
+                            }
+                        }
+                    }
+                },
+
+                // Name specialises a parameter
+                (
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Required(..),
+                    },
+                    FunctionSignaturePart::Parameter { .. },
+                ) => (),
+
+                // Name specialises a parameter
+                (
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Optional(..),
+                    },
+                    FunctionSignaturePart::Parameter { .. },
+                ) => matched_l = false,
+
+                // Reject
+                (
+                    FunctionSignaturePart::Parameter { .. },
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Required(..),
+                    },
+                ) => return false,
+
+                // Continue, we might match a parameter in next step
+                (
+                    FunctionSignaturePart::Parameter { .. },
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Optional(..),
+                    },
+                ) => matched_r = false,
+
+                // Corresponding parameters accept
+                (
+                    FunctionSignaturePart::Parameter { .. },
+                    FunctionSignaturePart::Parameter { .. },
+                ) => (),
+            }
+            if matched_r {
+                i += 1;
+            }
+            if matched_l {
+                j += 1;
+            }
+        }
+        i == self.name.len() && j == other.name.len()
+    }
 }
 
 impl<'s> Display for FunctionSignature<'s> {
@@ -249,7 +369,7 @@ impl<'s> FunctionCall<'s> {
                 return false;
             }
 
-            match (&self.name[i], &def.name[j]) {
+            match (self.name[i].borrow().deref(), &def.name[j]) {
                 // Corresponding name parts must match exactly
                 (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) => {
                     match names {
@@ -290,6 +410,83 @@ impl<'s> FunctionCall<'s> {
 
                 // Corresponding parameters accept
                 (FunctionCallPart::Expression(..), FunctionSignaturePart::Parameter { .. }) => (),
+                (FunctionCallPart::Defered(..), _) => panic!("unexpected"),
+            }
+            if matched {
+                i += 1;
+            }
+            j += 1;
+        }
+        i == self.name.len() && j == def.name.len()
+    }
+
+    /// Whether or not this function name should resolve to the name `def`.
+    ///
+    /// This uses an experimental algorithm described as follows:
+    /// 1.
+    pub fn resolves_to_experimental<'t>(&self, def: &FunctionSignature<'t>) -> bool {
+        // Iterate until we find a reason to reject or traverse the full name...
+        let (mut i, mut j) = (0, 0);
+        while j != def.name.len() && i != def.name.len() {
+            // We skip advancing the reference if we fail to match against an optional parameter
+            let mut matched = true;
+
+            if let None = self.name.get(i) {
+                return false;
+            }
+
+            match (self.name[i].borrow_mut().deref_mut(), &def.name[j]) {
+                // Corresponding name parts must match exactly
+                (FunctionCallPart::Name { name }, FunctionSignaturePart::Name { names }) => {
+                    match names {
+                        Necessity::Optional(names) => {
+                            if !names.iter().map(|n| n.as_str()).any(|n| n == name.as_str()) {
+                                matched = false;
+                            }
+                        }
+                        Necessity::Required(names) => {
+                            if !names.iter().map(|n| n.as_str()).any(|n| n == name.as_str()) {
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                // If we match a name which we suspect is a parameter we mark it as such but
+                // we don't resolve it yet because we don't know if this is the correct function.
+                (
+                    ref mut name @ FunctionCallPart::Name { .. },
+                    FunctionSignaturePart::Parameter { .. },
+                ) => {
+                    // In scope check here at some point?
+                    // TODO: Modify the function call to be a var?
+                    let span = if let FunctionCallPart::Name { name: span } = name {
+                        span
+                    } else {
+                        unreachable!()
+                    };
+                    *name = &mut FunctionCallPart::Defered(span.clone());
+                }
+
+                // Name in the definition and parameter in the reference always rejects
+                (
+                    FunctionCallPart::Expression(..),
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Required(..),
+                    },
+                ) => return false,
+
+                // Name in the definition and parameter in the reference always rejects
+                (
+                    FunctionCallPart::Expression(..),
+                    FunctionSignaturePart::Name {
+                        names: Necessity::Optional(..),
+                    },
+                ) => matched = false,
+
+                // Corresponding parameters accept
+                (FunctionCallPart::Expression(..), FunctionSignaturePart::Parameter { .. }) => (),
+                (FunctionCallPart::Defered(..), _) => panic!("unexpected"),
             }
             if matched {
                 i += 1;
@@ -417,6 +614,20 @@ pub enum Expression<'s> {
     Unary(Box<UnaryExpression<'s>>),
 }
 
+impl<'s> Expression<'s> {
+    fn unary(unary: UnaryExpression<'s>) -> Self {
+        Self::Unary(Box::new(unary))
+    }
+
+    fn binary(lhs: Expression<'s>, op: Operator, rhs: Expression<'s>) -> Self {
+        Self::Binary {
+            lhs: Box::new(lhs),
+            operator: op,
+            rhs: Box::new(rhs),
+        }
+    }
+}
+
 #[derive(Debug, Clone)]
 pub enum Statement<'s> {
     Assignment {
@@ -486,6 +697,7 @@ pub type Variables<'s> = HashSet<Variable<'s>>;
 /// functions defined in the program, and the 'main' method (statements)
 /// defined outside of a function.
 pub struct Program<'s> {
+    pub text: &'s str,
     pub functions: Vec<Function<'s>>,
     pub main: Vec<Statement<'s>>,
     pub global_scope: Variables<'s>,
@@ -513,24 +725,31 @@ impl<'s> Debug for Program<'s> {
     }
 }
 
-impl Program<'static> {
+impl<'s> Program<'s> {
     /// Parse the standard library into HIR
-    fn standard_library(minimal_stdlib: bool) -> Vec<Function<'static>> {
-        let tokens = if minimal_stdlib {
-            RemixParser::parse(parser::Rule::program, &MINIMAL_STANDARD_LIB)
-                .expect("Failed to parse standard library")
-                .next()
-                .unwrap()
+    fn standard_library(minimal_stdlib: bool) -> Vec<Function<'s>> {
+        let (tokens, text) = if minimal_stdlib {
+            (
+                RemixParser::parse(parser::Rule::program, &MINIMAL_STANDARD_LIB)
+                    .expect("Failed to parse standard library")
+                    .next()
+                    .unwrap(),
+                &MINIMAL_STANDARD_LIB,
+            )
         } else {
-            RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
-                .expect("Failed to parse standard library")
-                .next()
-                .unwrap()
+            (
+                RemixParser::parse(parser::Rule::program, &STANDARD_LIB)
+                    .expect("Failed to parse standard library")
+                    .next()
+                    .unwrap(),
+                &STANDARD_LIB,
+            )
         };
         let mut this = Self {
             // TODO: I'm not sure if this is the right place to inject this...
             // It's certainly not the traditional linking mechanism or flexible for imports
             // but it's probably fine for now?
+            text: text,
             functions: Vec::new(),
             main: Vec::new(),
             global_scope: HashSet::new(),
@@ -547,11 +766,12 @@ impl Program<'static> {
 
 impl<'s> Program<'s> {
     /// Build the AST from the raw parse tree.
-    pub fn new(pair: Pair<'s, parser::Rule>, minimal_stdlib: bool) -> Self {
+    pub fn new(text: &'s str, pair: Pair<'s, parser::Rule>, minimal_stdlib: bool) -> Self {
         let mut this = Self {
             // TODO: I'm not sure if this is the right place to inject this...
             // It's certainly not the traditional linking mechanism or flexible for imports
             // but it's probably fine for now?
+            text: text,
             functions: Program::standard_library(minimal_stdlib),
             main: Vec::new(),
             global_scope: HashSet::new(),
@@ -610,8 +830,13 @@ impl<'s> Program<'s> {
     }
 
     /// Attempt to find a variable in the current scope.
-    fn find_var(&mut self, name: &'s str) -> Option<VariableID> {
-        match self.current_scope {
+    fn find_var(&self, name: &'s str) -> Option<VariableID> {
+        self.find_var_scope(name, self.current_scope)
+    }
+
+    /// Attempt to find a variable in the current scope.
+    pub fn find_var_scope(&self, name: &'s str, scope: Scope) -> Option<VariableID> {
+        match scope {
             Scope::Global => self
                 .global_scope
                 .iter()
@@ -659,7 +884,7 @@ impl<'s> Program<'s> {
     /// Get a function by id.
     ///
     /// The function may not yet be complete if it was retrieved from `self.building_function`.
-    fn function(&mut self, id: FunctionID) -> Option<&Function<'s>> {
+    fn function(&self, id: FunctionID) -> Option<&Function<'s>> {
         self.functions
             .iter()
             .filter(|f| f.id == id)
@@ -710,7 +935,7 @@ impl<'s> Program<'s> {
         self.building_function = Some(Function {
             name: FunctionSignature {
                 name: Vec::new(),
-                span: Span::new("0", 0, 0).unwrap(),
+                span: Span::new("0", 0, 0).unwrap().with_file(&""),
             },
             statements: Vec::new(),
             scope: HashSet::new(),
@@ -723,7 +948,7 @@ impl<'s> Program<'s> {
                 match pair.as_rule() {
                     function_signature => {
                         this.building_function.as_mut().unwrap().name =
-                            visit_function_signature(pair, &mut this.variable_id)
+                            visit_function_signature(pair, &mut this.variable_id, this.text)
                     }
                     function_statements => {
                         for pair in pair.into_inner() {
@@ -883,15 +1108,15 @@ impl<'s> Program<'s> {
                                 ))));
                             } else {
                                 // Treat this as a function which we'll attempt to resolve later
-                                println!("created speculative function call '{}'", name);
+                                // println!("created speculative function call '{}'", name);
                                 return Ok(Expression::Unary(Box::new(
                                     UnaryExpression::FunctionCall {
                                         function: FunctionCall {
-                                            name: vec![FunctionCallPart::Name {
+                                            name: vec![RefCell::new(FunctionCallPart::Name {
                                                 name: pair.as_span(),
-                                            }],
+                                            })],
                                             id: RefCell::new(None),
-                                            span: pair.as_span(),
+                                            span: pair.as_span().with_file(self.text),
                                         },
                                     },
                                 )));
@@ -931,21 +1156,19 @@ impl<'s> Program<'s> {
         let mut name = FunctionCall {
             name: Vec::new(),
             id: RefCell::new(None),
-            span: pair.as_span(),
+            span: pair.as_span().with_file(self.text),
         };
         for pair in pair.into_inner() {
             match pair.as_rule() {
-                single_name_part => name.name.push(FunctionCallPart::Name {
+                single_name_part => name.name.push(RefCell::new(FunctionCallPart::Name {
                     name: pair.as_span(),
-                }),
-                literal => name
-                    .name
-                    .push(FunctionCallPart::Expression(Expression::Unary(Box::new(
-                        UnaryExpression::Literal(self.visit_literal(pair)?),
-                    )))),
-                expression => name
-                    .name
-                    .push(FunctionCallPart::Expression(self.visit_expression(pair))),
+                })),
+                literal => name.name.push(RefCell::new(FunctionCallPart::Expression(
+                    Expression::unary(UnaryExpression::Literal(self.visit_literal(pair)?)),
+                ))),
+                expression => name.name.push(RefCell::new(FunctionCallPart::Expression(
+                    self.visit_expression(pair),
+                ))),
                 block | newindent_block => {
                     let mut statements = Vec::new();
                     for pair in pair.into_inner() {
@@ -954,10 +1177,9 @@ impl<'s> Program<'s> {
                             _ => (),
                         }
                     }
-                    name.name
-                        .push(FunctionCallPart::Expression(Expression::Unary(Box::new(
-                            UnaryExpression::Block(statements),
-                        ))))
+                    name.name.push(RefCell::new(FunctionCallPart::Expression(
+                        Expression::unary(UnaryExpression::Block(statements)),
+                    )))
                 }
                 _ => (),
             }
@@ -965,7 +1187,7 @@ impl<'s> Program<'s> {
         assert!(
             name.name.len() > 0,
             "failed to parse function_call at {}",
-            name.span.format(),
+            name.span.span.format(),
         );
         Ok(name)
     }
@@ -1016,11 +1238,12 @@ impl<'s> Program<'s> {
 pub fn visit_function_signature<'s>(
     pair: Pair<'s, parser::Rule>,
     id_generator: &mut dyn Iterator<Item = VariableID>,
+    text: &'s str,
 ) -> FunctionSignature<'s> {
     use parser::Rule::*;
     let mut name = FunctionSignature {
         name: Vec::new(),
-        span: pair.as_span(),
+        span: pair.as_span().with_file(text),
     };
     let pair = pair.expect(function_signature);
 
@@ -1131,12 +1354,19 @@ pub trait VisitAst<'s> {
 #[cfg(test)]
 mod tests {
     use crate::parser::*;
+    use crate::SpanExt;
     use crate::HIR;
+    use crate::HIR::VariableID;
 
     use insta::assert_debug_snapshot;
     use pest::Parser;
+    use pest::Span;
     use std::fs;
     use test_case::test_case;
+
+    use super::FunctionSignature;
+    use super::FunctionSignaturePart;
+    use super::Necessity;
 
     //#[test_case("standard-lib.rem")]
     //#[test_case("ex/factorial.rem")]
@@ -1193,7 +1423,7 @@ mod tests {
         match RemixParser::parse(Rule::program, &file) {
             Ok(mut parse) => {
                 let pair = parse.next();
-                let ast = HIR::Program::new(pair.unwrap(), false);
+                let ast = HIR::Program::new(&file, pair.unwrap(), false);
 
                 // TODO: Replace with assert_snapshot when we have nicer display implementations
                 assert_debug_snapshot!(path, ast);
@@ -1203,5 +1433,54 @@ mod tests {
                 panic!("Failed to parse file {path}")
             }
         }
+    }
+
+    #[test]
+    fn test_specialisation() {
+        let length_of = FunctionSignature {
+            name: vec![
+                FunctionSignaturePart::Name {
+                    names: Necessity::Required(vec![Span::new("length", 0, 6).unwrap()]),
+                },
+                FunctionSignaturePart::Name {
+                    names: Necessity::Required(vec![Span::new("of", 0, 2).unwrap()]),
+                },
+                FunctionSignaturePart::Name {
+                    names: Necessity::Optional(vec![Span::new("the", 0, 3).unwrap()]),
+                },
+                FunctionSignaturePart::Parameter {
+                    name: Span::new("list", 0, 4).unwrap(),
+                    reference: false,
+                    id: VariableID(0),
+                },
+            ],
+            span: Span::new("", 0, 0).unwrap().with_file(""),
+        };
+
+        let list_index = FunctionSignature {
+            name: vec![
+                FunctionSignaturePart::Parameter {
+                    name: Span::new("list", 0, 4).unwrap(),
+                    reference: false,
+                    id: VariableID(0),
+                },
+                FunctionSignaturePart::Parameter {
+                    name: Span::new("index", 0, 5).unwrap(),
+                    reference: false,
+                    id: VariableID(0),
+                },
+                FunctionSignaturePart::Parameter {
+                    name: Span::new("value", 0, 5).unwrap(),
+                    reference: false,
+                    id: VariableID(0),
+                },
+            ],
+            span: Span::new("", 0, 0).unwrap().with_file(""),
+        };
+
+        assert!(
+            length_of.is_specialisation(&list_index),
+            "wasn't a specialisation"
+        );
     }
 }

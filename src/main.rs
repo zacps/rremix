@@ -44,22 +44,22 @@ fn main() {
     // Build the AST
     // This step also resolves variable names (but not functions) and resolves
     // what ambiguities we can.
-    let mut ast = Program::new(parsed.next().unwrap(), false);
+    let mut ast = Program::new(&file, parsed.next().unwrap(), false);
 
     // Resolve functions
     // This is a separate step to avoid needing forward declarations.
     Resolver::resolve(&mut ast);
 
-    // Codegen
-    // Where the magic happens. Currently we just emit C which is compiled
-    // by clang.
-    File::create("out.c")
-        .unwrap()
-        .write(
-            Codegen::new()
-                .emit_program(ast)
-                .expect("codegen failed")
-                .as_bytes(),
-        )
-        .unwrap();
+    // // Codegen
+    // // Where the magic happens. Currently we just emit C which is compiled
+    // // by clang.
+    // File::create("out.c")
+    //     .unwrap()
+    //     .write(
+    //         Codegen::new()
+    //             .emit_program(ast)
+    //             .expect("codegen failed")
+    //             .as_bytes(),
+    //     )
+    //     .unwrap();
 }
