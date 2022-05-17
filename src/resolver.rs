@@ -131,7 +131,7 @@ fn id_get_experimental<'s>(
         }
         _ => {
             // no specialisation
-            if true {
+            if !cfg!(feature = "experimental_specialisation") {
                 experimental_function_resolution_ambiguous(
                     function_name.span.clone(),
                     matches.iter().map(|(_, sig)| sig.span.clone()),
@@ -149,13 +149,13 @@ fn id_get_experimental<'s>(
                         return Some(*id);
                     }
                 }
-                // no matched definition is a specialisation of all other matches
-                experimental_function_resolution_ambiguous(
-                    function_name.span.clone(),
-                    matches.iter().map(|(_, sig)| sig.span.clone()),
-                );
-                return None;
             }
+            // no matched definition is a specialisation of all other matches
+            experimental_function_resolution_ambiguous(
+                function_name.span.clone(),
+                matches.iter().map(|(_, sig)| sig.span.clone()),
+            );
+            return None;
         }
     }
 }

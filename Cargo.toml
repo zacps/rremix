@@ -16,6 +16,10 @@ pest_derive = "2.1.0"
 tempfile = "3.3.0"
 xshell = "0.2.1"
 
+[features]
+experimental = []
+experimental_specialisation = []
+
 [dev-dependencies]
 insta = "1.13.0"
 test-case = "2.0.0"

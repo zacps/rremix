@@ -32,8 +32,10 @@ pub mod codegen;
 // Error messages
 pub mod errors;
 
-// static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
+#[cfg(feature = "experimental_specialisation")]
 static STANDARD_LIB: &'static str = include_str!("standard-lib-no-parens.rem");
+#[cfg(not(feature = "experimental_specialisation"))]
+static STANDARD_LIB: &'static str = include_str!("standard-lib.rem");
 static MINIMAL_STANDARD_LIB: &'static str = include_str!("standard-lib-min.rem");
 
 static C_LIB: &'static str = include_str!("remix.c");
