@@ -24,6 +24,24 @@ The original plan was to generate LLVM IR in a similar manner to the rust compil
 
 Error messages relating to experimental function resolution have been implemented, and produce nice suggestions supported by [codespan-reporting](https://lib.rs/crates/codespan-reporting).
 
+```
+error: ambiguous function call
+   ┌─ program:25:2
+   │
+25 │     show (what)
+   │     ^^^^^^^^^^^ this function call could refer to multiple definitions 
+   │
+   ┌─ 0:1:1
+   │
+ 1 │ show (output)
+   │ ------------- this is a possible choice
+   │
+   ┌─ 1:1:1
+   │
+ 1 │ (list) (index)
+   │ -------------- this is a possible choice
+```
+
 Other error messages produce panics.
 
 ### Testing
