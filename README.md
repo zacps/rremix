@@ -55,3 +55,9 @@ Tests can be run with
 ```
 $ cargo test
 ```
+
+to run with specialisation enabled use:
+
+```
+$ cargo test --features experimental_specialisation
+```
